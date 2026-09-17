@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
 export interface Product {
+  outOfStock?: boolean;
   id: string;
   title: string;
   price: number;
@@ -16,7 +17,9 @@ export type Category = {
   name: string;
   slug: string;
   imageUrl: string;
+  bannerUrl: string;
   icon: LucideIcon;
+  description: string;
 };
 
 

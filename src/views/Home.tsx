@@ -12,9 +12,7 @@ import { ScrollReveal } from "../components/common/ScrollReveal";
 export const Home: React.FC = () => {
   return (
     <div className="space-y-12">
-      <ScrollReveal delay={100}>
-        <HeroBanner />
-      </ScrollReveal>
+      <HeroBanner />
       <ScrollReveal delay={150}>
         <FeatureBar />
       </ScrollReveal>

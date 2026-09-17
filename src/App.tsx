@@ -6,6 +6,8 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { Home } from "./views/Home";
 import { ProductCatalog } from "./views/Shop";
 import { SearchPage } from "./views/Search";
+import { ProductDetail } from "./views/Product";
+import { CartPage } from "./views/CartView";
 export default function App() {
   return (
     <Router>
@@ -17,7 +19,9 @@ export default function App() {
                 <Route index element={<Home />} />
                 <Route path="/boutique" element={<ProductCatalog />} />
                 <Route path="/categories/:slug" element={<ProductCatalog />} />
-                <Route path="/search" element={< SearchPage/>} />
+                <Route path="/search" element={< SearchPage />} />
+                <Route path="/produit/:id" element={<ProductDetail />} />
+                <Route path="/panier" element={<CartPage />} />
               </Route>
             </Routes>
           </FavoriteProvider>

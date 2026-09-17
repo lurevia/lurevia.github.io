@@ -1,7 +1,20 @@
 import type { LucideIcon } from "lucide-react";
 
+
+export type Review = {
+  id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  date: string;
+};
+
+export type ColorVariant = {
+  label: string;
+  hex: string;
+};
+
 export interface Product {
-  outOfStock?: boolean;
   id: string;
   title: string;
   price: number;
@@ -9,6 +22,20 @@ export interface Product {
   categorySlugs: string[];
   rating?: number;
   isFavorite?: boolean;
+  outOfStock?: boolean;
+
+  description?: string;
+  longDescription?: string;
+  images?: string[];
+  sizes?: string[];
+  colors?: ColorVariant[];
+  stock?: number;
+  originalPrice?: number;
+  isNew?: boolean;
+  reviews?: Review[];
+  reviewCount?: number;
+  sku?: string;
+  tags?: string[];
 }
 
 
@@ -45,12 +72,11 @@ export interface CartItem {
 
 export interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, quantity?: number) => void; 
   removeFromCart: (productId: string) => void;
   totalItems: number;
   totalPrice: number;
 }
-
 
 export interface FavoriteContextType {
   favorites: Product[];

@@ -1,18 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FC, FormEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
 
-export const NewsletterForm: React.FC = () => {
+export const NewsletterForm: FC = () => {
   const [email, setEmail] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => {
-    if (resetTimerRef.current) {
-      clearTimeout(resetTimerRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    },
+    []
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -27,9 +29,7 @@ export const NewsletterForm: React.FC = () => {
     setStatus("success");
     setEmail("");
 
-    if (resetTimerRef.current) {
-      clearTimeout(resetTimerRef.current);
-    }
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     resetTimerRef.current = setTimeout(() => {
       setStatus("idle");
       resetTimerRef.current = null;
@@ -39,13 +39,15 @@ export const NewsletterForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex">
-        <input
+        <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Votre email"
           aria-label="Adresse email"
-          className="flex-1 px-4 py-2 rounded-l-lg bg-emerald-900/60 text-white placeholder-emerald-200/60 border border-emerald-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          autoComplete="email"
+          wrapperClassName="flex-1"
+          className="rounded-l-lg! rounded-r-none! bg-emerald-900/60! text-white! placeholder-emerald-200/60! border-emerald-800! focus:ring-orange-400!"
         />
         <Button
           type="submit"

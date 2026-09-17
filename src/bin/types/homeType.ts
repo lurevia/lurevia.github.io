@@ -76,6 +76,8 @@ export interface CartContextType {
   removeFromCart: (productId: string) => void;
   totalItems: number;
   totalPrice: number;
+  setQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
 }
 
 export interface FavoriteContextType {

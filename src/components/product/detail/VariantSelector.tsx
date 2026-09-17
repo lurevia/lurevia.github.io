@@ -1,4 +1,7 @@
 import type { FC } from "react";
+import { Ruler } from "lucide-react";
+import { Button } from "../../ui/Button";
+import { RadioGroup } from "../../ui/RadioGroup";
 import type { ColorVariant } from "../../../bin/types/homeType";
 
 type VariantSelectorProps = {
@@ -8,6 +11,7 @@ type VariantSelectorProps = {
     selectedColor: ColorVariant | null;
     onSelectSize: (size: string) => void;
     onSelectColor: (color: ColorVariant) => void;
+    onOpenSizeGuide?: () => void;
 };
 
 export const VariantSelector: FC<VariantSelectorProps> = ({
@@ -17,40 +21,35 @@ export const VariantSelector: FC<VariantSelectorProps> = ({
     selectedColor,
     onSelectSize,
     onSelectColor,
+    onOpenSizeGuide,
 }) => {
     return (
         <div className="space-y-5">
             {sizes && sizes.length > 0 && (
                 <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 gap-3">
                         <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                             Taille
                         </label>
-                        <button
+                        <Button
                             type="button"
-                            className="text-[11px] font-bold text-lurevia-orange hover:underline"
+                            variant="ghost"
+                            size="sm"
+                            icon={Ruler}
+                            onClick={onOpenSizeGuide}
+                            className="text-lurevia-orange! hover:bg-orange-50! px-2! py-1! h-auto! text-[11px]! font-bold!"
                         >
                             Guide des tailles
-                        </button>
+                        </Button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {sizes.map((size) => {
-                            const active = selectedSize === size;
-                            return (
-                                <button
-                                    key={size}
-                                    type="button"
-                                    onClick={() => onSelectSize(size)}
-                                    className={`min-w-11 h-10 text-xs font-bold rounded-xl border transition-all ${active
-                                        ? "bg-lurevia-dark text-white border-lurevia-dark shadow-sm"
-                                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                                        }`}
-                                >
-                                    {size}
-                                </button>
-                            );
-                        })}
-                    </div>
+
+                    <RadioGroup
+                        name="size"
+                        variant="capsule"
+                        value={selectedSize ?? ""}
+                        options={sizes.map((s) => ({ value: s, label: s }))}
+                        onChange={onSelectSize}
+                    />
                 </div>
             )}
 
@@ -62,31 +61,21 @@ export const VariantSelector: FC<VariantSelectorProps> = ({
                             {selectedColor?.label}
                         </span>
                     </label>
-                    <div className="flex flex-wrap gap-3">
-                        {colors.map((color) => {
-                            const active = selectedColor?.hex === color.hex;
-                            return (
-                                <button
-                                    key={color.hex}
-                                    type="button"
-                                    onClick={() => onSelectColor(color)}
-                                    aria-label={color.label}
-                                    title={color.label}
-                                    className={`h-9 w-9 rounded-full border-2 transition-all relative ${active
-                                        ? "border-lurevia-orange ring-2 ring-orange-100 scale-110"
-                                        : "border-slate-200 hover:border-slate-400"
-                                        }`}
-                                    style={{ backgroundColor: color.hex }}
-                                >
-                                    {active && (
-                                        <span className="absolute inset-0 flex items-center justify-center">
-                                            <span className="w-2 h-2 bg-white rounded-full shadow-sm mix-blend-difference" />
-                                        </span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
+
+                    <RadioGroup
+                        name="color"
+                        variant="swatch"
+                        value={selectedColor?.hex ?? ""}
+                        options={colors.map((c) => ({
+                            value: c.hex,
+                            label: c.label,
+                            color: c.hex,
+                        }))}
+                        onChange={(hex) => {
+                            const color = colors.find((c) => c.hex === hex);
+                            if (color) onSelectColor(color);
+                        }}
+                    />
                 </div>
             )}
         </div>

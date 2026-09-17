@@ -28,24 +28,49 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = useCallback((product: Product, quantity: number = 1): void => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+  const addToCart = useCallback(
+    (product: Product, quantity: number = 1): void => {
+      const qty = Math.max(1, quantity);
+      const maxStock = product.stock ?? 99;
 
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
+      setCart((prev) => {
+        const existing = prev.find((item) => item.product.id === product.id);
 
-      return [...prev, { product, quantity }];
-    });
-  }, []);
+        if (existing) {
+          const newQty = Math.min(existing.quantity + qty, maxStock);
+          return prev.map((item) =>
+            item.product.id === product.id
+              ? { ...item, quantity: newQty }
+              : item
+          );
+        }
+
+        return [...prev, { product, quantity: Math.min(qty, maxStock) }];
+      });
+    },
+    []
+  );
 
   const removeFromCart = useCallback((productId: string): void => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
+  }, []);
+
+  const setQuantity = useCallback(
+    (productId: string, quantity: number): void => {
+      setCart((prev) => {
+        if (quantity <= 0) {
+          return prev.filter((item) => item.product.id !== productId);
+        }
+        return prev.map((item) =>
+          item.product.id === productId ? { ...item, quantity } : item
+        );
+      });
+    },
+    []
+  );
+
+  const clearCart = useCallback((): void => {
+    setCart([]);
   }, []);
 
   const totalItems = useMemo(
@@ -63,8 +88,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const contextValue = useMemo(
-    () => ({ cart, addToCart, removeFromCart, totalItems, totalPrice }),
-    [cart, addToCart, removeFromCart, totalItems, totalPrice]
+    () => ({
+      cart,
+      addToCart,
+      removeFromCart,
+      setQuantity,
+      clearCart,
+      totalItems,
+      totalPrice,
+    }),
+    [
+      cart,
+      addToCart,
+      removeFromCart,
+      setQuantity,
+      clearCart,
+      totalItems,
+      totalPrice,
+    ]
   );
 
   return (

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lurevia-cyan: #00a8e8;
+  --color-lurevia-yellow: #ffcc00;
+  --color-lurevia-orange: #ff6600;
+  --color-lurevia-dark: #0c3c4c;
+
+  --animate-micro-shake: micro-shake 3s ease-in-out infinite;
+  --animate-marquee: marquee 20s linear infinite;
+}
+
+html, 
+body, 
+#root {
+  height: 100vh;
+  height: 100svh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  background-color: #f8f9fa;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+.h-screen {
+  height: 100vh !important;
+  height: 100svh !important;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes micro-shake {
+  0%, 90%, 100% { transform: translate(0, 0); }
+  92% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+  94% { transform: translate(1px, -1px) rotate(0.5deg); }
+  96% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  98% { transform: translate(1px, 1px) rotate(0.5deg); }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -43,36 +43,41 @@ export const ProductGrid: FC<ProductGridProps> = ({
         </div>
 
         <div className="flex items-center gap-4 shrink-0 select-none">
-          <Link to="/boutique">
+          <Link to="/boutique" className="flex items-center">
             <span className="md:hidden text-xs font-bold text-lurevia-dark hover:text-lurevia-orange transition-colors">
               View all
             </span>
-            <Button
-              variant="secondary"
-              icon={ArrowRight}
-              iconPosition="right"
-              className="hidden md:flex px-6! py-3! rounded-full! font-bold text-xs shadow-none hover:shadow-xs"
-            >
-              Voir toute la boutique
-            </Button>
+
+            <div className="hidden md:block">
+              <Button
+                variant="secondary"
+                icon={ArrowRight}
+                iconPosition="right"
+                className="px-6! py-3! rounded-full! font-bold text-xs shadow-none hover:shadow-xs"
+              >
+                Voir toute la boutique
+              </Button>
+            </div>
           </Link>
 
           <div className="hidden md:flex items-center gap-1.5 border-l border-slate-200 pl-4">
             <Button
               type="button"
               variant="primary"
+              size="icon"
               icon={ChevronLeft}
               onClick={() => scroll("left")}
               aria-label="Défiler à gauche"
-              className="w-9 h-9 p-0! bg-slate-100! text-slate-700! border-transparent! hover:bg-lurevia-dark! hover:text-white! rounded-full! flex items-center justify-center transition-all shadow-none"
+              className="bg-slate-100! text-slate-700! hover:bg-lurevia-dark! hover:text-white! w-9! h-9!"
             />
             <Button
               type="button"
               variant="primary"
+              size="icon"
               icon={ChevronRight}
               onClick={() => scroll("right")}
               aria-label="Défiler à droite"
-              className="w-9 h-9 p-0! bg-slate-100! text-slate-700! border-transparent! hover:bg-lurevia-dark! hover:text-white! rounded-full! flex items-center justify-center transition-all shadow-none"
+              className="bg-slate-100! text-slate-700! hover:bg-lurevia-dark! hover:text-white! w-9! h-9!"
             />
           </div>
         </div>

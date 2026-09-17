@@ -8,7 +8,6 @@ import { CategoryMobile } from "./mobile/CategoryMobile";
 export const CategorySection: FC = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12">
-      
       <div className="flex items-end justify-between mb-6 md:mb-8 pb-3 border-b border-slate-100">
         <div className="space-y-0.5">
           <h2 className="text-lg md:text-2xl font-black tracking-tight text-lurevia-dark uppercase">
@@ -23,20 +22,21 @@ export const CategorySection: FC = () => {
           <span className="md:hidden text-xs font-bold text-lurevia-dark hover:text-lurevia-orange transition-colors">
             View all
           </span>
-          <Button
-            variant="secondary"
-            icon={ArrowRight}
-            iconPosition="right"
-            className="hidden md:flex px-6! py-3! rounded-full! font-bold text-xs shadow-none hover:shadow-xs"
-          >
-            Voir toutes les catégories
-          </Button>
+
+          <div className="hidden md:block">
+            <Button
+              variant="secondary"
+              icon={ArrowRight}
+              iconPosition="right"
+              className="px-6! py-3! rounded-full! font-bold text-xs shadow-none hover:shadow-xs"
+            >
+              Voir toutes les catégories
+            </Button>
+          </div>
         </Link>
       </div>
-
       <CategoryMobile />
       <CategoryDesktop />
-
     </section>
   );
 };

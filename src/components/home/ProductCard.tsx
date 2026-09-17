@@ -2,7 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { formatAriary } from "../../bin/utils/formatAriary";
+import { getProductMainImage } from "../../bin/utils/getProductImages";
 import { Button } from "../ui/Button";
+import { ProductImage } from "../common/ProductImage";
 import { useCart } from "../../hooks/useCart";
 import { useFavorite } from "../../hooks/useFavorite";
 import type { Product } from "../../bin/types/homeType";
@@ -13,7 +15,7 @@ type ProductCardProps = {
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(
   ({ product }) => {
-    const { id, title, categorySlugs, price, imageUrl, rating = 4.7 } = product;
+    const { id, title, categorySlugs, price, rating = 4.7 } = product;
     const { addToCart } = useCart();
     const { isFavorite, toggleFavorite } = useFavorite();
 
@@ -56,23 +58,17 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
                 icon={Heart}
                 onClick={handleFavoriteClick}
                 aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
-                className={`absolute top-2 right-2 w-8 h-8 md:w-9 md:h-9 p-0! rounded-full! shadow-xs border-transparent! bg-white/90! backdrop-blur-md! hover:scale-110! hover:bg-white! z-10 ${
-                  isFav
+                className={`absolute top-2 right-2 w-8 h-8 md:w-9 md:h-9 p-0! rounded-full! shadow-xs border-transparent! bg-white/90! backdrop-blur-md! hover:scale-110! hover:bg-white! z-10 ${isFav
                     ? "text-red-500! [&_svg]:fill-red-500!"
                     : "text-slate-400! hover:text-red-500!"
-                }`}
+                  }`}
               />
 
-              <img
-                src={imageUrl}
+              <ProductImage
+                src={getProductMainImage(product)}
                 alt={title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105"
-                onError={(event: React.SyntheticEvent<HTMLImageElement>) => {
-                  const image = event.currentTarget;
-                  image.onerror = null;
-                  image.src = "/images/logo.jpeg";
-                }}
               />
             </div>
 

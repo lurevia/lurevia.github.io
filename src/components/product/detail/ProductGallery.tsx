@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import type { FC } from "react";
 import { ChevronLeft, ChevronRight, Heart, Share2 } from "lucide-react";
 import { Button } from "../../ui/Button";
+import { ProductImage } from "../../common/ProductImage";
 
-// 🎯 ÉTAPE 1 : Alignement strict des props avec les données fournies par useProductDetail() [INDEX]
 type ProductGalleryProps = {
   images: string[];
   title: string;
@@ -12,8 +12,8 @@ type ProductGalleryProps = {
   onShare?: () => void;
   isNew?: boolean;
   onSale?: boolean;
-  selectedImage: string; // Recueille l'image active globale [INDEX]
-  onSelectImage: (url: string) => void; // Recueille le setter global [INDEX]
+  selectedImage: string;
+  onSelectImage: (url: string) => void;
 };
 
 export const ProductGallery: FC<ProductGalleryProps> = ({
@@ -35,22 +35,22 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
   const currentImage = images[currentIndex] || selectedImage || images[0];
 
   const goNext = () => {
-    const nextIndex = (currentIndex + 1) % images.length;
-    onSelectImage(images[nextIndex]);
+    if (images.length === 0) return;
+    onSelectImage(images[(currentIndex + 1) % images.length]);
   };
 
   const goPrev = () => {
-    const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    onSelectImage(images[prevIndex]);
+    if (images.length === 0) return;
+    onSelectImage(images[(currentIndex - 1 + images.length) % images.length]);
   };
 
   return (
     <div className="space-y-4 text-left">
       <div className="relative group rounded-3xl overflow-hidden bg-slate-50 aspect-square border border-slate-100/60 shadow-xs">
-        <img
+        <ProductImage
           src={currentImage}
           alt={title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-103 animate-fadeIn"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 select-none">
@@ -75,18 +75,17 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
             aria-label={
               isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"
             }
-            className="bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! w-9! h-9! p-0! rounded-full! flex items-center justify-center cursor-pointer transition-transform active:scale-95"
+            className="bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! w-10! h-10!"
           >
             <Heart
               size={16}
               className={
-                isFavorite
-                  ? "text-red-500 fill-red-500"
-                  : "text-slate-700"
+                isFavorite ? "text-red-500 fill-red-500" : "text-slate-700"
               }
             />
           </Button>
 
+          {/* 🎯 Partager : utilise <Button> avec icon prop */}
           {onShare && (
             <Button
               type="button"
@@ -95,30 +94,33 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
               icon={Share2}
               onClick={onShare}
               aria-label="Partager"
-              className="bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! w-9! h-9! p-0! rounded-full! flex items-center justify-center cursor-pointer transition-transform active:scale-95"
+              className="bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! w-10! h-10!"
             />
           )}
         </div>
 
-        {/* Flèches de carrousel groupées tactiles */}
+        {/* 🎯 Flèches : <Button> avec size="icon" */}
         {images.length > 1 && (
           <>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
+              icon={ChevronLeft}
               onClick={goPrev}
               aria-label="Image précédente"
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer active:scale-90"
-            >
-              <ChevronLeft size={16} strokeWidth={2.5} />
-            </button>
-            <button
+              className="absolute! left-3! top-1/2! -translate-y-1/2! z-10! bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! opacity-0! group-hover:opacity-100! w-9! h-9! rounded-full!"
+            />
+
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
+              icon={ChevronRight}
               onClick={goNext}
               aria-label="Image suivante"
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer active:scale-90"
-            >
-              <ChevronRight size={16} strokeWidth={2.5} />
-            </button>
+              className="absolute! right-3! top-1/2! -translate-y-1/2! z-10! bg-white/90! backdrop-blur-sm! shadow-md! hover:bg-white! opacity-0! group-hover:opacity-100! w-9! h-9! rounded-full!"
+            />
           </>
         )}
       </div>
@@ -127,20 +129,19 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
         <div className="grid grid-cols-5 gap-3">
           {images.map((img, i) => {
             const isCurrentActive = i === currentIndex;
-            
+
             return (
               <button
-                key={img}
+                key={`${img}-${i}`}
                 type="button"
                 onClick={() => onSelectImage(img)}
                 aria-label={`Voir l’image ${i + 1}`}
-                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                  isCurrentActive
-                    ? "border-lurevia-orange scale-98 ring-2 ring-orange-100"
-                    : "border-slate-100 opacity-80 hover:opacity-100"
-                }`}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isCurrentActive
+                  ? "border-lurevia-orange scale-105 ring-2 ring-orange-100"
+                  : "border-slate-100 opacity-80 hover:opacity-100"
+                  }`}
               >
-                <img
+                <ProductImage
                   src={img}
                   alt={`${title} ${i + 1}`}
                   className="w-full h-full object-cover pointer-events-none select-none"

@@ -42,7 +42,6 @@ export const ProductCatalog: React.FC = () => {
 
   return (
     <div className="w-full space-y-6 md:space-y-10 pb-24 text-left">
-      {/* En-tête : pas de ScrollReveal (déjà visible en haut) */}
       <ShopHeader
         title={currentCategoryInfo.title}
         description={currentCategoryInfo.description}
@@ -51,7 +50,6 @@ export const ProductCatalog: React.FC = () => {
         breadcrumb={currentCategoryInfo.breadcrumb}
       />
 
-      {/* Barre mobile : pas de ScrollReveal (utilitaire) */}
       <div className="flex lg:hidden items-center justify-between border-b border-slate-100 pb-3 gap-3">
         <Button
           type="button"

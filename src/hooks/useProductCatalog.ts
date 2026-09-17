@@ -57,9 +57,9 @@ export const useProductCatalog = (): UseProductCatalogReturn => {
     return {
       title: foundCat?.name ?? "Boutique",
       description: foundCat?.description ?? "Découvrez nos collections exclusives.",
-      
-      imageUrl: foundCat?.bannerUrl ?? "/images/logo.jpeg", 
-      
+
+      imageUrl: foundCat?.bannerUrl ?? "/images/logo.jpeg",
+
       breadcrumb: [
         { label: "Accueil", to: "/" },
         { label: "Boutique", to: "/boutique" },

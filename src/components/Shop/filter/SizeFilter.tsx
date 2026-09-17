@@ -26,11 +26,10 @@ export const SizeFilter: FC<SizeFilterProps> = ({ filters, onChange }) => {
               key={size}
               type="button"
               onClick={() => toggle(size)}
-              className={`min-w-11 h-9 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
-                active
+              className={`min-w-11 h-9 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center ${active
                   ? "bg-lurevia-dark text-white border-lurevia-dark shadow-xs scale-105"
                   : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-              }`}
+                }`}
             >
               {size}
             </button>

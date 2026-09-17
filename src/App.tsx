@@ -8,6 +8,7 @@ import { ProductCatalog } from "./views/Shop";
 import { SearchPage } from "./views/Search";
 import { ProductDetail } from "./views/Product";
 import { CartPage } from "./views/CartView";
+import { FavoritesPage } from "./views/Favorite";
 export default function App() {
   return (
     <Router>
@@ -22,6 +23,7 @@ export default function App() {
                 <Route path="/search" element={< SearchPage />} />
                 <Route path="/produit/:id" element={<ProductDetail />} />
                 <Route path="/panier" element={<CartPage />} />
+                <Route path="/favoris" element={<FavoritesPage />} />
               </Route>
             </Routes>
           </FavoriteProvider>

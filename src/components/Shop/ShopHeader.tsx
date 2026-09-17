@@ -19,7 +19,7 @@ export const ShopHeader: FC<ShopHeaderProps> = ({
 }) => {
     return (
         <section className="w-full bg-lurevia-dark rounded-3xl overflow-hidden relative min-h-55 md:h-64 flex items-center shadow-lg group">
-            
+
             <img
                 src={imageUrl}
                 alt=""

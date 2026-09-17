@@ -4,7 +4,7 @@ import { useCart } from "./useCart";
 /** Règles business */
 const FREE_SHIPPING_THRESHOLD = 200_000;
 const SHIPPING_COST = 15_000;
-const VAT_RATE = 0.2;  
+const VAT_RATE = 0.2;
 
 export type CartSummaryData = {
   subtotal: number;

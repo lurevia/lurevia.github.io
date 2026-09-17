@@ -40,13 +40,13 @@ export const useBottomNav = (): UseBottomNavReturn => {
     const homeLink = NAV_LINKS.find((link) => link.to === "/");
     const baseItem: BottomNavItem[] = homeLink
       ? [
-          {
-            to: homeLink.to,
-            label: homeLink.label,
-            icon: homeLink.icon,
-            badge: undefined,
-          },
-        ]
+        {
+          to: homeLink.to,
+          label: homeLink.label,
+          icon: homeLink.icon,
+          badge: undefined,
+        },
+      ]
       : [];
 
     return [

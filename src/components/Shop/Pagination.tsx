@@ -37,7 +37,7 @@ export const Pagination: FC<PaginationProps> = ({
 
       {pages.map((page) => {
         const isActive = page === currentPage;
-        
+
         return (
           <Button
             key={page}
@@ -45,11 +45,10 @@ export const Pagination: FC<PaginationProps> = ({
             variant={isActive ? "primary" : "secondary"}
             onClick={() => onChange(page)}
             aria-label={`Aller à la page ${page}`}
-            className={`w-8! h-8! p-0! rounded-full! text-xs font-black transition-all flex items-center justify-center cursor-pointer shadow-none ${
-              isActive
+            className={`w-8! h-8! p-0! rounded-full! text-xs font-black transition-all flex items-center justify-center cursor-pointer shadow-none ${isActive
                 ? "bg-lurevia-dark! text-white! shadow-md! shadow-lurevia-dark/20 scale-105"
                 : "bg-slate-100! text-slate-600! border-transparent! hover:bg-slate-200!"
-            }`}
+              }`}
           >
             {page}
           </Button>

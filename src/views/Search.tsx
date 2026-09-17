@@ -10,8 +10,8 @@ export const SearchPage: FC = () => {
 
   const results = query
     ? MOCK_PRODUCTS.filter((p) =>
-        p.title.toLowerCase().includes(query.toLowerCase())
-      )
+      p.title.toLowerCase().includes(query.toLowerCase())
+    )
     : [];
 
   return (

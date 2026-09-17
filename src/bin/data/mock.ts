@@ -1,5 +1,6 @@
 import type { Product } from "../types/homeType";
 
+export const FALLBACK_IMAGE = "/images/logo.jpeg";
 
 export const MOCK_PRODUCTS: Product[] = [
   // =========================================================================

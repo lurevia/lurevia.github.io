@@ -28,11 +28,10 @@ export const ColorFilter: FC<ColorFilterProps> = ({ filters, onChange }) => {
               onClick={() => toggle(hex)}
               aria-label={label}
               title={label}
-              className={`h-6 w-6 rounded-full border-2 transition-all cursor-pointer relative flex items-center justify-center ${
-                active
+              className={`h-6 w-6 rounded-full border-2 transition-all cursor-pointer relative flex items-center justify-center ${active
                   ? "border-lurevia-orange scale-110 ring-2 ring-orange-100"
                   : "border-slate-100 shadow-xs hover:scale-105"
-              }`}
+                }`}
               style={{ backgroundColor: hex }}
             >
               {active && (

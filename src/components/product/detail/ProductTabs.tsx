@@ -29,19 +29,17 @@ export const ProductTabs: FC<ProductTabsProps> = ({ product }) => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`relative px-5 py-3 text-xs md:text-sm font-black uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer ${
-                active
+              className={`relative px-5 py-3 text-xs md:text-sm font-black uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer ${active
                   ? "text-lurevia-dark"
                   : "text-slate-400 hover:text-slate-600"
-              }`}
+                }`}
             >
               {tab.label}
               {typeof tab.count === "number" && tab.count > 0 && (
-                <span className={`ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded-full transition-colors ${
-                  active 
-                    ? "bg-lurevia-dark text-white" 
+                <span className={`ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded-full transition-colors ${active
+                    ? "bg-lurevia-dark text-white"
                     : "bg-slate-100 text-slate-500"
-                }`}>
+                  }`}>
                   {tab.count}
                 </span>
               )}

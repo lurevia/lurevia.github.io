@@ -42,8 +42,8 @@ export const VariantSelector: FC<VariantSelectorProps> = ({
                                     type="button"
                                     onClick={() => onSelectSize(size)}
                                     className={`min-w-11 h-10 text-xs font-bold rounded-xl border transition-all ${active
-                                            ? "bg-lurevia-dark text-white border-lurevia-dark shadow-sm"
-                                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                                        ? "bg-lurevia-dark text-white border-lurevia-dark shadow-sm"
+                                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
                                         }`}
                                 >
                                     {size}
@@ -73,8 +73,8 @@ export const VariantSelector: FC<VariantSelectorProps> = ({
                                     aria-label={color.label}
                                     title={color.label}
                                     className={`h-9 w-9 rounded-full border-2 transition-all relative ${active
-                                            ? "border-lurevia-orange ring-2 ring-orange-100 scale-110"
-                                            : "border-slate-200 hover:border-slate-400"
+                                        ? "border-lurevia-orange ring-2 ring-orange-100 scale-110"
+                                        : "border-slate-200 hover:border-slate-400"
                                         }`}
                                     style={{ backgroundColor: color.hex }}
                                 >

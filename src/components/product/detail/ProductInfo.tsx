@@ -82,8 +82,8 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
       <div className="flex flex-wrap gap-2.5 pt-2 select-none">
         {typeof stock === "number" && (
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${stock > 0
-              ? "bg-emerald-50/50 border-emerald-100 text-emerald-600"
-              : "bg-red-50/50 border-red-100 text-red-500"
+            ? "bg-emerald-50/50 border-emerald-100 text-emerald-600"
+            : "bg-red-50/50 border-red-100 text-red-500"
             }`}>
             <Package size={12} strokeWidth={2.5} />
             <span>

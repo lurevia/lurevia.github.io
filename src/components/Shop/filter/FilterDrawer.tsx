@@ -24,9 +24,8 @@ export const FilterDrawer: FC<FilterDrawerProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white z-50 lg:hidden shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white z-50 lg:hidden shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         aria-hidden={!isOpen}
       >
         <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-4 border-b border-slate-100">

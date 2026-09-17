@@ -21,7 +21,6 @@ export const FilterSidebar: FC<FilterSidebarProps> = (props) => {
 
   return (
     <aside className="bg-white border border-slate-100 rounded-3xl p-6 shadow-xs space-y-6 text-left">
-      {/* En-tête */}
       <div className="flex items-center justify-between border-b border-slate-50 pb-3">
         <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider">
           Filtres
@@ -36,7 +35,6 @@ export const FilterSidebar: FC<FilterSidebarProps> = (props) => {
         </button>
       </div>
 
-      {/* Filtres */}
       {isGlobalShop && (
         <CategoryFilter
           filters={filters}

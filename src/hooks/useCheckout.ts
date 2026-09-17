@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useCart } from "./useCart";
+import { useAuth } from "./useAuth";
+import { useOrders } from "./useOrders";
 import type {
   CheckoutState,
   PaymentMethod,
   ShippingAddress,
-  Order,
 } from "../bin/types/checkoutType";
+import type { Order } from "../bin/types/orderType";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTES
@@ -96,6 +98,8 @@ export type UseCheckoutReturn = {
 
 export const useCheckout = (): UseCheckoutReturn => {
   const { cart, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
+  const { addOrder } = useOrders();
 
   // ─── STATE INITIAL AVEC PERSISTANCE ───
   const [state, setState] = useState<CheckoutState>(buildInitialState);
@@ -159,6 +163,7 @@ export const useCheckout = (): UseCheckoutReturn => {
       card: { ...prev.card, [field]: value },
     }));
 
+  // ─── RESET ADRESSE ───
   const clearSavedShipping = (): void => {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -166,14 +171,11 @@ export const useCheckout = (): UseCheckoutReturn => {
       console.error("Impossible d'effacer l'adresse sauvegardée.", error);
     }
 
-    setState((prev) => ({
-      ...prev,
-      shipping: INITIAL_SHIPPING,
-    }));
-
+    setState((prev) => ({ ...prev, shipping: INITIAL_SHIPPING }));
     setErrors({});
   };
 
+  // ─── VALIDATION SHIPPING ───
   const validateShipping = (): boolean => {
     const newErrors: Partial<Record<keyof ShippingAddress, string>> = {};
     const { fullName, phone, email, address, city, region } = state.shipping;
@@ -216,27 +218,33 @@ export const useCheckout = (): UseCheckoutReturn => {
       );
     }
 
-    return true;
+    return true; // cash
   };
 
-  // ─── SUBMIT + SAUVEGARDE ADRESSE ───
+  // ─── SUBMIT ───
   const submitOrder = (): void => {
     if (!validatePayment()) return;
     if (!state.paymentMethod) return;
+    if (!user) return;
+    if (cart.length === 0) return;
 
     const order: Order = {
       id: `ORD-${Date.now()}`,
+      userId: user.id,
       items: [...cart],
       shipping: { ...state.shipping },
       paymentMethod: state.paymentMethod,
+      subtotal,
+      shippingCost,
       total,
+      status: "paid",
       createdAt: new Date().toISOString(),
     };
 
-    // 🔌 À remplacer par un appel API réel
-    console.log("[CHECKOUT] Commande créée :", order);
+    // 💾 Enregistre la commande + la transaction dans le contexte
+    addOrder(order);
 
-    // 💾 Sauvegarde de l'adresse pour la prochaine commande
+    // 💾 Sauvegarde l'adresse pour la prochaine commande
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.shipping));
     } catch (error) {
@@ -248,6 +256,7 @@ export const useCheckout = (): UseCheckoutReturn => {
     setState((prev) => ({ ...prev, step: 3 }));
   };
 
+  // ─── RETURN ───
   return {
     state,
     errors,

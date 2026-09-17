@@ -2,8 +2,8 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
-import type { Order } from "../../bin/types/checkoutType";
 import { formatAriary } from "../../bin/utils/formatAriary";
+import type { Order } from "../../bin/types/orderType";
 
 type OrderSuccessProps = {
   order: Order;

@@ -29,12 +29,3 @@ export interface CheckoutState {
   mobileMoney: MobileMoneyDetails;
   card: CardDetails;
 }
-
-export interface Order {
-  id: string;
-  items: import("./homeType").CartItem[];
-  shipping: ShippingAddress;
-  paymentMethod: PaymentMethod;
-  total: number;
-  createdAt: string;
-}

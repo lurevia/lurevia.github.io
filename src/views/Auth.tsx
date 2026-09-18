@@ -61,7 +61,6 @@ export const AuthPage: FC = () => {
                     </p>
                 </div>
 
-                {/* 🎯 Bandeau raison (si redirection depuis une page protégée) */}
                 {reason && (
                     <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2">
                         <Info size={14} className="text-amber-600 shrink-0 mt-0.5" />

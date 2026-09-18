@@ -1,119 +1,115 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-// ─── Providers ───
-import { AuthProvider } from "./context/AuthContext";
-import { UIProvider } from "./context/UIContext";
-import { CartProvider } from "./context/CartContext";
-import { FavoriteProvider } from "./context/favoriteContexte";
-import { OrdersProvider } from "./context/OrdersContext";
-import { AddressesProvider } from "./context/AddressesContext";
-import { ReviewsProvider } from "./context/ReviewsContext";
-import { NotificationsProvider } from "./context/NotificationsContext";
-import { FeedbackProvider } from "./context/FeedbackContext";
-
-// ─── Layout + Guards ───
-import { MainLayout } from "./components/layout/MainLayout";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { AppProviders } from "./app/AppProviders";
 import { AccountLayout } from "./components/account/AccountLayout";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { MainLayout } from "./components/layout/MainLayout";
 
-// ─── Pages publiques ───
-import { Home } from "./views/Home";
-import { ProductCatalog } from "./views/Shop";
-import { SearchPage } from "./views/Search";
-import { ProductDetail } from "./views/Product";
-import { CartPage } from "./views/CartView";
-import { FavoritesPage } from "./views/Favorite";
-import { AuthPage } from "./views/Auth";
-import { ServiceFeedbackPage } from "./views/ServiceFeedbackPage";
+const Home = lazy(() => import("./views/Home").then((module) => ({ default: module.Home })));
+const ProductCatalog = lazy(() =>
+  import("./views/Shop").then((module) => ({ default: module.ProductCatalog }))
+);
+const SearchPage = lazy(() =>
+  import("./views/Search").then((module) => ({ default: module.SearchPage }))
+);
+const ProductDetail = lazy(() =>
+  import("./views/Product").then((module) => ({ default: module.ProductDetail }))
+);
+const CartPage = lazy(() =>
+  import("./views/CartView").then((module) => ({ default: module.CartPage }))
+);
+const FavoritesPage = lazy(() =>
+  import("./views/Favorite").then((module) => ({ default: module.FavoritesPage }))
+);
+const AuthPage = lazy(() =>
+  import("./views/Auth").then((module) => ({ default: module.AuthPage }))
+);
+const ServiceFeedbackPage = lazy(() =>
+  import("./views/ServiceFeedbackPage").then((module) => ({
+    default: module.ServiceFeedbackPage,
+  }))
+);
+const CheckoutPage = lazy(() =>
+  import("./views/Checkout").then((module) => ({ default: module.CheckoutPage }))
+);
+const ProfilePage = lazy(() =>
+  import("./views/account/Profile").then((module) => ({ default: module.ProfilePage }))
+);
+const OrdersPage = lazy(() =>
+  import("./views/account/OrdersPage").then((module) => ({ default: module.OrdersPage }))
+);
+const AccountFavoritesPage = lazy(() =>
+  import("./views/account/AccountFavorites").then((module) => ({
+    default: module.AccountFavoritesPage,
+  }))
+);
+const AddressesPage = lazy(() =>
+  import("./views/account/Addresses").then((module) => ({ default: module.AddressesPage }))
+);
+const NotificationsPage = lazy(() =>
+  import("./views/account/NotificationsPage").then((module) => ({
+    default: module.NotificationsPage,
+  }))
+);
+const UserReviewsPage = lazy(() =>
+  import("./views/account/UserReviewsPage").then((module) => ({
+    default: module.UserReviewsPage,
+  }))
+);
 
-// ─── Pages protégées ───
-import { CheckoutPage } from "./views/Checkout";
-
-// ─── Sous-pages compte ───
-import { ProfilePage } from "./views/account/Profile";
-import { OrdersPage } from "./views/account/OrdersPage";
-import { AccountFavoritesPage } from "./views/account/AccountFavorites";
-import { AddressesPage } from "./views/account/Addresses";
-import { NotificationsPage } from "./views/account/NotificationsPage";
-import { UserReviewsPage } from "./views/account/UserReviewsPage";
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center" role="status">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+      <span className="sr-only">Chargement de la page</span>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <UIProvider>
-          <CartProvider>
-            <FavoriteProvider>
-              <OrdersProvider>
-                <AddressesProvider>
-                  <ReviewsProvider>
-                    <NotificationsProvider>
-                      <FeedbackProvider>
-                        <Routes>
-                          <Route path="/" element={<MainLayout />}>
-                            <Route index element={<Home />} />
-                            <Route path="/boutique" element={<ProductCatalog />} />
-                            <Route
-                              path="/categories/:slug"
-                              element={<ProductCatalog />}
-                            />
-                            <Route path="/search" element={<SearchPage />} />
-                            <Route
-                              path="/produit/:id"
-                              element={<ProductDetail />}
-                            />
-                            <Route path="/panier" element={<CartPage />} />
-                            <Route path="/favoris" element={<FavoritesPage />} />
-                            <Route path="/auth" element={<AuthPage />} />
-                            <Route
-                              path="/feedback"
-                              element={<ServiceFeedbackPage />}
-                            />
-
-                            <Route
-                              path="/checkout"
-                              element={
-                                <ProtectedRoute reason="Connectez-vous pour finaliser votre commande.">
-                                  <CheckoutPage />
-                                </ProtectedRoute>
-                              }
-                            />
-
-                            <Route
-                              path="/compte"
-                              element={
-                                <ProtectedRoute reason="Connectez-vous pour accéder à votre espace.">
-                                  <AccountLayout />
-                                </ProtectedRoute>
-                              }
-                            >
-                              <Route index element={<ProfilePage />} />
-                              <Route path="commandes" element={<OrdersPage />} />
-                              <Route
-                                path="favoris"
-                                element={<AccountFavoritesPage />}
-                              />
-                              <Route
-                                path="adresses"
-                                element={<AddressesPage />}
-                              />
-                              <Route
-                                path="notifications"
-                                element={<NotificationsPage />}
-                              />
-                              <Route path="avis" element={<UserReviewsPage />} />
-                            </Route>
-                          </Route>
-                        </Routes>
-                      </FeedbackProvider>
-                    </NotificationsProvider>
-                  </ReviewsProvider>
-                </AddressesProvider>
-              </OrdersProvider>
-            </FavoriteProvider>
-          </CartProvider>
-        </UIProvider>
-      </AuthProvider>
+      <AppProviders>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="boutique" element={<ProductCatalog />} />
+              <Route path="categories/:slug" element={<ProductCatalog />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="produit/:id" element={<ProductDetail />} />
+              <Route path="panier" element={<CartPage />} />
+              <Route path="favoris" element={<FavoritesPage />} />
+              <Route path="auth" element={<AuthPage />} />
+              <Route path="feedback" element={<ServiceFeedbackPage />} />
+              <Route
+                path="checkout"
+                element={
+                  <ProtectedRoute reason="Connectez-vous pour finaliser votre commande.">
+                    <CheckoutPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="compte"
+                element={
+                  <ProtectedRoute reason="Connectez-vous pour accéder à votre espace.">
+                    <AccountLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<ProfilePage />} />
+                <Route path="commandes" element={<OrdersPage />} />
+                <Route path="favoris" element={<AccountFavoritesPage />} />
+                <Route path="adresses" element={<AddressesPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="avis" element={<UserReviewsPage />} />
+              </Route>
+            </Route>
+          </Routes>
+        </Suspense>
+      </AppProviders>
     </Router>
   );
 }

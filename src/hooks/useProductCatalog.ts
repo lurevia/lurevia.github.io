@@ -85,9 +85,9 @@ export const useProductCatalog = (): UseProductCatalogReturn => {
     );
 
     if (filters.availability === "in-stock") {
-      result = result.filter((p) => !(p as any).outOfStock);
+      result = result.filter((p) => !p.outOfStock);
     } else if (filters.availability === "out-of-stock") {
-      result = result.filter((p) => (p as any).outOfStock);
+      result = result.filter((p) => p.outOfStock);
     }
 
     switch (filters.sortBy) {

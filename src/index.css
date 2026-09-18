@@ -10,15 +10,16 @@
   --animate-marquee: marquee 20s linear infinite;
 }
 
-html, 
+html,
 body, 
 #root {
-  height: 100vh;
-  height: 100svh;
-  width: 100vw;
+  min-height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
@@ -32,13 +33,17 @@ body {
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
-.h-screen {
-  height: 100vh !important;
-  height: 100svh !important;
-}
-
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 .scrollbar-none {
   -ms-overflow-style: none;

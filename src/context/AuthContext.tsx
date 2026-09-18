@@ -60,8 +60,16 @@ const writeSession = (userId: string | null): void => {
 
 /** Filtre les données publiques de l'utilisateur (sans passwordHash) */
 const toPublicUser = (stored: StoredUser): User => {
-    const { passwordHash: _passwordHash, primaryIdentifier: _pi, ...user } = stored;
-    return user;
+    const {
+        id,
+        fullName,
+        email,
+        phone,
+        avatarUrl,
+        createdAt,
+        lastLoginAt,
+    } = stored;
+    return { id, fullName, email, phone, avatarUrl, createdAt, lastLoginAt };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

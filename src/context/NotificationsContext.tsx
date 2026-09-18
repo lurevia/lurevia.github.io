@@ -25,6 +25,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     const { getUserReviewForProduct } = useReviews();
 
     const [readIds, setReadIds] = useState<string[]>(readReadIds);
+    const [currentTime] = useState(() => Date.now());
 
     useEffect(() => {
         try {
@@ -37,7 +38,6 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     const notifications = useMemo<AppNotification[]>(() => {
         if (!user) return [];
 
-        const now = Date.now();
         const delayMs = REVIEW_DELAY_DAYS * 24 * 60 * 60 * 1000;
         const list: AppNotification[] = [];
 
@@ -69,7 +69,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
             }
 
             const eligibleAt = orderTime + delayMs;
-            if (now >= eligibleAt) {
+            if (currentTime >= eligibleAt) {
                 for (const item of order.items) {
                     const alreadyReviewed = getUserReviewForProduct(item.product.id);
                     if (alreadyReviewed) continue;
@@ -92,7 +92,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
 
         // Tri : plus récents d'abord
         return list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    }, [user, orders, getUserReviewForProduct, readIds]);
+    }, [currentTime, user, orders, getUserReviewForProduct, readIds]);
 
     const unreadCount = useMemo(
         () => notifications.filter((n) => !n.read).length,

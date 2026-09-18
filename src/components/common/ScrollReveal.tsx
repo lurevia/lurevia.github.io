@@ -66,21 +66,17 @@ export const ScrollReveal: FC<ScrollRevealProps> = ({
   className = "",
   as: Tag = "div",
 }) => {
-  const ref = useRef<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReducedMotion) {
-      setIsVisible(true);
-      return;
-    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -102,7 +98,9 @@ export const ScrollReveal: FC<ScrollRevealProps> = ({
 
   return (
     <Tag
-      ref={ref}
+      ref={(node: HTMLElement | null) => {
+        ref.current = node;
+      }}
       className={`will-change-transform ${className}`}
       style={{
         opacity: isVisible ? 1 : 0,

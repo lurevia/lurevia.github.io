@@ -12,7 +12,6 @@ import { Button } from "../ui/Button";
 import { NavbarSearch } from "./nav/Search";
 import { NavbarLinkIcon } from "./nav/NavBarLinkIcon";
 import { NavbarAccount } from "./nav/NavbarAccount";
-import { BottomNav } from "./nav/BottomNav";
 import { NavbarSidebar } from "./nav/Sidebar";
 
 export const Navbar: FC = () => {
@@ -90,7 +89,6 @@ export const Navbar: FC = () => {
       </header>
 
       <NavbarSidebar isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-      <BottomNav />
     </>
   );
 };

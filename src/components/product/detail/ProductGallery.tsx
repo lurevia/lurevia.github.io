@@ -85,7 +85,6 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
             />
           </Button>
 
-          {/* 🎯 Partager : utilise <Button> avec icon prop */}
           {onShare && (
             <Button
               type="button"
@@ -99,7 +98,6 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
           )}
         </div>
 
-        {/* 🎯 Flèches : <Button> avec size="icon" */}
         {images.length > 1 && (
           <>
             <Button

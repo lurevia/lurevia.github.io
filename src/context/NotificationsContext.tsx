@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
 import { useReviews } from "../hooks/useReviews";
 import type { AppNotification } from "../bin/types/notificationType";
+import { REVIEW_DELAY_DAYS } from "../bin/utils/constant/constant";
 
 const STORAGE_KEY = "lurevia_notifications_read";
 
@@ -17,7 +18,6 @@ const readReadIds = (): string[] => {
     }
 };
 
-const REVIEW_DELAY_DAYS = 0;
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useAuth();

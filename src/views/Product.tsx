@@ -18,10 +18,8 @@ export const ProductDetail: FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  /** 🎯 Flag : on doit ouvrir l'onglet Avis */
   const [openReviews, setOpenReviews] = useState(false);
 
-  /** 🎯 Flag : on doit ouvrir automatiquement le formulaire d'avis */
   const [autoOpenReviewForm, setAutoOpenReviewForm] = useState(false);
 
   const {
@@ -40,9 +38,6 @@ export const ProductDetail: FC = () => {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorite();
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // 🎯 Détection de #reviews et ?review=1
-  // ─────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const hashWantsReviews = location.hash === "#reviews";
     const queryWantsReview = searchParams.get("review") === "1";
@@ -55,7 +50,6 @@ export const ProductDetail: FC = () => {
       setAutoOpenReviewForm(true);
     }
 
-    // Scroll vers la section avis après le rendu
     if (hashWantsReviews || queryWantsReview) {
       const timer = setTimeout(() => {
         document.getElementById("reviews")?.scrollIntoView({
@@ -67,7 +61,6 @@ export const ProductDetail: FC = () => {
     }
   }, [location.hash, searchParams]);
 
-  // Garde : produit introuvable → redirection
   if (!product) {
     return <Navigate to="/boutique" replace />;
   }
@@ -82,7 +75,6 @@ export const ProductDetail: FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 space-y-10">
-      {/* Fil d'Ariane */}
       <nav
         aria-label="Fil d’Ariane"
         className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider"
@@ -101,9 +93,7 @@ export const ProductDetail: FC = () => {
         <span className="text-lurevia-dark truncate">{product.title}</span>
       </nav>
 
-      {/* Layout principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Galerie */}
         <ProductGallery
           images={images}
           title={product.title}
@@ -115,7 +105,6 @@ export const ProductDetail: FC = () => {
           onSelectImage={setSelectedImage}
         />
 
-        {/* Infos + actions */}
         <div className="space-y-6">
           <ProductInfo product={product} />
 
@@ -138,7 +127,6 @@ export const ProductDetail: FC = () => {
             outOfStock={product.outOfStock ?? false}
           />
 
-          {/* Réassurance */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-100">
             <ReassuranceItem
               icon={Truck}
@@ -165,10 +153,8 @@ export const ProductDetail: FC = () => {
         autoOpenReviewForm={autoOpenReviewForm}
       />
 
-      {/* Produits similaires */}
       <RelatedProducts currentProduct={product} />
 
-      {/* Espace pour la BottomNav mobile */}
       <div className="h-20 md:hidden" />
     </div>
   );

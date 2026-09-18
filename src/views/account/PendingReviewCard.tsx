@@ -21,7 +21,6 @@ export const PendingReviewCard: FC<PendingReviewCardProps> = ({
 
   return (
     <article className="flex gap-3 p-4 bg-white border border-slate-100 rounded-2xl">
-      {/* Image */}
       <Link
         to={`/produit/${product.id}`}
         className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-slate-50 shrink-0"
@@ -33,7 +32,6 @@ export const PendingReviewCard: FC<PendingReviewCardProps> = ({
         />
       </Link>
 
-      {/* Contenu */}
       <div className="flex-1 min-w-0 flex flex-col justify-between">
         <div>
           <Link

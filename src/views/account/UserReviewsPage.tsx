@@ -22,17 +22,17 @@ import type { ProductReview } from "../../bin/types/reviewType";
 import { MyReviewCard } from "./MyReviewCard";
 import { MyFeedbackCard } from "./MyFeedbackCard";
 import { PendingReviewCard } from "./PendingReviewCard";
+import { REVIEW_DELAY_DAYS } from "../../bin/utils/constant/constant";
 
 type Tab = "pending" | "product-reviews" | "service-feedback";
 
-/** Résultat du calcul des avis en attente */
 type PendingReview = {
   product: Product;
   daysRemaining: number;
   availableAt: string;
 };
 
-const REVIEW_DELAY_DAYS = 0;
+
 
 export const UserReviewsPage: FC = () => {
   const { user } = useAuth();
@@ -45,7 +45,6 @@ export const UserReviewsPage: FC = () => {
 
   const [tab, setTab] = useState<Tab>("pending");
 
-  /** 🎯 Calcule les produits en attente d'avis */
   const pendingReviews = useMemo<PendingReview[]>(() => {
     if (!user) return [];
 
@@ -82,7 +81,6 @@ export const UserReviewsPage: FC = () => {
     return result;
   }, [user, orders, getUserReviewForProduct]);
 
-  /** 🎯 Mes avis produits (avec le produit complet pour l'affichage) */
   const myProductReviews = useMemo<
     { review: ProductReview; product: Product }[]
   >(() => {
@@ -113,21 +111,18 @@ export const UserReviewsPage: FC = () => {
     );
   }, [user, orders, getUserReviewForProduct]);
 
-  /** Suppression d'un avis produit */
   const handleDeleteReview = (reviewId: string) => {
     if (window.confirm("Supprimer cet avis définitivement ?")) {
       deleteReview(reviewId);
     }
   };
 
-  /** Suppression d'un feedback service */
   const handleDeleteFeedback = (id: string) => {
     if (window.confirm("Supprimer ce feedback ?")) {
       deleteFeedback(id);
     }
   };
 
-  // Compteurs pour les onglets
   const counts = {
     pending: pendingReviews.length,
     productReviews: myProductReviews.length,
@@ -159,7 +154,6 @@ export const UserReviewsPage: FC = () => {
       },
     ];
 
-  /** Rendu du contenu de l'onglet actif */
   const renderContent = () => {
     switch (tab) {
       case "pending":
@@ -222,7 +216,6 @@ export const UserReviewsPage: FC = () => {
                 key={fb.id}
                 feedback={fb}
                 onEdit={() => {
-                  // Redirige vers la page feedback pour édition
                   window.location.href = "/feedback";
                 }}
                 onDelete={() => handleDeleteFeedback(fb.id)}
@@ -235,7 +228,6 @@ export const UserReviewsPage: FC = () => {
 
   return (
     <>
-      {/* En-tête */}
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-lurevia-dark">
           Mes avis & feedbacks
@@ -249,7 +241,6 @@ export const UserReviewsPage: FC = () => {
         </p>
       </div>
 
-      {/* Bannière informative */}
       <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
         <div className="p-2 bg-white rounded-lg shrink-0">
           <Clock size={14} className="text-lurevia-orange" />
@@ -262,7 +253,6 @@ export const UserReviewsPage: FC = () => {
         </p>
       </div>
 
-      {/* Tabs */}
       {total > 0 && (
         <div className="flex gap-1 overflow-x-auto pb-1">
           {TABS.map((t) => {
@@ -296,13 +286,11 @@ export const UserReviewsPage: FC = () => {
         </div>
       )}
 
-      {/* Contenu */}
       {renderContent()}
     </>
   );
 };
 
-/** État vide réutilisable */
 const EmptyState: FC<{
   icon: typeof Star;
   title: string;

@@ -39,7 +39,6 @@ export const ServiceFeedbackPage: FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-10 space-y-6">
-      {/* En-tête */}
       <header className="text-center space-y-3">
         <h1 className="text-2xl md:text-3xl font-black text-lurevia-dark">
           Votre avis compte
@@ -62,7 +61,6 @@ export const ServiceFeedbackPage: FC = () => {
         )}
       </header>
 
-      {/* Action */}
       {isAuthenticated && !isFormOpen && !editing && (
         <div className="text-center">
           <Button
@@ -93,7 +91,6 @@ export const ServiceFeedbackPage: FC = () => {
         </div>
       )}
 
-      {/* Message si non connecté */}
       {!isAuthenticated && (
         <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl text-center">
           <p className="text-xs font-bold text-amber-800">
@@ -102,7 +99,6 @@ export const ServiceFeedbackPage: FC = () => {
         </div>
       )}
 
-      {/* Tabs */}
       {allFeedbacks.length > 0 && (
         <div className="flex gap-1 bg-slate-100 rounded-2xl p-1">
           {(["all", "mine"] as const).map((t) => {
@@ -126,7 +122,6 @@ export const ServiceFeedbackPage: FC = () => {
         </div>
       )}
 
-      {/* Liste */}
       <ServiceFeedbackList
         feedbacks={displayed}
         currentUserId={user?.id}

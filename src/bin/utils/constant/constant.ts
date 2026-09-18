@@ -225,3 +225,5 @@ export const WHY_US_ITEMS: WhyUsItem[] = [
     description: "Une communauté locale et engagée.",
   },
 ];
+
+export const REVIEW_DELAY_DAYS = 5;

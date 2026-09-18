@@ -29,7 +29,6 @@ export const FavoritesPage: FC = () => {
         Continuer mes achats
       </Link>
 
-      {/* En-tête */}
       <FavoritesHeader
         totalFavorites={totalFavorites}
         onClearAll={clearFavorites}
@@ -38,7 +37,6 @@ export const FavoritesPage: FC = () => {
         lastAddedCount={lastAddedCount}
       />
 
-      {/* Contenu */}
       {isEmpty ? (
         <FavoritesEmpty />
       ) : (

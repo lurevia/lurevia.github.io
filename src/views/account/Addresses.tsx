@@ -46,7 +46,6 @@ export const AddressesPage: FC = () => {
                 )}
             </div>
 
-            {/* Formulaire */}
             {(isCreating || editing) && (
                 <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6">
                     <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider mb-4">
@@ -64,7 +63,6 @@ export const AddressesPage: FC = () => {
                 </div>
             )}
 
-            {/* Liste */}
             {addresses.length === 0 && !isCreating ? (
                 <div className="text-center py-16 max-w-md mx-auto">
                     <div className="inline-flex p-6 bg-slate-50 rounded-full mb-5">

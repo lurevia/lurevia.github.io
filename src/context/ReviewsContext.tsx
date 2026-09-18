@@ -4,15 +4,10 @@ import { ReviewsContext } from "./reviewsContextDefinition";
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
 import type { ProductReview, ReviewEligibility } from "../bin/types/reviewType";
+import { REVIEW_DELAY_DAYS } from "../bin/utils/constant/constant";
 
 const STORAGE_KEY = "lurevia_reviews";
 
-/** 🎯 Délai obligatoire avant de pouvoir laisser un avis */
-const REVIEW_DELAY_DAYS = 0;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LECTURE / ÉCRITURE localStorage
-// ─────────────────────────────────────────────────────────────────────────────
 
 const readStorage = (): ProductReview[] => {
   try {
@@ -30,10 +25,6 @@ const writeStorage = (reviews: ProductReview[]): void => {
     console.error("Impossible de sauvegarder les avis.", error);
   }
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROVIDER
-// ─────────────────────────────────────────────────────────────────────────────
 
 export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
@@ -136,18 +127,12 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     [reviews]
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // ÉLIGIBILITÉ À LAISSER UN AVIS
-  // ─────────────────────────────────────────────────────────────────────────
-
   const checkEligibility = useCallback(
     (productId: string): ReviewEligibility => {
-      // 1. Connecté ?
       if (!user) {
         return { canReview: false, reason: "not_logged_in" };
       }
 
-      // 2. Déjà un avis ?
       const existing = reviews.find(
         (r) => r.productId === productId && r.userId === user.id
       );
@@ -155,7 +140,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
         return { canReview: false, reason: "already_reviewed" };
       }
 
-      // 3. A acheté ce produit ?
       const purchaseOrders = orders.filter((o) =>
         o.items.some((item) => item.product.id === productId)
       );
@@ -163,7 +147,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
         return { canReview: false, reason: "not_purchased" };
       }
 
-      // 4. La commande a-t-elle ≥ 5 jours ?
       const orderDate = new Date(purchaseOrders[0].createdAt).getTime();
       const availableDate = new Date(
         orderDate + REVIEW_DELAY_DAYS * 24 * 60 * 60 * 1000
@@ -187,11 +170,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     [user, reviews, orders]
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // MUTATIONS (add / update / delete)
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /** Ajouter un avis (🔒 1 seul par utilisateur et par produit) */
   const addReview = useCallback(
     (
       data: Omit<
@@ -201,7 +179,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     ) => {
       if (!user) return;
 
-      // 🔒 Vérifie qu'il n'a pas déjà un avis
       const existing = reviews.find(
         (r) => r.productId === data.productId && r.userId === user.id
       );
@@ -226,7 +203,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     [user, reviews, hasPurchased]
   );
 
-  /** Modifier un avis (par son auteur uniquement) */
   const updateReview = useCallback(
     (reviewId: string, data: Partial<ProductReview>) => {
       if (!user) return;
@@ -241,7 +217,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     [user]
   );
 
-  /** Supprimer un avis (par son auteur uniquement) */
   const deleteReview = useCallback(
     (reviewId: string) => {
       if (!user) return;
@@ -251,10 +226,6 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     },
     [user]
   );
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // VALEUR DU CONTEXTE
-  // ─────────────────────────────────────────────────────────────────────────
 
   const value = useMemo(
     () => ({

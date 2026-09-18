@@ -51,7 +51,6 @@ export const NotificationsPage: FC = () => {
         }
     }, [notifications, filter]);
 
-    /** Compteur par filtre */
     const counts: Record<Filter, number> = useMemo(
         () => ({
             all: notifications.length,
@@ -69,7 +68,6 @@ export const NotificationsPage: FC = () => {
 
     return (
         <>
-            {/* Fil d'Ariane */}
             <Link
                 to="/compte"
                 className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-lurevia-dark transition-colors uppercase tracking-wider"
@@ -78,7 +76,6 @@ export const NotificationsPage: FC = () => {
                 Retour au compte
             </Link>
 
-            {/* En-tête */}
             <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-black text-lurevia-dark">
@@ -109,7 +106,6 @@ export const NotificationsPage: FC = () => {
                 )}
             </div>
 
-            {/* Tabs */}
             {notifications.length > 0 && (
                 <div className="flex gap-1 overflow-x-auto pb-1">
                     {TABS.map((t) => {
@@ -144,7 +140,6 @@ export const NotificationsPage: FC = () => {
                 </div>
             )}
 
-            {/* Liste */}
             {notifications.length === 0 ? (
                 <EmptyNotifications />
             ) : filtered.length === 0 ? (
@@ -166,7 +161,6 @@ export const NotificationsPage: FC = () => {
     );
 };
 
-/** État vide */
 const EmptyNotifications: FC = () => (
     <div className="text-center py-16 md:py-20 max-w-md mx-auto">
         <div className="inline-flex p-6 bg-slate-50 rounded-full mb-5">

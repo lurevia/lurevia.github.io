@@ -17,14 +17,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
 import { useNotifications } from "../../hooks/useNotifications";
-import { useReviews } from "../../hooks/useReviews";   // ✅ import du vrai hook
+import { useReviews } from "../../hooks/useReviews";
 
 export const ProfilePage: FC = () => {
   const { user, updateProfile } = useAuth();
   const { orders, transactions } = useOrders();
   const { totalFavorites } = useFavorite();
   const { unreadCount } = useNotifications();
-  const { getUserReviewForProduct } = useReviews();   // ✅ utilise le vrai hook
+  const { getUserReviewForProduct } = useReviews();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [email, setEmail] = useState(user?.email ?? "");

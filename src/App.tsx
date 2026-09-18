@@ -73,7 +73,6 @@ export default function App() {
       <AppProviders>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
-            {/* Page d'authentification : rendue hors de MainLayout, sans header/footer/nav */}
             <Route path="/auth" element={<AuthPage />} />
 
             <Route path="/" element={<MainLayout />}>

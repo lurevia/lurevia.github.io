@@ -19,7 +19,6 @@ export const MyReviewCard: FC<MyReviewCardProps> = ({
   onDelete,
 }) => (
   <article className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 space-y-3">
-    {/* Produit + note */}
     <div className="flex gap-3 items-start">
       <Link
         to={`/produit/${product.id}`}
@@ -87,7 +86,6 @@ export const MyReviewCard: FC<MyReviewCardProps> = ({
       </div>
     </div>
 
-    {/* Titre + commentaire */}
     {review.title && (
       <h4 className="text-xs font-bold text-slate-800">{review.title}</h4>
     )}
@@ -95,7 +93,6 @@ export const MyReviewCard: FC<MyReviewCardProps> = ({
       {review.comment}
     </p>
 
-    {/* Lien produit */}
     <Link
       to={`/produit/${product.id}#reviews`}
       className="inline-flex items-center gap-1 text-[11px] font-bold text-lurevia-orange hover:underline"

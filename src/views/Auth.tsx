@@ -39,7 +39,6 @@ export const AuthPage: FC = () => {
     const from = state?.from ?? "/compte";
     const reason = state?.reason;
 
-    /** Redirige vers la page cible si l'utilisateur est déjà authentifié */
     useEffect(() => {
         if (isReady && isAuthenticated) {
             navigate(from, { replace: true });
@@ -184,7 +183,6 @@ export const AuthPage: FC = () => {
                                 autoComplete="new-password"
                             />
 
-                            {/* Parcours de consentement CGU / cookies obligatoire */}
                             <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
                                 <button
                                     type="button"

@@ -38,12 +38,10 @@ export const CheckoutPage: FC = () => {
         lastOrder,
     } = useCheckout();
 
-    // Panier vide → redirige vers la boutique
     if (cart.length === 0 && state.step !== 3) {
         return <Navigate to="/boutique" replace />;
     }
 
-    // Étape 3 → succès
     if (state.step === 3 && lastOrder) {
         return (
             <div className="max-w-7xl mx-auto px-4 py-10">
@@ -132,7 +130,6 @@ export const CheckoutPage: FC = () => {
                     </div>
                 </div>
 
-                {/* Colonne droite : récap */}
                 <div className="lg:col-span-1">
                     <OrderSummary
                         subtotal={subtotal}

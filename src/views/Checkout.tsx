@@ -4,6 +4,7 @@ import { ArrowLeft, Lock } from "lucide-react";
 
 import { useCheckout } from "../hooks/useCheckout";
 import { useCart } from "../hooks/useCart";
+import { useAddresses } from "../hooks/useAddresses";
 import { CheckoutSteps } from "../components/checkout/CheckoutSteps";
 import { ShippingForm } from "../components/checkout/ShippingForm";
 import { PaymentMethodSelector } from "../components/checkout/PaymentMethodSelector";
@@ -16,6 +17,7 @@ import { Button } from "../components/ui/Button";
 
 export const CheckoutPage: FC = () => {
     const { cart } = useCart();
+    const { addresses } = useAddresses();
     const {
         state,
         errors,
@@ -28,6 +30,7 @@ export const CheckoutPage: FC = () => {
         selectPaymentMethod,
         updateMobileMoney,
         updateCard,
+        useSavedAddress,
         clearSavedShipping,
         validateShipping,
         validatePayment,
@@ -77,6 +80,8 @@ export const CheckoutPage: FC = () => {
                             errors={errors}
                             onChange={updateShipping}
                             onClearSaved={clearSavedShipping}
+                            savedAddresses={addresses}
+                            onUseSavedAddress={useSavedAddress}
                         />
                     )}
 

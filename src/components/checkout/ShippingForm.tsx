@@ -1,17 +1,22 @@
 import { useState } from "react";
 import type { FC } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, MapPinCheck } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { Textarea } from "../ui/Textarea";
 import type { ShippingAddress } from "../../bin/types/checkoutType";
+import type { Address } from "../../bin/types/addressType";
 
 type ShippingFormProps = {
     value: ShippingAddress;
     errors: Partial<Record<keyof ShippingAddress, string>>;
     onChange: (field: keyof ShippingAddress, value: string) => void;
     onClearSaved?: () => void;
+    /** Adresses enregistrées sur le compte de l'utilisateur connecté */
+    savedAddresses?: Address[];
+    /** Auto-complète instantanément le formulaire avec l'adresse choisie */
+    onUseSavedAddress?: (address: Address) => void;
 };
 
 const REGIONS = [
@@ -25,13 +30,32 @@ const REGIONS = [
     "Autre",
 ];
 
+/**
+ * ShippingForm
+ *
+ * Formulaire de saisie de l'adresse de livraison. Purement présentationnel :
+ * l'état, la validation et la persistance sont pilotés par le hook
+ * contrôleur `useCheckout`. Lorsque l'utilisateur possède au moins une
+ * adresse enregistrée (`savedAddresses`), un sélecteur dédié permet de
+ * remplir instantanément tous les champs du formulaire en un clic
+ * ("Utiliser mon adresse enregistrée").
+ */
 export const ShippingForm: FC<ShippingFormProps> = ({
     value,
     errors,
     onChange,
     onClearSaved,
+    savedAddresses = [],
+    onUseSavedAddress,
 }) => {
     const [confirming, setConfirming] = useState(false);
+    const defaultSavedAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0];
+    const [selectedSavedId, setSelectedSavedId] = useState<string>(defaultSavedAddress?.id ?? "");
+
+    const handleUseSavedAddress = () => {
+        const selected = savedAddresses.find((a) => a.id === selectedSavedId) ?? defaultSavedAddress;
+        if (selected) onUseSavedAddress?.(selected);
+    };
 
     const handleClearClick = () => {
         if (confirming) {
@@ -72,6 +96,44 @@ export const ShippingForm: FC<ShippingFormProps> = ({
                     </div>
                 )}
             </div>
+
+            {/* Adresses enregistrées */}
+            {savedAddresses.length > 0 && onUseSavedAddress && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 p-3 bg-orange-50/60 border border-orange-100 rounded-xl">
+                    {savedAddresses.length > 1 ? (
+                        <Select
+                            label="Adresse enregistrée"
+                            value={selectedSavedId}
+                            onChange={(e) => setSelectedSavedId(e.target.value)}
+                            wrapperClassName="flex-1"
+                        >
+                            {savedAddresses.map((a) => (
+                                <option key={a.id} value={a.id}>
+                                    {a.label} — {a.city}
+                                    {a.isDefault ? " (par défaut)" : ""}
+                                </option>
+                            ))}
+                        </Select>
+                    ) : (
+                        <p className="flex-1 text-xs font-medium text-slate-600 self-center">
+                            Adresse enregistrée disponible :{" "}
+                            <span className="font-bold text-lurevia-dark">
+                                {defaultSavedAddress?.label} — {defaultSavedAddress?.city}
+                            </span>
+                        </p>
+                    )}
+                    <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        icon={MapPinCheck}
+                        onClick={handleUseSavedAddress}
+                        className="shrink-0 font-bold"
+                    >
+                        Utiliser mon adresse enregistrée
+                    </Button>
+                </div>
+            )}
 
             {/* Formulaire */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

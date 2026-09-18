@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Phone } from "lucide-react";
 import { Input } from "../ui/Input";
+import { PaymentLogo, MOBILE_MONEY_PROVIDERS } from "./PaymentLogo";
 import type { MobileMoneyDetails } from "../../bin/types/checkoutType";
 
 type MobileMoneyFormProps = {
@@ -8,12 +9,19 @@ type MobileMoneyFormProps = {
     onChange: (field: string, value: string) => void;
 };
 
-const PROVIDERS = [
-    { id: "mvola", label: "MVola", color: "#FFCC00" },
-    { id: "orange-money", label: "Orange Money", color: "#FF7900" },
-    { id: "airtel-money", label: "Airtel Money", color: "#E40000" },
-] as const;
-
+/**
+ * MobileMoneyForm
+ *
+ * Formulaire de saisie des informations de paiement par mobile money
+ * (MVola, Orange Money, Airtel Money). L'opérateur est sélectionné via
+ * des cartes affichant le logo officiel de chaque marque (avec repli
+ * automatique tant que l'asset n'est pas fourni, voir `PaymentLogo`).
+ * Le numéro de téléphone est pré-rempli en amont, dans `useCheckout`,
+ * à partir du numéro enregistré sur le compte de l'utilisateur connecté.
+ *
+ * @param value État courant des détails de paiement mobile money
+ * @param onChange Gestionnaire générique de mise à jour d'un champ
+ */
 export const MobileMoneyForm: FC<MobileMoneyFormProps> = ({
     value,
     onChange,
@@ -24,7 +32,7 @@ export const MobileMoneyForm: FC<MobileMoneyFormProps> = ({
                 Opérateur
             </label>
             <div className="grid grid-cols-3 gap-2">
-                {PROVIDERS.map((p) => {
+                {MOBILE_MONEY_PROVIDERS.map((p) => {
                     const active = value.provider === p.id;
                     return (
                         <button
@@ -32,16 +40,13 @@ export const MobileMoneyForm: FC<MobileMoneyFormProps> = ({
                             type="button"
                             onClick={() => onChange("provider", p.id)}
                             aria-pressed={active}
-                            className={`relative px-3 py-2.5 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer active:scale-95 ${active
+                            className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all cursor-pointer active:scale-95 ${active
                                 ? "border-lurevia-orange bg-white shadow-sm"
                                 : "border-slate-200 bg-white hover:border-slate-300"
                                 }`}
                         >
-                            <span
-                                className="inline-block w-2 h-2 rounded-full mr-1.5"
-                                style={{ backgroundColor: p.color }}
-                            />
-                            {p.label}
+                            <PaymentLogo provider={p.id} className="h-6 max-w-[88px]" />
+                            <span className="text-[10px] font-bold text-slate-600">{p.label}</span>
                         </button>
                     );
                 })}

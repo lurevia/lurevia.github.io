@@ -11,6 +11,19 @@ const isValidMalagasyPhone = (phone: string): boolean =>
 
 export type AuthMode = "login" | "register";
 
+/**
+ * useAuthForm
+ *
+ * Contrôleur (hook) pour les formulaires de connexion et d'inscription.
+ * Centralise l'état des champs, la validation métier (email, numéro
+ * malgache, mot de passe, consentement CGU/cookies) et l'appel au
+ * contexte d'authentification (`useAuth`). Les vues (`AuthPage`) restent
+ * ainsi purement déclaratives et ne contiennent aucune logique de
+ * validation ou d'appel réseau.
+ *
+ * @returns L'état des formulaires et les gestionnaires d'actions (bascule
+ * de mode, connexion, inscription, réinitialisation)
+ */
 export const useAuthForm = () => {
     const navigate = useNavigate();
     const { login, register } = useAuth();
@@ -29,6 +42,8 @@ export const useAuthForm = () => {
     const [registerPhone, setRegisterPhone] = useState("");
     const [registerPassword, setRegisterPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    /** Vrai une fois que l'utilisateur a lu et accepté les CGU et la politique des cookies */
+    const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
 
     const resetForm = () => {
         setLoginIdentifier("");
@@ -38,6 +53,7 @@ export const useAuthForm = () => {
         setRegisterPhone("");
         setRegisterPassword("");
         setConfirmPassword("");
+        setHasAcceptedTerms(false);
         setError(null);
     };
 
@@ -99,6 +115,11 @@ export const useAuthForm = () => {
             return;
         }
 
+        if (!hasAcceptedTerms) {
+            setError("Veuillez lire et accepter les CGU et la politique des cookies pour continuer.");
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             await register({
@@ -143,6 +164,8 @@ export const useAuthForm = () => {
         setRegisterPassword,
         confirmPassword,
         setConfirmPassword,
+        hasAcceptedTerms,
+        setHasAcceptedTerms,
         handleRegister,
 
         resetForm,

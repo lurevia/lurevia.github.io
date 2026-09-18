@@ -73,6 +73,9 @@ export default function App() {
       <AppProviders>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
+            {/* Page d'authentification : rendue hors de MainLayout, sans header/footer/nav */}
+            <Route path="/auth" element={<AuthPage />} />
+
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
               <Route path="boutique" element={<ProductCatalog />} />
@@ -81,7 +84,6 @@ export default function App() {
               <Route path="produit/:id" element={<ProductDetail />} />
               <Route path="panier" element={<CartPage />} />
               <Route path="favoris" element={<FavoritesPage />} />
-              <Route path="auth" element={<AuthPage />} />
               <Route path="feedback" element={<ServiceFeedbackPage />} />
               <Route
                 path="checkout"

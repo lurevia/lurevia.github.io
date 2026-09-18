@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Smartphone, CreditCard, Banknote, Check } from "lucide-react";
 import type { PaymentMethod } from "../../bin/types/checkoutType";
+import { PaymentLogo, MOBILE_MONEY_PROVIDERS } from "./PaymentLogo";
 
 type PaymentMethodSelectorProps = {
     value: PaymentMethod | null;
@@ -33,6 +34,17 @@ const METHODS: {
         },
     ];
 
+/**
+ * PaymentMethodSelector
+ *
+ * Sélecteur des trois méthodes de paiement disponibles. La carte "Mobile
+ * Money" affiche en miniature les logos officiels des trois opérateurs
+ * malgaches pris en charge (voir `PaymentLogo` pour le mécanisme de repli
+ * lorsque les assets de marque ne sont pas encore intégrés au projet).
+ *
+ * @param value Méthode actuellement sélectionnée
+ * @param onChange Gestionnaire appelé au choix d'une méthode
+ */
 export const PaymentMethodSelector: FC<PaymentMethodSelectorProps> = ({
     value,
     onChange,
@@ -77,9 +89,18 @@ export const PaymentMethodSelector: FC<PaymentMethodSelectorProps> = ({
                             <p className="text-sm font-black text-slate-800">
                                 {method.label}
                             </p>
-                            <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                                {method.description}
-                            </p>
+
+                            {method.id === "mobile-money" ? (
+                                <div className="flex items-center gap-1.5 mt-1.5">
+                                    {MOBILE_MONEY_PROVIDERS.map((p) => (
+                                        <PaymentLogo key={p.id} provider={p.id} className="h-4 max-w-[56px]" />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                                    {method.description}
+                                </p>
+                            )}
                         </button>
                     </li>
                 );

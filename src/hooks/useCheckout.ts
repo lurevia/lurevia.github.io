@@ -7,6 +7,7 @@ import type {
   PaymentMethod,
   ShippingAddress,
 } from "../bin/types/checkoutType";
+import type { Address } from "../bin/types/addressType";
 import type { Order } from "../bin/types/orderType";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -82,6 +83,9 @@ export type UseCheckoutReturn = {
   updateMobileMoney: (field: string, value: string) => void;
   updateCard: (field: string, value: string) => void;
 
+  // Adresse enregistrée
+  useSavedAddress: (address: Address) => void;
+
   // Reset
   clearSavedShipping: () => void;
 
@@ -148,8 +152,22 @@ export const useCheckout = (): UseCheckoutReturn => {
   };
 
   // ─── FORM PAYMENT ───
+  /**
+   * Sélectionne la méthode de paiement. Lors du premier passage sur
+   * "mobile-money", le numéro de téléphone est automatiquement pré-rempli
+   * avec celui enregistré sur le compte de l'utilisateur connecté, afin de
+   * lui éviter une ressaisie inutile ; l'utilisateur reste libre de le
+   * modifier ensuite.
+   */
   const selectPaymentMethod = (method: PaymentMethod): void =>
-    setState((prev) => ({ ...prev, paymentMethod: method }));
+    setState((prev) => ({
+      ...prev,
+      paymentMethod: method,
+      mobileMoney:
+        method === "mobile-money" && !prev.mobileMoney.phoneNumber && user?.phone
+          ? { ...prev.mobileMoney, phoneNumber: user.phone }
+          : prev.mobileMoney,
+    }));
 
   const updateMobileMoney = (field: string, value: string): void =>
     setState((prev) => ({
@@ -162,6 +180,30 @@ export const useCheckout = (): UseCheckoutReturn => {
       ...prev,
       card: { ...prev.card, [field]: value },
     }));
+
+  // ─── ADRESSE ENREGISTRÉE ───
+  /**
+   * Remplit instantanément tous les champs du formulaire de livraison à
+   * partir d'une adresse enregistrée sur le compte de l'utilisateur
+   * (bouton "Utiliser mon adresse enregistrée"). Efface également les
+   * erreurs de validation déjà affichées, puisque les champs concernés
+   * viennent d'être renseignés.
+   */
+  const useSavedAddress = (address: Address): void => {
+    setState((prev) => ({
+      ...prev,
+      shipping: {
+        fullName: address.fullName,
+        phone: address.phone,
+        email: address.email,
+        address: address.address,
+        city: address.city,
+        region: address.region,
+        notes: address.notes ?? "",
+      },
+    }));
+    setErrors({});
+  };
 
   // ─── RESET ADRESSE ───
   const clearSavedShipping = (): void => {
@@ -241,10 +283,10 @@ export const useCheckout = (): UseCheckoutReturn => {
       createdAt: new Date().toISOString(),
     };
 
-    // 💾 Enregistre la commande + la transaction dans le contexte
+    // Enregistre la commande + la transaction dans le contexte
     addOrder(order);
 
-    // 💾 Sauvegarde l'adresse pour la prochaine commande
+    // Sauvegarde l'adresse pour la prochaine commande
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.shipping));
     } catch (error) {
@@ -270,6 +312,7 @@ export const useCheckout = (): UseCheckoutReturn => {
     selectPaymentMethod,
     updateMobileMoney,
     updateCard,
+    useSavedAddress,
     clearSavedShipping,
     validateShipping,
     validatePayment,

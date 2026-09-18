@@ -7,6 +7,7 @@ import { Button } from "../ui/Button";
 import { ProductImage } from "../common/ProductImage";
 import { useCart } from "../../hooks/useCart";
 import { useFavorite } from "../../hooks/useFavorite";
+import { useProductRating } from "../../hooks/useProductRating";
 import type { Product } from "../../bin/types/homeType";
 
 type ProductCardProps = {
@@ -15,9 +16,15 @@ type ProductCardProps = {
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(
   ({ product }) => {
-    const { id, title, categorySlugs, price, rating = 4.7 } = product;
+    const { id, title, categorySlugs, price } = product;
     const { addToCart } = useCart();
     const { isFavorite, toggleFavorite } = useFavorite();
+
+    const { rating } = useProductRating(
+      product.id,
+      product.rating ?? 0,
+      product.reviewCount ?? 0
+    );
 
     const isFav = isFavorite(id);
 
@@ -57,11 +64,14 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
                 type="button"
                 icon={Heart}
                 onClick={handleFavoriteClick}
-                aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
-                className={`absolute top-2 right-2 w-8 h-8 md:w-9 md:h-9 p-0! rounded-full! shadow-xs border-transparent! bg-white/90! backdrop-blur-md! hover:scale-110! hover:bg-white! z-10 ${isFav
+                aria-label={
+                  isFav ? "Retirer des favoris" : "Ajouter aux favoris"
+                }
+                className={`absolute top-2 right-2 w-8 h-8 md:w-9 md:h-9 p-0! rounded-full! shadow-xs border-transparent! bg-white/90! backdrop-blur-md! hover:scale-110! hover:bg-white! z-10 ${
+                  isFav
                     ? "text-red-500! [&_svg]:fill-red-500!"
                     : "text-slate-400! hover:text-red-500!"
-                  }`}
+                }`}
               />
 
               <ProductImage
@@ -89,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
                 <div className="flex items-center gap-0.5 text-xs font-bold text-lurevia-yellow shrink-0">
                   <Star size={12} className="fill-lurevia-yellow stroke-none" />
                   <span className="text-slate-500 text-[10px] md:text-xs pt-0.5">
-                    {rating}
+                    {rating.toFixed(1)}
                   </span>
                 </div>
               </div>

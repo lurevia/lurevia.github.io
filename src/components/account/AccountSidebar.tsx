@@ -37,7 +37,6 @@ export const AccountSidebar: FC = () => {
 
     return (
         <aside className="bg-white border border-slate-100 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">
-            {/* Profil */}
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                 {user.avatarUrl ? (
                     <img
@@ -58,7 +57,6 @@ export const AccountSidebar: FC = () => {
                 </div>
             </div>
 
-            {/* Nav */}
             <nav>
                 <ul className="space-y-1">
                     {NAV_ITEMS.map(({ to, label, icon: Icon, exact }) => {

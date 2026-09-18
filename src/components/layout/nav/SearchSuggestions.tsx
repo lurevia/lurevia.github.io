@@ -1,8 +1,11 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, Star } from "lucide-react";
 import type { Product } from "../../../bin/types/homeType";
 import { formatAriary } from "../../../bin/utils/formatAriary";
+import { getProductMainImage } from "../../../bin/utils/getProductImages";
+import { useProductRating } from "../../../hooks/useProductRating";
+import { ProductImage } from "../../common/ProductImage";
 
 
 type SearchSuggestionsProps = {
@@ -30,47 +33,14 @@ export const SearchSuggestions: FC<SearchSuggestionsProps> = ({
       {hasResults ? (
         <>
           <ul className="py-2 max-h-90 overflow-y-auto">
-            {suggestions.map((product, index) => {
-              const isActive = index === activeIndex;
-
-              return (
-                <li key={product.id}>
-                  <Link
-                    to={`/produit/${product.id}`}
-                    onClick={onSelect}
-                    role="option"
-                    aria-selected={isActive}
-                    className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                      isActive ? "bg-slate-50" : "hover:bg-slate-50"
-                    }`}
-                  >
-                    <img
-                      src={product.imageUrl}
-                      alt={product.title}
-                      className="w-12 h-12 rounded-lg object-cover shrink-0 border border-slate-100"
-                    />
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">
-                        {product.title}
-                      </p>
-                      <p className="text-xs text-slate-400 truncate">
-                        {product.categorySlugs[0]?.replace(/-/g, " ") ??
-                          "Produit"}{" "}
-                        · {formatAriary(product.price)}
-                      </p>
-                    </div>
-
-                    {isActive && (
-                      <ArrowRight
-                        size={14}
-                        className="text-lurevia-orange shrink-0"
-                      />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
+            {suggestions.map((product, index) => (
+              <SuggestionItem
+                key={product.id}
+                product={product}
+                isActive={index === activeIndex}
+                onSelect={onSelect}
+              />
+            ))}
           </ul>
 
           <Link
@@ -100,5 +70,79 @@ export const SearchSuggestions: FC<SearchSuggestionsProps> = ({
         </div>
       )}
     </div>
+  );
+};
+
+/** 🎯 Chaque suggestion est un composant pour pouvoir utiliser un hook */
+type SuggestionItemProps = {
+  product: Product;
+  isActive: boolean;
+  onSelect: () => void;
+};
+
+const SuggestionItem: FC<SuggestionItemProps> = ({
+  product,
+  isActive,
+  onSelect,
+}) => {
+  /** Note réelle ou fallback mock */
+  const { rating } = useProductRating(
+    product.id,
+    product.rating ?? 0,
+    product.reviewCount ?? 0
+  );
+
+  return (
+    <li>
+      <Link
+        to={`/produit/${product.id}`}
+        onClick={onSelect}
+        role="option"
+        aria-selected={isActive}
+        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+          isActive ? "bg-slate-50" : "hover:bg-slate-50"
+        }`}
+      >
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
+          <ProductImage
+            src={getProductMainImage(product)}
+            alt={product.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-slate-800 truncate">
+            {product.title}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-xs text-slate-400 truncate">
+              {product.categorySlugs[0]?.replace(/-/g, " ") ?? "Produit"}
+            </span>
+            <span className="text-slate-300">·</span>
+            <span className="text-xs font-bold text-slate-700 shrink-0">
+              {formatAriary(product.price)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {rating > 0 && (
+            <div className="flex items-center gap-0.5">
+              <Star
+                size={11}
+                className="fill-lurevia-yellow text-lurevia-yellow stroke-none"
+              />
+              <span className="text-[10px] font-bold text-slate-500">
+                {rating.toFixed(1)}
+              </span>
+            </div>
+          )}
+          {isActive && (
+            <ArrowRight size={14} className="text-lurevia-orange" />
+          )}
+        </div>
+      </Link>
+    </li>
   );
 };

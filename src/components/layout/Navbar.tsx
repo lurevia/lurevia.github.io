@@ -1,15 +1,17 @@
 import { useState } from "react";
 import type { FC } from "react";
-import { User, ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useCart } from "../../hooks/useCart";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useUIOverlay } from "../../context/UIContext";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 import { Button } from "../ui/Button";
 import { NavbarSearch } from "./nav/Search";
 import { NavbarLinkIcon } from "./nav/NavBarLinkIcon";
+import { NavbarAccount } from "./nav/NavbarAccount";
 import { BottomNav } from "./nav/BottomNav";
 import { NavbarSidebar } from "./nav/Sidebar";
 
@@ -29,7 +31,7 @@ export const Navbar: FC = () => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shrink-0">
-        <nav className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16 md:h-20 gap-2 relative">
+        <nav className="max-w-7xl mx-auto px-3 md:px-6 flex items-center justify-between h-16 md:h-20 gap-2 relative">
           <Button
             type="button"
             variant="ghost"
@@ -46,7 +48,7 @@ export const Navbar: FC = () => {
             to="/"
             className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:ml-4 flex flex-col justify-center shrink-0 group select-none z-10"
           >
-            <span className="text-xl sm:text-2xl md:text-3xl font-black font-serif italic tracking-wide bg-linear-to-r from-lurevia-dark to-lurevia-orange bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-105 origin-left">
+            <span className="text-lg sm:text-2xl md:text-3xl font-black font-serif italic tracking-wide bg-linear-to-r from-lurevia-dark to-lurevia-orange bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-105 origin-left">
               Lurevia
             </span>
           </Link>
@@ -55,17 +57,21 @@ export const Navbar: FC = () => {
             <NavbarSearch variant="desktop" />
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0 z-20">
-            <NavbarLinkIcon
-              to="/favoris"
-              icon={Heart}
-              label="Favoris"
-              badgeCount={totalFavorites}
-              badgeColorClass="bg-lurevia-orange"
-            />
+          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-3 shrink-0 z-20">
+            <NotificationBell />
+
+            <div className="hidden xs:block">
+              <NavbarLinkIcon
+                to="/favoris"
+                icon={Heart}
+                label="Favoris"
+                badgeCount={totalFavorites}
+                badgeColorClass="bg-lurevia-orange"
+              />
+            </div>
 
             <div className="hidden md:block">
-              <NavbarLinkIcon to="/compte" icon={User} label="Compte" />
+              <NavbarAccount />
             </div>
 
             <NavbarLinkIcon
@@ -78,7 +84,7 @@ export const Navbar: FC = () => {
           </div>
         </nav>
 
-        <div className="px-4 pb-3 md:hidden w-full">
+        <div className="px-3 pb-3 md:hidden w-full">
           <NavbarSearch variant="mobile" />
         </div>
       </header>

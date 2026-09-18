@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Star, Package, CheckCircle2 } from "lucide-react";
 import { formatAriary } from "../../../bin/utils/formatAriary";
+import { useReviews } from "../../../hooks/useReviews";
 import type { Product } from "../../../bin/types/homeType";
 
 type ProductInfoProps = {
@@ -12,12 +13,18 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
     title,
     price,
     originalPrice,
-    rating = 0,
-    reviewCount = 0,
+    rating: staticRating = 0,
+    reviewCount: staticReviewCount = 0,
     stock,
     sku,
     categorySlugs,
   } = product;
+
+  const { getProductRating } = useReviews();
+  const { average, count } = getProductRating(product.id);
+
+  const rating = count > 0 ? average : staticRating;
+  const reviewCount = count > 0 ? count : staticReviewCount;
 
   const hasPromo = !!originalPrice && originalPrice > price;
   const discount = hasPromo
@@ -26,7 +33,6 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
 
   return (
     <div className="space-y-4 text-left">
-
       {categorySlugs && categorySlugs.length > 0 && (
         <p className="text-[10px] md:text-xs font-black text-lurevia-cyan uppercase tracking-widest">
           {categorySlugs[0].replace(/-/g, " ")}
@@ -53,7 +59,10 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
           ))}
         </div>
         <span className="text-xs font-bold text-slate-400 pt-0.5">
-          {rating.toFixed(1)} <span className="font-medium text-slate-400/70">({reviewCount} avis)</span>
+          {rating.toFixed(1)}{" "}
+          <span className="font-medium text-slate-400/70">
+            ({reviewCount} avis{reviewCount > 1 ? "" : ""})
+          </span>
         </span>
       </div>
 
@@ -81,10 +90,12 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
 
       <div className="flex flex-wrap gap-2.5 pt-2 select-none">
         {typeof stock === "number" && (
-          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${stock > 0
-            ? "bg-emerald-50/50 border-emerald-100 text-emerald-600"
-            : "bg-red-50/50 border-red-100 text-red-500"
-            }`}>
+          <div
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${stock > 0
+                ? "bg-emerald-50/50 border-emerald-100 text-emerald-600"
+                : "bg-red-50/50 border-red-100 text-red-500"
+              }`}
+          >
             <Package size={12} strokeWidth={2.5} />
             <span>
               {stock > 0 ? `En stock (${stock})` : "Rupture de stock"}
@@ -99,7 +110,6 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
           </div>
         )}
       </div>
-
     </div>
   );
 };

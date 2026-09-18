@@ -5,6 +5,7 @@ import { Button } from "../ui/Button";
 import { ProductDesktop } from "./desktop/ProductDesktop";
 import { ProductMobile } from "./mobile/ProductMobile";
 import { useTopProducts } from "../../hooks/useTopProducts";
+import { useProductsWithStats } from "../../hooks/useProductsWithStats";
 import type { Product } from "../../bin/types/homeType";
 
 type ProductGridProps = {
@@ -19,7 +20,9 @@ export const ProductGrid: FC<ProductGridProps> = ({
   const carouselRef = useRef<HTMLDivElement>(null);
   const cardWidth = 324;
 
-  const topProducts = useTopProducts(products, limit);
+  const productsWithStats = useProductsWithStats(products);
+
+  const topProducts = useTopProducts(productsWithStats, limit);
 
   const scroll = (direction: "left" | "right") => {
     if (carouselRef.current) {
@@ -47,7 +50,6 @@ export const ProductGrid: FC<ProductGridProps> = ({
             <span className="md:hidden text-xs font-bold text-lurevia-dark hover:text-lurevia-orange transition-colors">
               View all
             </span>
-
             <div className="hidden md:block">
               <Button
                 variant="secondary"
@@ -84,7 +86,6 @@ export const ProductGrid: FC<ProductGridProps> = ({
       </div>
 
       <ProductMobile products={topProducts} />
-
       <ProductDesktop products={topProducts} carouselRef={carouselRef} />
     </section>
   );

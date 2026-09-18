@@ -1,18 +1,30 @@
 import { useState } from "react";
 import type { FC } from "react";
-import { Save, User as UserIcon, Mail, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Save,
+  User as UserIcon,
+  Mail,
+  Phone,
+  Bell,
+  ChevronRight,
+  Star,
+} from "lucide-react";
 import { AvatarUploader } from "../../components/account/AvatarUploader";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
-
+import { useNotifications } from "../../hooks/useNotifications";
+import { useReviews } from "../../hooks/useReviews";   // ✅ import du vrai hook
 
 export const ProfilePage: FC = () => {
   const { user, updateProfile } = useAuth();
   const { orders, transactions } = useOrders();
   const { totalFavorites } = useFavorite();
+  const { unreadCount } = useNotifications();
+  const { getUserReviewForProduct } = useReviews();   // ✅ utilise le vrai hook
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -42,6 +54,18 @@ export const ProfilePage: FC = () => {
     .filter((t) => t.status === "success")
     .reduce((sum, t) => sum + t.amount, 0);
 
+  /** 🎯 Calcul du nombre d'avis à donner */
+  const pendingCount = orders.reduce((count, order) => {
+    const delay = 5 * 24 * 60 * 60 * 1000;
+    const isOld = Date.now() - new Date(order.createdAt).getTime() >= delay;
+    if (!isOld) return count;
+
+    for (const item of order.items) {
+      if (!getUserReviewForProduct(item.product.id)) count++;
+    }
+    return count;
+  }, 0);
+
   return (
     <>
       <div className="bg-linear-to-br from-lurevia-dark to-emerald-900 rounded-2xl p-6 text-white">
@@ -64,7 +88,49 @@ export const ProfilePage: FC = () => {
         </div>
       </div>
 
-      {/* Avatar */}
+      {/* Notification en attente */}
+      {unreadCount > 0 && (
+        <Link
+          to="/compte/notifications"
+          className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-100 rounded-2xl hover:bg-orange-100/70 transition-colors"
+        >
+          <div className="p-2 bg-lurevia-orange rounded-lg shrink-0">
+            <Bell size={16} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-black text-lurevia-dark">
+              {unreadCount} notification{unreadCount > 1 ? "s" : ""} non lue
+              {unreadCount > 1 ? "s" : ""}
+            </p>
+            <p className="text-[11px] text-slate-600 mt-0.5">
+              Découvrez les mises à jour de vos commandes et rappels d’avis.
+            </p>
+          </div>
+          <ChevronRight size={16} className="text-lurevia-orange shrink-0" />
+        </Link>
+      )}
+
+      <Link
+        to="/compte/avis"
+        className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 hover:shadow-sm transition-all"
+      >
+        <div className="p-2 bg-yellow-50 rounded-lg shrink-0">
+          <Star size={16} className="text-lurevia-yellow fill-lurevia-yellow" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-black text-lurevia-dark">
+            Mes avis & feedbacks
+          </p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            {pendingCount > 0
+              ? `${pendingCount} avis en attente de votre part`
+              : "Voir tous vos avis produits et feedbacks service"}
+          </p>
+        </div>
+        <ChevronRight size={16} className="text-slate-400 shrink-0" />
+      </Link>
+
+      {/* Photo de profil */}
       <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">
         <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider">
           Photo de profil
@@ -76,7 +142,7 @@ export const ProfilePage: FC = () => {
         />
       </div>
 
-      {/* Infos */}
+      {/* Informations personnelles */}
       <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">
         <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider">
           Informations personnelles
@@ -136,11 +202,11 @@ export const ProfilePage: FC = () => {
   );
 };
 
-const StatCard: FC<{ label: string; value: number | string; isText?: boolean }> = ({
-  label,
-  value,
-  isText,
-}) => (
+const StatCard: FC<{
+  label: string;
+  value: number | string;
+  isText?: boolean;
+}> = ({ label, value, isText }) => (
   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
     <p className={`font-black ${isText ? "text-sm md:text-base" : "text-2xl"}`}>
       {value}

@@ -15,6 +15,7 @@ import {
   Heart,
   ShieldCheck,
   Headphones,
+  MessageSquareHeart,
 } from "lucide-react";
 import type { Category, Feature, FooterLink, SocialLink, WhyUsItem } from "../../types/homeType";
 
@@ -122,6 +123,7 @@ export const FOOTER_SERVICES: FooterLink[] = [
   { label: "Retours", to: "/retours" },
   { label: "Paiement", to: "/paiement" },
   { label: "Suivi de commande", to: "/suivi" },
+  { label: "Donnez votre avis", to: "/feedback" },
 ];
 
 export const FOOTER_LEGAL: FooterLink[] = [
@@ -192,6 +194,7 @@ export const NAV_LINKS = [
   { to: "/boutique", label: "Boutique", icon: ShoppingBag },
   { to: "/categories", label: "Catégories", icon: Layers },
   { to: "/a-propos", label: "À Propos", icon: Info },
+  { to: "/feedback", label: "Avis", icon: MessageSquareHeart },
   { to: "/blog", label: "Blog", icon: BookOpen },
   { to: "/contact", label: "Contact", icon: Mail },
 ];

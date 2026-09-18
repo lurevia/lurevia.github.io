@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import type { FC } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { ChevronRight, Truck, ShieldCheck, RefreshCw } from "lucide-react";
+
 import { useCart } from "../hooks/useCart";
 import { useFavorite } from "../hooks/useFavorite";
 import { useProductDetail } from "../hooks/useProductDetail";
+
 import { ProductActions } from "../components/product/detail/ProductActions";
 import { ProductGallery } from "../components/product/detail/ProductGallery";
 import { ProductInfo } from "../components/product/detail/ProductInfo";
@@ -12,6 +15,15 @@ import { RelatedProducts } from "../components/product/detail/RelatedProducts";
 import { VariantSelector } from "../components/product/detail/VariantSelector";
 
 export const ProductDetail: FC = () => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  /** 🎯 Flag : on doit ouvrir l'onglet Avis */
+  const [openReviews, setOpenReviews] = useState(false);
+
+  /** 🎯 Flag : on doit ouvrir automatiquement le formulaire d'avis */
+  const [autoOpenReviewForm, setAutoOpenReviewForm] = useState(false);
+
   const {
     product,
     selectedImage,
@@ -28,6 +40,34 @@ export const ProductDetail: FC = () => {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorite();
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // 🎯 Détection de #reviews et ?review=1
+  // ─────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const hashWantsReviews = location.hash === "#reviews";
+    const queryWantsReview = searchParams.get("review") === "1";
+
+    if (hashWantsReviews || queryWantsReview) {
+      setOpenReviews(true);
+    }
+
+    if (queryWantsReview) {
+      setAutoOpenReviewForm(true);
+    }
+
+    // Scroll vers la section avis après le rendu
+    if (hashWantsReviews || queryWantsReview) {
+      const timer = setTimeout(() => {
+        document.getElementById("reviews")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, searchParams]);
+
+  // Garde : produit introuvable → redirection
   if (!product) {
     return <Navigate to="/boutique" replace />;
   }
@@ -42,6 +82,7 @@ export const ProductDetail: FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 space-y-10">
+      {/* Fil d'Ariane */}
       <nav
         aria-label="Fil d’Ariane"
         className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider"
@@ -60,7 +101,9 @@ export const ProductDetail: FC = () => {
         <span className="text-lurevia-dark truncate">{product.title}</span>
       </nav>
 
+      {/* Layout principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* Galerie */}
         <ProductGallery
           images={images}
           title={product.title}
@@ -72,6 +115,7 @@ export const ProductDetail: FC = () => {
           onSelectImage={setSelectedImage}
         />
 
+        {/* Infos + actions */}
         <div className="space-y-6">
           <ProductInfo product={product} />
 
@@ -94,6 +138,7 @@ export const ProductDetail: FC = () => {
             outOfStock={product.outOfStock ?? false}
           />
 
+          {/* Réassurance */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-100">
             <ReassuranceItem
               icon={Truck}
@@ -114,10 +159,16 @@ export const ProductDetail: FC = () => {
         </div>
       </div>
 
-      <ProductTabs product={product} />
+      <ProductTabs
+        product={product}
+        initialTab={openReviews ? "reviews" : "description"}
+        autoOpenReviewForm={autoOpenReviewForm}
+      />
 
+      {/* Produits similaires */}
       <RelatedProducts currentProduct={product} />
 
+      {/* Espace pour la BottomNav mobile */}
       <div className="h-20 md:hidden" />
     </div>
   );

@@ -1,0 +1,1 @@
+import{i as e,o as t}from"./Button-eYgtJBkG.js";import{H as n}from"./index-eaMYN6EI.js";var r=t(e(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useFeedback doit être utilisé dans un FeedbackProvider`);return e};export{i as t};

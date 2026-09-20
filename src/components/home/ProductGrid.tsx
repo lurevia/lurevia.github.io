@@ -11,11 +11,13 @@ import type { Product } from "../../bin/types/homeType";
 type ProductGridProps = {
   products?: Product[];
   limit?: number;
+  isLoading?: boolean;
 };
 
 export const ProductGrid: FC<ProductGridProps> = ({
   products = [],
   limit = 10,
+  isLoading = false,
 }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const cardWidth = 324;
@@ -85,8 +87,21 @@ export const ProductGrid: FC<ProductGridProps> = ({
         </div>
       </div>
 
-      <ProductMobile products={topProducts} />
-      <ProductDesktop products={topProducts} carouselRef={carouselRef} />
+      {isLoading ? (
+        <div className="flex justify-center py-16" role="status">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+          <span className="sr-only">Chargement des produits</span>
+        </div>
+      ) : topProducts.length === 0 ? (
+        <p className="py-12 text-center text-sm text-slate-400">
+          Aucun produit disponible pour le moment.
+        </p>
+      ) : (
+        <>
+          <ProductMobile products={topProducts} />
+          <ProductDesktop products={topProducts} carouselRef={carouselRef} />
+        </>
+      )}
     </section>
   );
 };

@@ -1,12 +1,14 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
-import { CATEGORIES } from "../../../bin/utils/constant/constant";
+import { useCategories } from "../../../hooks/useCategories";
 
 export const CategoryMobile: FC = () => {
+  const { categories } = useCategories();
+
   return (
     <div className="block md:hidden w-full overflow-x-auto overflow-y-hidden scrollbar-none snap-x snap-mandatory">
       <div className="flex gap-4 pb-2 w-max px-1">
-        {CATEGORIES.map((category) => {
+        {categories.map((category) => {
           const Icon = category.icon;
           
           return (

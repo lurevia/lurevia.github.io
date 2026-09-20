@@ -6,7 +6,7 @@ import { Pagination } from "../components/Shop/Pagination";
 import { ProductCard } from "../components/home/ProductCard";
 import { ShopHeader } from "../components/Shop/ShopHeader";
 import { SortDropdown } from "../components/Shop/SortDropdown";
-import { CATEGORIES } from "../bin/utils/constant/constant";
+import { useCategories } from "../hooks/useCategories";
 import { useProductCatalog } from "../hooks/useProductCatalog";
 import { FilterSidebar, FilterDrawer } from "../components/Shop/filter";
 import { ScrollReveal } from "../components/common/ScrollReveal";
@@ -17,16 +17,18 @@ export const ProductCatalog: React.FC = () => {
     currentCategoryInfo,
     filters,
     currentPage,
-    filteredProducts,
-    paginatedProducts,
-    categoryCounts,
+    products,
+    totalItems,
     totalPages,
+    isLoading,
+    error,
     changeFilters,
     changeSortBy,
     resetFilters,
     changePage,
   } = useProductCatalog();
 
+  const { categories } = useCategories();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const activeFilterCount =
@@ -45,7 +47,7 @@ export const ProductCatalog: React.FC = () => {
       <ShopHeader
         title={currentCategoryInfo.title}
         description={currentCategoryInfo.description}
-        productCount={filteredProducts.length}
+        productCount={totalItems}
         imageUrl={currentCategoryInfo.imageUrl}
         breadcrumb={currentCategoryInfo.breadcrumb}
       />
@@ -75,8 +77,7 @@ export const ProductCatalog: React.FC = () => {
               filters={filters}
               onChange={changeFilters}
               onReset={resetFilters}
-              categoryCounts={categoryCounts}
-              categories={CATEGORIES}
+              categories={categories}
               isGlobalShop={isGlobalShop}
             />
           </ScrollReveal>
@@ -85,19 +86,30 @@ export const ProductCatalog: React.FC = () => {
         <div className="lg:col-span-3 space-y-8">
           <div className="hidden lg:flex items-center justify-between border-b border-slate-100 pb-3 text-xs font-bold text-slate-400 tracking-wide">
             <span>
-              {filteredProducts.length} produit
-              {filteredProducts.length > 1 ? "s" : ""} trouvé
-              {filteredProducts.length > 1 ? "s" : ""}
+              {totalItems} produit{totalItems > 1 ? "s" : ""} trouvé
+              {totalItems > 1 ? "s" : ""}
             </span>
             <SortDropdown value={filters.sortBy} onChange={changeSortBy} />
           </div>
 
-          {paginatedProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-24" role="status">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+              <span className="sr-only">Chargement des produits</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 text-slate-400">
+              <p className="text-base font-bold text-slate-600">
+                Catalogue indisponible
+              </p>
+              <p className="text-xs mt-1">{error}</p>
+            </div>
+          ) : products.length === 0 ? (
             <EmptyState onReset={resetFilters} />
           ) : (
             <ScrollReveal key={currentPage} delay={150}>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-                {paginatedProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -120,8 +132,7 @@ export const ProductCatalog: React.FC = () => {
         filters={filters}
         onChange={changeFilters}
         onReset={handleResetAndClose}
-        categoryCounts={categoryCounts}
-        categories={CATEGORIES}
+        categories={categories}
         isGlobalShop={isGlobalShop}
       />
     </div>

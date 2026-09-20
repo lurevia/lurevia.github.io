@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import type { ServiceFeedback } from "../../bin/types/feedbackType";
 import { Button } from "../ui/Button";
 import { StarRating } from "../reviews/StarRating";
+import { initialsOf } from "../../bin/utils/security";
 
 type ServiceFeedbackCardProps = {
   feedback: ServiceFeedback;
@@ -25,12 +26,7 @@ export const ServiceFeedbackCard: FC<ServiceFeedbackCardProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const initials = feedback.userName
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials = initialsOf(feedback.userName);
 
   const date = new Date(feedback.createdAt).toLocaleDateString("fr-FR", {
     day: "numeric",

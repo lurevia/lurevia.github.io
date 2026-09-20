@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FC } from "react";
-import { MOCK_PRODUCTS } from "../../bin/data/mock";
+
+import { productsApi } from "../../api/products";
 import { ProductCard } from "../home/ProductCard";
 import { ScrollReveal } from "../common/ScrollReveal";
 import type { CartItem, Product } from "../../bin/types/homeType";
@@ -10,28 +11,62 @@ type CartSuggestionsProps = {
     limit?: number;
 };
 
+/**
+ * Suggestions basées sur les catégories du panier, demandées à l'API :
+ * le catalogue complet n'est jamais chargé côté navigateur.
+ */
 export const CartSuggestions: FC<CartSuggestionsProps> = ({
     cartItems,
     limit = 4,
 }) => {
-    const suggestions = useMemo(() => {
-        if (cartItems.length === 0) return [];
+    const [suggestions, setSuggestions] = useState<Product[]>([]);
 
-        const cartCategories = new Set(
-            cartItems.flatMap((item) => item.product.categorySlugs)
-        );
-        const cartIds = new Set(cartItems.map((item) => item.product.id));
+    const categories = useMemo(
+        () =>
+            Array.from(
+                new Set(cartItems.flatMap((item) => item.product.categorySlugs))
+            ).slice(0, 5),
+        [cartItems]
+    );
 
-        return MOCK_PRODUCTS.filter(
-            (p) =>
-                !cartIds.has(p.id) &&
-                p.outOfStock !== true &&
-                (p.stock ?? 1) > 0 &&
-                p.categorySlugs.some((slug) => cartCategories.has(slug))
-        )
-            .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-            .slice(0, limit);
-    }, [cartItems, limit]);
+    const excludedIds = useMemo(
+        () => new Set(cartItems.map((item) => item.product.id)),
+        [cartItems]
+    );
+
+    useEffect(() => {
+        if (categories.length === 0) {
+            setSuggestions([]);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        const load = async () => {
+            try {
+                const page = await productsApi.list(
+                    {
+                        categories,
+                        availability: "in-stock",
+                        sortBy: "rating-desc",
+                        page: 1,
+                        limit: limit + excludedIds.size,
+                    },
+                    controller.signal
+                );
+
+                if (controller.signal.aborted) return;
+                setSuggestions(
+                    page.products.filter((p) => !excludedIds.has(p.id)).slice(0, limit)
+                );
+            } catch {
+                if (!controller.signal.aborted) setSuggestions([]);
+            }
+        };
+
+        void load();
+        return () => controller.abort();
+    }, [categories, excludedIds, limit]);
 
     if (suggestions.length === 0) return null;
 
@@ -47,7 +82,7 @@ export const CartSuggestions: FC<CartSuggestionsProps> = ({
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                {suggestions.map((product: Product, i) => (
+                {suggestions.map((product, i) => (
                     <ScrollReveal key={product.id} delay={i * 60}>
                         <ProductCard product={product} />
                     </ScrollReveal>

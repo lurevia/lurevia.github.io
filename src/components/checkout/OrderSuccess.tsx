@@ -30,7 +30,7 @@ export const OrderSuccess: FC<OrderSuccessProps> = ({ order }) => (
           N° de commande
         </span>
         <span className="text-xs font-black text-slate-800 font-mono">
-          {order.id}
+          #{order.id.slice(-8).toUpperCase()}
         </span>
       </div>
       <div className="flex items-center justify-between">

@@ -1,4 +1,6 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import type { FC } from "react";
+
 import { HeroBanner } from "../components/home/HeroBanner";
 import { FeatureBar } from "../components/home/FeatureBar";
 import { CategorySection } from "../components/home/CategorySection";
@@ -6,10 +8,37 @@ import { ProductGrid } from "../components/home/ProductGrid";
 import { ArtisanBanner } from "../components/home/ArtisanBanner";
 import { WhyUsSection } from "../components/home/WhyUsSection";
 import { PartnerBanner } from "../components/home/PartnerBanner";
-import { MOCK_PRODUCTS } from "../bin/data/mock";
 import { ScrollReveal } from "../components/common/ScrollReveal";
+import { productsApi } from "../api/products";
+import type { Product } from "../bin/types/homeType";
 
-export const Home: React.FC = () => {
+const POPULAR_LIMIT = 10;
+
+export const Home: FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const page = await productsApi.list(
+          { page: 1, limit: POPULAR_LIMIT, sortBy: "popular", availability: "in-stock" },
+          controller.signal
+        );
+        if (!controller.signal.aborted) setProducts(page.products);
+      } catch {
+        if (!controller.signal.aborted) setProducts([]);
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    };
+
+    void load();
+    return () => controller.abort();
+  }, []);
+
   return (
     <div className="space-y-12">
       <HeroBanner />
@@ -21,7 +50,7 @@ export const Home: React.FC = () => {
       </ScrollReveal>
 
       <ScrollReveal delay={250}>
-        <ProductGrid products={MOCK_PRODUCTS} />
+        <ProductGrid products={products} isLoading={isLoading} />
       </ScrollReveal>
 
       <ScrollReveal delay={200}>
@@ -35,7 +64,6 @@ export const Home: React.FC = () => {
       <ScrollReveal delay={200}>
         <PartnerBanner />
       </ScrollReveal>
-
     </div>
   );
 };

@@ -5,19 +5,46 @@ import { AddressCard } from "../../components/account/AddressCard";
 import { AddressForm } from "../../components/account/AddressForm";
 import { Button } from "../../components/ui/Button";
 import { useAddresses } from "../../hooks/useAddresses";
-import type { Address } from "../../bin/types/addressType";
+import { toErrorMessage } from "../../api/http";
+import type { Address, AddressInput } from "../../bin/types/addressType";
 
 
 export const AddressesPage: FC = () => {
-    const { addresses, addAddress, updateAddress, removeAddress, setDefaultAddress } =
-        useAddresses();
+    const {
+        addresses,
+        addAddress,
+        updateAddress,
+        removeAddress,
+        setDefaultAddress,
+        isLoading,
+        error,
+    } = useAddresses();
 
     const [editing, setEditing] = useState<Address | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const closeForm = () => {
         setEditing(null);
         setIsCreating(false);
+        setFormError(null);
+    };
+
+    const handleSubmit = (data: AddressInput) => {
+        void (async () => {
+            setIsSubmitting(true);
+            setFormError(null);
+            try {
+                if (editing) await updateAddress(editing.id, data);
+                else await addAddress(data);
+                closeForm();
+            } catch (err) {
+                setFormError(toErrorMessage(err, "L'adresse n'a pas pu être enregistrée."));
+            } finally {
+                setIsSubmitting(false);
+            }
+        })();
     };
 
     return (
@@ -51,19 +78,32 @@ export const AddressesPage: FC = () => {
                     <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider mb-4">
                         {editing ? "Modifier l'adresse" : "Nouvelle adresse"}
                     </h2>
+                    {formError && (
+                        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                            <p className="text-xs font-medium text-red-600">{formError}</p>
+                        </div>
+                    )}
                     <AddressForm
                         initial={editing ?? undefined}
-                        onSubmit={(data) => {
-                            if (editing) updateAddress(editing.id, data);
-                            else addAddress(data);
-                            closeForm();
-                        }}
+                        isSubmitting={isSubmitting}
+                        onSubmit={handleSubmit}
                         onCancel={closeForm}
                     />
                 </div>
             )}
 
-            {addresses.length === 0 && !isCreating ? (
+            {error && (
+                <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                    <p className="text-xs font-medium text-red-600">{error}</p>
+                </div>
+            )}
+
+            {isLoading ? (
+                <div className="flex justify-center py-16" role="status">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+                    <span className="sr-only">Chargement des adresses</span>
+                </div>
+            ) : addresses.length === 0 && !isCreating ? (
                 <div className="text-center py-16 max-w-md mx-auto">
                     <div className="inline-flex p-6 bg-slate-50 rounded-full mb-5">
                         <MapPin size={40} className="text-slate-300" strokeWidth={1.5} />
@@ -90,8 +130,8 @@ export const AddressesPage: FC = () => {
                             key={addr.id}
                             address={addr}
                             onEdit={() => setEditing(addr)}
-                            onDelete={() => removeAddress(addr.id)}
-                            onSetDefault={() => setDefaultAddress(addr.id)}
+                            onDelete={() => void removeAddress(addr.id)}
+                            onSetDefault={() => void setDefaultAddress(addr.id)}
                         />
                     ))}
                 </div>

@@ -13,7 +13,6 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
   const {
     subtotal,
     shipping,
-    vat,
     total,
     freeShippingThreshold,
     amountToFreeShipping,
@@ -72,10 +71,10 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
           </span>
         </div>
 
-        <div className="flex justify-between text-xs text-slate-400 pt-1">
-          <span>TVA incluse (20 %)</span>
-          <span>{formatAriary(vat)}</span>
-        </div>
+        <p className="text-[11px] text-slate-400 pt-1">
+          Montants indicatifs — le total définitif est confirmé par nos
+          serveurs lors de la validation de la commande.
+        </p>
 
         <div className="flex justify-between items-baseline pt-3 mt-3 border-t border-slate-100">
           <span className="text-sm font-black text-lurevia-dark uppercase tracking-wider">

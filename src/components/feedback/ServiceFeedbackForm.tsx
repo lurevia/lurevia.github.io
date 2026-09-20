@@ -3,11 +3,12 @@ import type { FC, FormEvent } from "react";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Textarea";
 import { StarRatingInput } from "../reviews/StarRatingInput";
-import type { ServiceFeedback } from "../../bin/types/feedbackType";
+import type { FeedbackInput, ServiceFeedback } from "../../bin/types/feedbackType";
 
 type ServiceFeedbackFormProps = {
     initial?: ServiceFeedback;
-    onSubmit: (data: Omit<ServiceFeedback, "id" | "createdAt" | "updatedAt" | "userId" | "userName">) => void;
+    isSubmitting?: boolean;
+    onSubmit: (data: FeedbackInput) => void;
     onCancel?: () => void;
 };
 
@@ -21,6 +22,7 @@ const CATEGORIES: { value: ServiceFeedback["category"]; label: string }[] = [
 
 export const ServiceFeedbackForm: FC<ServiceFeedbackFormProps> = ({
     initial,
+    isSubmitting = false,
     onSubmit,
     onCancel,
 }) => {
@@ -33,6 +35,7 @@ export const ServiceFeedbackForm: FC<ServiceFeedbackFormProps> = ({
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) return;
         if (overallRating < 1) {
             setError("Veuillez donner une note globale.");
             return;
@@ -105,8 +108,13 @@ export const ServiceFeedbackForm: FC<ServiceFeedbackFormProps> = ({
                         Annuler
                     </Button>
                 )}
-                <Button type="submit" variant="primary" className="flex-1!">
-                    {initial ? "Modifier" : "Envoyer"}
+                <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                    className="flex-1!"
+                >
+                    {isSubmitting ? "Envoi…" : initial ? "Modifier" : "Envoyer"}
                 </Button>
             </div>
         </form>

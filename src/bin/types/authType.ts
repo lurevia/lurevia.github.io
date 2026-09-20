@@ -6,13 +6,10 @@ export interface User {
     email?: string;
     phone?: string;
     avatarUrl?: string;
+    role: "CUSTOMER" | "ADMIN";
+    primaryIdentifier: AuthIdentifier;
     createdAt: string;
     lastLoginAt?: string;
-}
-
-export interface StoredUser extends User {
-    passwordHash: string;
-    primaryIdentifier: AuthIdentifier;
 }
 
 export interface RegisterPayload {
@@ -28,13 +25,27 @@ export interface LoginPayload {
     password: string;
 }
 
+/** Champs réellement modifiables via l'API (`PATCH /users/me`). */
+export interface ProfileUpdatePayload {
+    fullName?: string;
+    /** `null` supprime l'avatar. */
+    avatarUrl?: string | null;
+}
+
+export interface ChangePasswordPayload {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
+    /** Vrai une fois la tentative de restauration de session terminée. */
     isReady: boolean;
 
     login: (payload: LoginPayload) => Promise<void>;
     register: (payload: RegisterPayload) => Promise<void>;
-    logout: () => void;
-    updateProfile: (data: Partial<User>) => void;
+    logout: () => Promise<void>;
+    updateProfile: (data: ProfileUpdatePayload) => Promise<void>;
+    changePassword: (payload: ChangePasswordPayload) => Promise<void>;
 }

@@ -8,12 +8,14 @@ import type { ProductReview } from "../../bin/types/reviewType";
 
 type ProductReviewFormProps = {
     initial?: ProductReview;
+    isSubmitting?: boolean;
     onSubmit: (data: { rating: number; title?: string; comment: string }) => void;
     onCancel?: () => void;
 };
 
 export const ProductReviewForm: FC<ProductReviewFormProps> = ({
     initial,
+    isSubmitting = false,
     onSubmit,
     onCancel,
 }) => {
@@ -28,6 +30,7 @@ export const ProductReviewForm: FC<ProductReviewFormProps> = ({
             setError("Veuillez sélectionner une note.");
             return;
         }
+        if (isSubmitting) return;
         if (comment.trim().length < 10) {
             setError("Votre commentaire doit faire au moins 10 caractères.");
             return;
@@ -83,8 +86,17 @@ export const ProductReviewForm: FC<ProductReviewFormProps> = ({
                         Annuler
                     </Button>
                 )}
-                <Button type="submit" variant="primary" className="flex-1!">
-                    {initial ? "Modifier l'avis" : "Publier l'avis"}
+                <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                    className="flex-1!"
+                >
+                    {isSubmitting
+                        ? "Envoi…"
+                        : initial
+                            ? "Modifier l'avis"
+                            : "Publier l'avis"}
                 </Button>
             </div>
         </form>

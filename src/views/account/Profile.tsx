@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FC } from "react";
+import type { FC, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   Save,
@@ -9,7 +9,9 @@ import {
   Bell,
   ChevronRight,
   Star,
+  KeyRound,
 } from "lucide-react";
+
 import { AvatarUploader } from "../../components/account/AvatarUploader";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -17,54 +19,86 @@ import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
 import { useNotifications } from "../../hooks/useNotifications";
-import { useReviews } from "../../hooks/useReviews";
+import { toErrorMessage } from "../../api/http";
+import { validatePasswordStrength } from "../../hooks/useAuthForm";
+import { initialsOf } from "../../bin/utils/security";
 
 export const ProfilePage: FC = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, changePassword } = useAuth();
   const { orders, transactions } = useOrders();
   const { totalFavorites } = useFavorite();
   const { unreadCount } = useNotifications();
-  const { getUserReviewForProduct } = useReviews();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [phone, setPhone] = useState(user?.phone ?? "");
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   if (!user) return null;
 
-  const initials = user.fullName
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials = initialsOf(user.fullName);
+
+  const saveProfile = async (data: { fullName?: string; avatarUrl?: string | null }) => {
+    setIsSaving(true);
+    setProfileError(null);
+    try {
+      await updateProfile(data);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      setProfileError(toErrorMessage(error, "Modification impossible."));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSave = () => {
-    updateProfile({
-      fullName: fullName.trim() || user.fullName,
-      email: email.trim() || undefined,
-      phone: phone.trim() || undefined,
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    const trimmed = fullName.trim();
+    if (trimmed.length < 2) {
+      setProfileError("Le nom complet doit contenir au moins 2 caractères.");
+      return;
+    }
+    void saveProfile({ fullName: trimmed });
+  };
+
+  const handleChangePassword = (e: FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+
+    const strengthError = validatePasswordStrength(newPassword);
+    if (strengthError) {
+      setPasswordError(strengthError);
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setPasswordError("Le nouveau mot de passe doit différer de l'actuel.");
+      return;
+    }
+
+    void (async () => {
+      setIsChangingPassword(true);
+      try {
+        // Le serveur révoque toutes les sessions : l'utilisateur est
+        // redirigé vers la page de connexion par la route protégée.
+        await changePassword({ currentPassword, newPassword });
+      } catch (error) {
+        setPasswordError(toErrorMessage(error, "Changement de mot de passe impossible."));
+      } finally {
+        setCurrentPassword("");
+        setNewPassword("");
+        setIsChangingPassword(false);
+      }
+    })();
   };
 
   const totalSpent = transactions
     .filter((t) => t.status === "success")
     .reduce((sum, t) => sum + t.amount, 0);
-
-  /** 🎯 Calcul du nombre d'avis à donner */
-  const pendingCount = orders.reduce((count, order) => {
-    const delay = 5 * 24 * 60 * 60 * 1000;
-    const isOld = Date.now() - new Date(order.createdAt).getTime() >= delay;
-    if (!isOld) return count;
-
-    for (const item of order.items) {
-      if (!getUserReviewForProduct(item.product.id)) count++;
-    }
-    return count;
-  }, 0);
 
   return (
     <>
@@ -88,7 +122,6 @@ export const ProfilePage: FC = () => {
         </div>
       </div>
 
-      {/* Notification en attente */}
       {unreadCount > 0 && (
         <Link
           to="/compte/notifications"
@@ -118,13 +151,9 @@ export const ProfilePage: FC = () => {
           <Star size={16} className="text-lurevia-yellow fill-lurevia-yellow" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-black text-lurevia-dark">
-            Mes avis & feedbacks
-          </p>
+          <p className="text-xs font-black text-lurevia-dark">Mes avis &amp; feedbacks</p>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            {pendingCount > 0
-              ? `${pendingCount} avis en attente de votre part`
-              : "Voir tous vos avis produits et feedbacks service"}
+            Voir vos avis produits et vos feedbacks service
           </p>
         </div>
         <ChevronRight size={16} className="text-slate-400 shrink-0" />
@@ -138,7 +167,8 @@ export const ProfilePage: FC = () => {
         <AvatarUploader
           currentUrl={user.avatarUrl}
           initials={initials}
-          onChange={(url) => updateProfile({ avatarUrl: url })}
+          isSaving={isSaving}
+          onChange={(url) => void saveProfile({ avatarUrl: url })}
         />
       </div>
 
@@ -154,30 +184,41 @@ export const ProfilePage: FC = () => {
           onChange={(e) => setFullName(e.target.value)}
           icon={<UserIcon size={16} />}
           autoComplete="name"
+          maxLength={120}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="— non renseigné —"
+            value={user.email ?? "— non renseigné —"}
+            readOnly
+            disabled
             icon={<Mail size={16} />}
-            autoComplete="email"
           />
           <Input
             label="Téléphone"
             type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="— non renseigné —"
+            value={user.phone ?? "— non renseigné —"}
+            readOnly
+            disabled
             icon={<Phone size={16} />}
-            autoComplete="tel"
           />
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-2">
+        <p className="text-[11px] text-slate-500">
+          L'email et le téléphone servent d'identifiants de connexion : leur
+          modification se fait sur demande auprès du service client, après
+          vérification d'identité.
+        </p>
+
+        {profileError && (
+          <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+            <p className="text-xs font-medium text-red-600">{profileError}</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-3 pt-2 flex-wrap">
           <p className="text-[11px] text-slate-500">
             Membre depuis{" "}
             {new Date(user.createdAt).toLocaleDateString("fr-FR", {
@@ -192,11 +233,58 @@ export const ProfilePage: FC = () => {
             variant="primary"
             icon={Save}
             onClick={handleSave}
+            disabled={isSaving}
             className="rounded-xl!"
           >
             {saved ? "Enregistré ✓" : "Enregistrer"}
           </Button>
         </div>
+      </div>
+
+      {/* Sécurité */}
+      <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">
+        <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider">
+          Sécurité
+        </h2>
+
+        <form onSubmit={handleChangePassword} className="space-y-3">
+          <Input
+            label="Mot de passe actuel"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            icon={<KeyRound size={16} />}
+            autoComplete="current-password"
+          />
+          <Input
+            label="Nouveau mot de passe"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            icon={<KeyRound size={16} />}
+            autoComplete="new-password"
+          />
+
+          <p className="text-[11px] text-slate-500">
+            8 caractères minimum, avec au moins une minuscule, une majuscule et
+            un chiffre. Changer votre mot de passe déconnecte tous vos appareils.
+          </p>
+
+          {passwordError && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+              <p className="text-xs font-medium text-red-600">{passwordError}</p>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isChangingPassword || !currentPassword || !newPassword}
+            className="rounded-xl!"
+          >
+            {isChangingPassword ? "Modification…" : "Changer le mot de passe"}
+          </Button>
+        </form>
       </div>
     </>
   );
@@ -208,9 +296,7 @@ const StatCard: FC<{
   isText?: boolean;
 }> = ({ label, value, isText }) => (
   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-    <p className={`font-black ${isText ? "text-sm md:text-base" : "text-2xl"}`}>
-      {value}
-    </p>
+    <p className={`font-black ${isText ? "text-sm md:text-base" : "text-2xl"}`}>{value}</p>
     <p className="text-[10px] uppercase tracking-wider text-emerald-100/80 font-bold mt-0.5">
       {label}
     </p>

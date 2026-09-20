@@ -12,6 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
 import { Button } from "../ui/Button";
+import { initialsOf } from "../../bin/utils/security";
 
 const NAV_ITEMS = [
     { to: "/compte", label: "Profil", icon: UserIcon, exact: true },
@@ -28,12 +29,7 @@ export const AccountSidebar: FC = () => {
 
     if (!user) return null;
 
-    const initials = user.fullName
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase();
+    const initials = initialsOf(user.fullName);
 
     return (
         <aside className="bg-white border border-slate-100 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">
@@ -41,7 +37,8 @@ export const AccountSidebar: FC = () => {
                 {user.avatarUrl ? (
                     <img
                         src={user.avatarUrl}
-                        alt={user.fullName}
+                        alt=""
+                        referrerPolicy="no-referrer"
                         className="w-12 h-12 rounded-full object-cover shrink-0"
                     />
                 ) : (
@@ -106,7 +103,7 @@ export const AccountSidebar: FC = () => {
                     variant="ghost"
                     size="sm"
                     icon={LogOut}
-                    onClick={logout}
+                    onClick={() => void logout()}
                     className="w-full! justify-start! text-slate-400! hover:text-red-500! hover:bg-red-50!"
                 >
                     Se déconnecter

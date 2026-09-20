@@ -8,8 +8,11 @@ import {
   ShoppingBag,
   Info,
 } from "lucide-react";
+
 import { useAuth } from "../../hooks/useAuth";
 import { useReviews } from "../../hooks/useReviews";
+import { toErrorMessage } from "../../api/http";
+import { REVIEW_DELAY_DAYS } from "../../bin/config/env";
 import { Button } from "../ui/Button";
 import { ProductReviewSummary } from "./ProductReviewSummary";
 import { ProductReviewForm } from "./ProductReviewForm";
@@ -17,56 +20,73 @@ import { ProductReviewCard } from "./ProductReviewCard";
 
 type ProductReviewsListProps = {
   productId: string;
-  /** 🆕 Ouvre automatiquement le formulaire si l'utilisateur est éligible */
+  /** Ouvre automatiquement le formulaire si l'utilisateur est éligible. */
   autoOpenForm?: boolean;
 };
 
+/**
+ * Bloc « avis clients ».
+ *
+ * L'éligibilité (achat vérifié + délai) est celle renvoyée par l'API :
+ * masquer le formulaire n'est qu'un confort d'interface, le serveur
+ * refusera de toute façon un avis non autorisé.
+ */
 export const ProductReviewsList: FC<ProductReviewsListProps> = ({
   productId,
   autoOpenForm = false,
 }) => {
   const { user, isAuthenticated } = useAuth();
   const {
+    loadProduct,
+    isProductLoading,
     getProductReviews,
     getUserReviewForProduct,
+    getProductRating,
+    checkEligibility,
     addReview,
     updateReview,
     deleteReview,
-    getProductRating,
-    checkEligibility,
   } = useReviews();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void loadProduct(productId);
+  }, [productId, loadProduct]);
 
   const reviews = getProductReviews(productId);
   const rating = getProductRating(productId);
   const myReview = getUserReviewForProduct(productId);
   const eligibility = checkEligibility(productId);
+  const isLoading = isProductLoading(productId);
 
-  /** 🎯 Ouverture automatique du formulaire */
   useEffect(() => {
-    if (
-      autoOpenForm &&
-      !isFormOpen &&
-      !myReview &&
-      eligibility.reason === "eligible"
-    ) {
+    if (autoOpenForm && !myReview && eligibility.reason === "eligible") {
       setIsFormOpen(true);
     }
-  }, [autoOpenForm, isFormOpen, myReview, eligibility.reason]);
+  }, [autoOpenForm, myReview, eligibility.reason]);
 
-  /** Bloc d'action contextuel */
+  const runAction = async (action: () => Promise<void>, after: () => void) => {
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await action();
+      after();
+    } catch (err) {
+      setError(toErrorMessage(err, "Votre avis n'a pas pu être enregistré."));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const renderAction = () => {
     if (!isAuthenticated) {
       return (
         <Link to="/auth">
-          <Button
-            variant="primary"
-            size="sm"
-            icon={Star}
-            className="rounded-full!"
-          >
+          <Button variant="primary" size="sm" icon={Star} className="rounded-full!">
             Se connecter pour noter
           </Button>
         </Link>
@@ -111,7 +131,6 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
     }
   };
 
-  /** Bandeau informatif */
   const renderInfoBanner = () => {
     if (!isAuthenticated) return null;
 
@@ -126,21 +145,19 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
               Vous pourrez bientôt donner votre avis
             </p>
             <p className="text-[11px] text-amber-800/80 mt-0.5 leading-relaxed">
-              Pour garantir la qualité des avis, nous vous laissons 5 jours
-              d’utilisation avant de pouvoir noter ce produit.
+              Pour garantir la qualité des avis, nous vous laissons{" "}
+              {REVIEW_DELAY_DAYS} jours d’utilisation avant de pouvoir noter ce
+              produit.
               {eligibility.availableAt && (
                 <>
                   {" "}
                   Disponible le{" "}
                   <span className="font-bold">
-                    {new Date(eligibility.availableAt).toLocaleDateString(
-                      "fr-FR",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
+                    {new Date(eligibility.availableAt).toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </span>
                   .
                 </>
@@ -158,12 +175,10 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
             <ShoppingBag size={14} className="text-slate-500" />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-800">
-              Achat vérifié requis
-            </p>
+            <p className="text-xs font-bold text-slate-800">Achat vérifié requis</p>
             <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-              Seuls les clients ayant acheté ce produit peuvent laisser un
-              avis. Cela garantit la fiabilité des notes.
+              Seuls les clients ayant acheté ce produit peuvent laisser un avis.
+              Cela garantit la fiabilité des notes.
             </p>
           </div>
         </div>
@@ -175,7 +190,6 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
 
   return (
     <section className="space-y-6">
-      {/* En-tête */}
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h3 className="text-base md:text-lg font-black text-lurevia-dark">
@@ -191,9 +205,14 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
         {renderAction()}
       </header>
 
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+          <p className="text-xs font-medium text-red-600">{error}</p>
+        </div>
+      )}
+
       {renderInfoBanner()}
 
-      {/* Résumé */}
       {rating.count > 0 && (
         <ProductReviewSummary
           average={rating.average}
@@ -202,31 +221,24 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
         />
       )}
 
-      {/* Formulaire d'ajout */}
       {isFormOpen && !myReview && eligibility.reason === "eligible" && user && (
         <div className="bg-white border border-slate-100 rounded-2xl p-5">
           <h4 className="text-sm font-black text-lurevia-dark uppercase tracking-wider mb-4">
             Écrire un avis
           </h4>
           <ProductReviewForm
-            onSubmit={(data) => {
-              addReview({
-                productId,
-                userId: user.id,
-                userName: user.fullName,
-                userAvatar: user.avatarUrl,
-                rating: data.rating,
-                title: data.title,
-                comment: data.comment,
-              });
-              setIsFormOpen(false);
-            }}
+            isSubmitting={isSubmitting}
+            onSubmit={(data) =>
+              void runAction(
+                () => addReview(productId, data),
+                () => setIsFormOpen(false)
+              )
+            }
             onCancel={() => setIsFormOpen(false)}
           />
         </div>
       )}
 
-      {/* Formulaire d'édition */}
       {editingId && myReview && (
         <div className="bg-white border border-slate-100 rounded-2xl p-5">
           <h4 className="text-sm font-black text-lurevia-dark uppercase tracking-wider mb-4">
@@ -234,21 +246,24 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
           </h4>
           <ProductReviewForm
             initial={myReview}
-            onSubmit={(data) => {
-              updateReview(editingId, {
-                rating: data.rating,
-                title: data.title,
-                comment: data.comment,
-              });
-              setEditingId(null);
-            }}
+            isSubmitting={isSubmitting}
+            onSubmit={(data) =>
+              void runAction(
+                () => updateReview(editingId, productId, data),
+                () => setEditingId(null)
+              )
+            }
             onCancel={() => setEditingId(null)}
           />
         </div>
       )}
 
-      {/* Liste des avis */}
-      {reviews.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12" role="status">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+          <span className="sr-only">Chargement des avis</span>
+        </div>
+      ) : reviews.length === 0 ? (
         <div className="text-center py-12 text-slate-400 text-xs">
           Aucun avis pour ce produit pour le moment.
         </div>
@@ -266,7 +281,10 @@ export const ProductReviewsList: FC<ProductReviewsListProps> = ({
                   isOwn
                     ? () => {
                         if (window.confirm("Supprimer cet avis ?")) {
-                          deleteReview(review.id);
+                          void runAction(
+                            () => deleteReview(review.id, productId),
+                            () => setEditingId(null)
+                          );
                         }
                       }
                     : undefined

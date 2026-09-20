@@ -96,7 +96,7 @@ export const NotificationBell: FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 icon={CheckCheck}
-                                onClick={markAllAsRead}
+                                onClick={() => void markAllAsRead()}
                                 className="text-[11px]! text-lurevia-orange! hover:bg-orange-50! px-2! py-1! h-auto!"
                             >
                                 Tout lire
@@ -135,7 +135,7 @@ export const NotificationBell: FC = () => {
                                         <NotificationItem
                                             notification={notif}
                                             onClick={() => {
-                                                markAsRead(notif.id);
+                                                void markAsRead(notif.id);
                                                 setIsOpen(false);
                                             }}
                                         />
@@ -172,7 +172,7 @@ export const NotificationBell: FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     icon={CheckCheck}
-                                    onClick={markAllAsRead}
+                                    onClick={() => void markAllAsRead()}
                                     className="text-[10px]! text-lurevia-orange! hover:bg-orange-50! px-2! py-1! h-auto!"
                                 >
                                     Tout lire
@@ -210,7 +210,7 @@ export const NotificationBell: FC = () => {
                                         <NotificationItem
                                             notification={notif}
                                             onClick={() => {
-                                                markAsRead(notif.id);
+                                                void markAsRead(notif.id);
                                                 setIsOpen(false);
                                             }}
                                         />

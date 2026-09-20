@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import type { FC } from "react";
-import { MOCK_PRODUCTS } from "../../../bin/data/mock";
+
+import { productsApi } from "../../../api/products";
 import { ProductCard } from "../../home/ProductCard";
 import { ScrollReveal } from "../../common/ScrollReveal";
 import type { Product } from "../../../bin/types/homeType";
@@ -10,26 +11,36 @@ type RelatedProductsProps = {
   limit?: number;
 };
 
+/** Suggestions calculées par l'API (`/products/:id/related`). */
 export const RelatedProducts: FC<RelatedProductsProps> = ({
   currentProduct,
   limit = 4,
 }) => {
-  const related = useMemo(() => {
-    return MOCK_PRODUCTS.filter(
-      (p) =>
-        p.id !== currentProduct.id &&
-        p.categorySlugs.some((s) => currentProduct.categorySlugs.includes(s))
-    ).slice(0, limit);
-  }, [currentProduct, limit]);
+  const [related, setRelated] = useState<Product[]>([]);
+  const productId = currentProduct.id;
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const results = await productsApi.getRelated(productId, limit, controller.signal);
+        if (!controller.signal.aborted) setRelated(results);
+      } catch {
+        if (!controller.signal.aborted) setRelated([]);
+      }
+    };
+
+    void load();
+    return () => controller.abort();
+  }, [productId, limit]);
 
   if (related.length === 0) return null;
 
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-2xl font-black text-lurevia-dark">
-          Vous aimerez aussi
-        </h2>
+        <h2 className="text-2xl font-black text-lurevia-dark">Vous aimerez aussi</h2>
         <p className="text-sm text-slate-500 mt-1">
           D’autres créations de la même catégorie.
         </p>

@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Star, Package, CheckCircle2 } from "lucide-react";
 import { formatAriary } from "../../../bin/utils/formatAriary";
-import { useReviews } from "../../../hooks/useReviews";
+import { useProductRating } from "../../../hooks/useProductRating";
 import type { Product } from "../../../bin/types/homeType";
 
 type ProductInfoProps = {
@@ -20,11 +20,11 @@ export const ProductInfo: FC<ProductInfoProps> = ({ product }) => {
     categorySlugs,
   } = product;
 
-  const { getProductRating } = useReviews();
-  const { average, count } = getProductRating(product.id);
-
-  const rating = count > 0 ? average : staticRating;
-  const reviewCount = count > 0 ? count : staticReviewCount;
+  const { rating, reviewCount } = useProductRating(
+    product.id,
+    staticRating,
+    staticReviewCount
+  );
 
   const hasPromo = !!originalPrice && originalPrice > price;
   const discount = hasPromo

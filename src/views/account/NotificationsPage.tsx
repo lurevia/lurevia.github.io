@@ -98,7 +98,7 @@ export const NotificationsPage: FC = () => {
                         variant="ghost"
                         size="sm"
                         icon={CheckCheck}
-                        onClick={markAllAsRead}
+                        onClick={() => void markAllAsRead()}
                         className="text-lurevia-orange! hover:bg-orange-50! text-[11px]!"
                     >
                         Tout marquer comme lu
@@ -152,7 +152,7 @@ export const NotificationsPage: FC = () => {
                         <NotificationItem
                             key={notif.id}
                             notification={notif}
-                            onClick={() => markAsRead(notif.id)}
+                            onClick={() => void markAsRead(notif.id)}
                         />
                     ))}
                 </div>

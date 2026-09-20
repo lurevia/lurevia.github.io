@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { CheckCircle2, Pencil, Trash2, Star } from "lucide-react";
 import type { ProductReview } from "../../bin/types/reviewType";
 import { Button } from "../ui/Button";
+import { initialsOf } from "../../bin/utils/security";
 
 type ProductReviewCardProps = {
     review: ProductReview;
@@ -16,12 +17,7 @@ export const ProductReviewCard: FC<ProductReviewCardProps> = ({
     onEdit,
     onDelete,
 }) => {
-    const initials = review.userName
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase();
+    const initials = initialsOf(review.userName);
 
     const date = new Date(review.createdAt).toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -37,7 +33,8 @@ export const ProductReviewCard: FC<ProductReviewCardProps> = ({
                 {review.userAvatar ? (
                     <img
                         src={review.userAvatar}
-                        alt={review.userName}
+                        alt=""
+                        referrerPolicy="no-referrer"
                         className="w-10 h-10 rounded-full object-cover shrink-0"
                     />
                 ) : (

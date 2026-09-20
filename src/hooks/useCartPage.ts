@@ -1,15 +1,10 @@
 import { useMemo } from "react";
 import { useCart } from "./useCart";
-
-/** Règles business */
-const FREE_SHIPPING_THRESHOLD = 200_000;
-const SHIPPING_COST = 15_000;
-const VAT_RATE = 0.2;
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from "../bin/config/env";
 
 export type CartSummaryData = {
   subtotal: number;
   shipping: number;
-  vat: number;
   total: number;
   itemCount: number;
   freeShippingThreshold: number;
@@ -17,20 +12,26 @@ export type CartSummaryData = {
   hasFreeShipping: boolean;
 };
 
+/**
+ * Récapitulatif du panier.
+ *
+ * Attention : ces montants sont **indicatifs**. Le total réellement
+ * facturé est recalculé par l'API au moment du checkout, à partir des
+ * prix en base — le client ne peut donc pas influencer le prix payé.
+ */
 export const useCartPage = () => {
-  const { cart, removeFromCart, addToCart, totalItems, totalPrice } = useCart();
+  const { cart, removeFromCart, addToCart, setQuantity, clearCart, totalItems, totalPrice, isSyncing } =
+    useCart();
 
   const summary: CartSummaryData = useMemo(() => {
     const subtotal = totalPrice;
     const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
     const shipping = hasFreeShipping || subtotal === 0 ? 0 : SHIPPING_COST;
-    const total = subtotal + shipping;
 
     return {
       subtotal,
       shipping,
-      vat: total * VAT_RATE,
-      total,
+      total: subtotal + shipping,
       itemCount: totalItems,
       freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
       amountToFreeShipping: Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0),
@@ -38,13 +39,14 @@ export const useCartPage = () => {
     };
   }, [totalPrice, totalItems]);
 
-  const isEmpty = cart.length === 0;
-
   return {
     cart,
     summary,
-    isEmpty,
+    isEmpty: cart.length === 0,
+    isSyncing,
     removeFromCart,
     addToCart,
+    setQuantity,
+    clearCart,
   };
 };

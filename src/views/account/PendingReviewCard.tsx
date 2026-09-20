@@ -1,13 +1,13 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { Star, Clock } from "lucide-react";
-import type { Product } from "../../bin/types/homeType";
+import type { ReviewableProduct } from "./reviewableProduct";
 import { ProductImage } from "../../components/common/ProductImage";
 import { Button } from "../../components/ui/Button";
 
 
 type PendingReviewCardProps = {
-  product: Product;
+  product: ReviewableProduct;
   daysRemaining: number;
   availableAt: string;
 };

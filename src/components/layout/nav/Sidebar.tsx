@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp } from "lucide-react"; // Pour la petite flèche qui tourne
-import { CATEGORIES, NAV_LINKS } from "../../../bin/utils/constant/constant";
+import { NAV_LINKS } from "../../../bin/utils/constant/constant";
+import { useCategories } from "../../../hooks/useCategories";
 
 type NavbarSidebarProps = {
   isMenuOpen: boolean;
@@ -10,7 +11,8 @@ type NavbarSidebarProps = {
 
 export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggleMenu }) => {
   const location = useLocation();
-  
+  const { categories } = useCategories();
+
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   return (
@@ -47,7 +49,7 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggle
 
                     {isCategoriesOpen && (
                       <ul className="pl-8 space-y-1 animate-fadeIn">
-                        {CATEGORIES.map((cat) => (
+                        {categories.map((cat) => (
                           <li key={cat.id}>
                             <Link
                               to={`/categories/${cat.slug}`}

@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { formatAriary } from "../../bin/utils/formatAriary";
+import { ProductImage } from "../common/ProductImage";
 import type { CartItem } from "../../bin/types/homeType";
 
 type CartItemRowProps = {
@@ -28,7 +29,7 @@ export const CartItemRow: FC<CartItemRowProps> = ({
           to={`/produit/${product.id}`}
           className="shrink-0 w-18 h-18 md:w-24 md:h-24 rounded-xl overflow-hidden bg-slate-50"
         >
-          <img
+          <ProductImage
             src={product.imageUrl}
             alt={product.title}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"

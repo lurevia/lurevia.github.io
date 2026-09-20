@@ -10,29 +10,23 @@ import { CartSuggestions } from "../components/cart/CartSuggestions";
 import { Button } from "../components/ui/Button";
 
 export const CartPage: FC = () => {
-    const { cart, summary, isEmpty, removeFromCart, addToCart } = useCartPage();
+    const { cart, summary, isEmpty, isSyncing, removeFromCart, setQuantity, clearCart } =
+        useCartPage();
 
     const handleIncrement = (productId: string) => {
         const item = cart.find((i) => i.product.id === productId);
-        if (item) addToCart(item.product);
+        if (item) void setQuantity(productId, item.quantity + 1);
     };
 
     const handleDecrement = (productId: string) => {
         const item = cart.find((i) => i.product.id === productId);
         if (!item) return;
-
-        if (item.quantity > 1) {
-            removeFromCart(productId);
-            for (let i = 0; i < item.quantity - 1; i++) {
-                addToCart(item.product);
-            }
-        } else {
-            removeFromCart(productId);
-        }
+        // 0 : l'API retire la ligne du panier.
+        void setQuantity(productId, item.quantity - 1);
     };
 
     const handleClearCart = () => {
-        cart.forEach((item) => removeFromCart(item.product.id));
+        void clearCart();
     };
 
     return (
@@ -65,6 +59,7 @@ export const CartPage: FC = () => {
                         size="sm"
                         icon={Trash2}
                         onClick={handleClearCart}
+                        disabled={isSyncing}
                         className="text-slate-400! hover:text-red-500! hover:bg-red-50!"
                     >
                         Vider le panier
@@ -84,7 +79,7 @@ export const CartPage: FC = () => {
                                     item={item}
                                     onIncrement={handleIncrement}
                                     onDecrement={handleDecrement}
-                                    onRemove={removeFromCart}
+                                    onRemove={(id) => void removeFromCart(id)}
                                 />
                             ))}
                         </div>

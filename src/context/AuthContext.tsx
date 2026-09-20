@@ -1,197 +1,135 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { AuthContext } from "./authContextDefinition";
+import { authApi } from "../api/auth";
+import { usersApi } from "../api/users";
+import { refreshSession, setSessionHandlers, tokenStore } from "../api/http";
+import { toUser } from "../api/mappers";
+import type { UserDto } from "../api/dto";
 import type {
-    User,
-    StoredUser,
-    LoginPayload,
-    RegisterPayload,
+  ChangePasswordPayload,
+  LoginPayload,
+  ProfileUpdatePayload,
+  RegisterPayload,
+  User,
 } from "../bin/types/authType";
 
-const USERS_KEY = "lurevia_users";
-const SESSION_KEY = "lurevia_session";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// STORAGE HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
-
-const readUsers = (): StoredUser[] => {
-    try {
-        const raw = localStorage.getItem(USERS_KEY);
-        return raw ? (JSON.parse(raw) as StoredUser[]) : [];
-    } catch {
-        return [];
-    }
-};
-
-const writeUsers = (users: StoredUser[]): void => {
-    try {
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    } catch (error) {
-        console.error("Impossible de sauvegarder les utilisateurs.", error);
-    }
-};
-
-/** Hash basique — ⚠️ NON sécurisé, démo uniquement */
-const hashPassword = (password: string): string => {
-    return btoa(`${password}::lurevia-demo-salt`);
-};
-
-const readSession = (): string | null => {
-    try {
-        return localStorage.getItem(SESSION_KEY);
-    } catch {
-        return null;
-    }
-};
-
-const writeSession = (userId: string | null): void => {
-    try {
-        if (userId) {
-            localStorage.setItem(SESSION_KEY, userId);
-        } else {
-            localStorage.removeItem(SESSION_KEY);
-        }
-    } catch (error) {
-        console.error("Impossible de sauvegarder la session.", error);
-    }
-};
-
-/** Filtre les données publiques de l'utilisateur (sans passwordHash) */
-const toPublicUser = (stored: StoredUser): User => {
-    const {
-        id,
-        fullName,
-        email,
-        phone,
-        avatarUrl,
-        createdAt,
-        lastLoginAt,
-    } = stored;
-    return { id, fullName, email, phone, avatarUrl, createdAt, lastLoginAt };
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROVIDER
-// ─────────────────────────────────────────────────────────────────────────────
-
+/**
+ * Source de vérité de la session utilisateur.
+ *
+ * Contrairement à l'ancienne version (comptes et mots de passe stockés
+ * dans le localStorage), l'authentification est désormais entièrement
+ * déléguée à l'API :
+ *
+ * - le mot de passe ne transite qu'une fois, vers `/auth/login` ;
+ * - le token d'accès reste en mémoire (voir `api/http.ts`) ;
+ * - la session est rétablie au chargement via le cookie httpOnly de
+ *   refresh, donc un XSS ne peut pas exfiltrer de session réutilisable ;
+ * - aucune donnée utilisateur n'est persistée côté navigateur.
+ */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isReady, setIsReady] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const isMounted = useRef(true);
 
-    // ─── RESTAURATION DE SESSION au montage ───
-    useEffect(() => {
-        const sessionUserId = readSession();
-        if (!sessionUserId) {
-            setIsReady(true);
-            return;
-        }
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
-        const users = readUsers();
-        const found = users.find((u) => u.id === sessionUserId);
-
-        if (found) setUser(toPublicUser(found));
-        else writeSession(null);
-
-        setIsReady(true);
-    }, []);
-
-    // ─── REGISTER ───
-    const register = useCallback(async (payload: RegisterPayload): Promise<void> => {
-        const users = readUsers();
-
-        // Validation : identifier unique
-        if (payload.email && users.some((u) => u.email === payload.email)) {
-            throw new Error("Cet email est déjà utilisé.");
-        }
-        if (payload.phone && users.some((u) => u.phone === payload.phone)) {
-            throw new Error("Ce numéro est déjà utilisé.");
-        }
-
-        const newUser: StoredUser = {
-            id: `usr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            fullName: payload.fullName.trim(),
-            email: payload.email?.trim().toLowerCase(),
-            phone: payload.phone?.trim(),
-            createdAt: new Date().toISOString(),
-            lastLoginAt: new Date().toISOString(),
-            passwordHash: hashPassword(payload.password),
-            primaryIdentifier: payload.primaryIdentifier,
-        };
-
-        writeUsers([...users, newUser]);
-        writeSession(newUser.id);
-        setUser(toPublicUser(newUser));
-    }, []);
-
-    // ─── LOGIN ───
-    const login = useCallback(async (payload: LoginPayload): Promise<void> => {
-        const users = readUsers();
-        const identifier = payload.identifier.trim().toLowerCase();
-
-        const found = users.find(
-            (u) =>
-                u.email?.toLowerCase() === identifier ||
-                u.phone === payload.identifier.trim()
-        );
-
-        if (!found) {
-            throw new Error("Aucun compte trouvé avec cet identifiant.");
-        }
-
-        if (found.passwordHash !== hashPassword(payload.password)) {
-            throw new Error("Mot de passe incorrect.");
-        }
-
-        // Met à jour lastLoginAt
-        const updated: StoredUser = {
-            ...found,
-            lastLoginAt: new Date().toISOString(),
-        };
-        writeUsers(users.map((u) => (u.id === found.id ? updated : u)));
-
-        writeSession(found.id);
-        setUser(toPublicUser(updated));
-    }, []);
-
-    // ─── LOGOUT ───
-    const logout = useCallback((): void => {
-        writeSession(null);
+  // ─── Branche le client HTTP sur l'état de session ───
+  useEffect(() => {
+    setSessionHandlers({
+      onRefreshed: (refreshedUser) => {
+        if (!isMounted.current || !refreshedUser) return;
+        setUser(toUser(refreshedUser as UserDto));
+      },
+      onExpired: () => {
+        if (!isMounted.current) return;
+        tokenStore.clear();
         setUser(null);
-    }, []);
+      },
+    });
 
-    // ─── UPDATE PROFILE ───
-    const updateProfile = useCallback(
-        (data: Partial<User>): void => {
-            if (!user) return;
+    return () => setSessionHandlers({});
+  }, []);
 
-            const users = readUsers();
-            const updated: StoredUser = {
-                ...users.find((u) => u.id === user.id)!,
-                ...data,
-            };
-            writeUsers(users.map((u) => (u.id === user.id ? updated : u)));
-            setUser(toPublicUser(updated));
-        },
-        [user]
-    );
+  // ─── Restauration de session au démarrage ───
+  useEffect(() => {
+    let cancelled = false;
 
-    // ─── VALEUR DU CONTEXTE ───
-    const contextValue = useMemo(
-        () => ({
-            user,
-            isAuthenticated: !!user,
-            isReady,
-            login,
-            register,
-            logout,
-            updateProfile,
-        }),
-        [user, isReady, login, register, logout, updateProfile]
-    );
+    const bootstrap = async () => {
+      const restored = await refreshSession();
+      if (cancelled) return;
 
-    return (
-        <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
-    );
+      if (!restored) {
+        setUser(null);
+        setIsReady(true);
+        return;
+      }
+
+      // `onRefreshed` a déjà posé l'utilisateur ; on confirme auprès de
+      // /auth/me pour disposer du profil à jour (avatar, rôle...).
+      try {
+        const current = await authApi.me();
+        if (!cancelled) setUser(current);
+      } catch {
+        // Token tout juste renouvelé : un échec ici est transitoire.
+      } finally {
+        if (!cancelled) setIsReady(true);
+      }
+    };
+
+    void bootstrap();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const login = useCallback(async (payload: LoginPayload): Promise<void> => {
+    const loggedUser = await authApi.login(payload);
+    setUser(loggedUser);
+  }, []);
+
+  const register = useCallback(async (payload: RegisterPayload): Promise<void> => {
+    const created = await authApi.register(payload);
+    setUser(created);
+  }, []);
+
+  const logout = useCallback(async (): Promise<void> => {
+    await authApi.logout();
+    setUser(null);
+  }, []);
+
+  const updateProfile = useCallback(async (data: ProfileUpdatePayload): Promise<void> => {
+    const updated = await usersApi.updateProfile(data);
+    setUser(updated);
+  }, []);
+
+  const changePassword = useCallback(async (payload: ChangePasswordPayload): Promise<void> => {
+    await usersApi.changePassword(payload);
+    // Le serveur révoque toutes les sessions : on repart d'une session
+    // propre en forçant une reconnexion.
+    tokenStore.clear();
+    setUser(null);
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      user,
+      isAuthenticated: user !== null,
+      isReady,
+      login,
+      register,
+      logout,
+      updateProfile,
+      changePassword,
+    }),
+    [user, isReady, login, register, logout, updateProfile, changePassword]
+  );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

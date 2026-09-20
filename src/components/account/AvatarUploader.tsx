@@ -1,79 +1,112 @@
-import { useRef, useState } from "react";
-import type { ChangeEvent, FC } from "react";
-import { Camera, Trash2 } from "lucide-react";
+import { useState } from "react";
+import type { FC, FormEvent } from "react";
+import { Link2, Trash2, Check } from "lucide-react";
 import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { safeImageUrl } from "../../bin/utils/security";
 
 type AvatarUploaderProps = {
     currentUrl?: string;
     initials: string;
-    onChange: (dataUrl: string | undefined) => void;
+    isSaving?: boolean;
+    onChange: (url: string | null) => void;
 };
 
-const MAX_SIZE = 500 * 1024;
+const MAX_URL_LENGTH = 2048;
 
+/**
+ * Photo de profil.
+ *
+ * L'API n'accepte qu'une URL d'image (2048 caractères max) : l'envoi d'un
+ * fichier encodé en base64 est refusé, et stocker une image complète dans
+ * un champ texte serait de toute façon une mauvaise pratique. On demande
+ * donc une URL, validée ici (http/https uniquement) avant envoi.
+ */
 export const AvatarUploader: FC<AvatarUploaderProps> = ({
     currentUrl,
     initials,
+    isSaving = false,
     onChange,
 }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [url, setUrl] = useState(currentUrl ?? "");
     const [error, setError] = useState<string | null>(null);
 
-    const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
         setError(null);
-        const file = e.target.files?.[0];
-        if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-            setError("Le fichier doit être une image.");
+        const trimmed = url.trim();
+        if (trimmed === "") {
+            onChange(null);
             return;
         }
 
-        if (file.size > MAX_SIZE) {
-            setError("Image trop lourde (max 500 Ko).");
+        if (trimmed.length > MAX_URL_LENGTH) {
+            setError("URL trop longue (2048 caractères maximum).");
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = () => onChange(reader.result as string);
-        reader.onerror = () => setError("Impossible de lire le fichier.");
-        reader.readAsDataURL(file);
+        const safe = safeImageUrl(trimmed);
+        if (!safe || !/^https?:/i.test(safe)) {
+            setError("Indiquez une URL d'image valide commençant par https://");
+            return;
+        }
+
+        onChange(safe);
     };
 
     const handleRemove = () => {
+        setUrl("");
         setError(null);
-        onChange(undefined);
-        if (fileInputRef.current) fileInputRef.current.value = "";
+        onChange(null);
     };
 
     return (
-        <div className="flex items-center gap-4">
-            <div className="relative shrink-0">
-                {currentUrl ? (
-                    <img
-                        src={currentUrl}
-                        alt="Avatar"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-slate-100"
-                    />
-                ) : (
-                    <div className="w-20 h-20 rounded-full bg-lurevia-dark text-white flex items-center justify-center font-black text-xl">
-                        {initials}
-                    </div>
-                )}
+        <div className="space-y-4">
+            <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                    {currentUrl ? (
+                        <img
+                            src={currentUrl}
+                            alt=""
+                            referrerPolicy="no-referrer"
+                            className="w-20 h-20 rounded-full object-cover border-2 border-slate-100"
+                        />
+                    ) : (
+                        <div className="w-20 h-20 rounded-full bg-lurevia-dark text-white flex items-center justify-center font-black text-xl">
+                            {initials}
+                        </div>
+                    )}
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Collez l'adresse d'une image hébergée en ligne (JPG, PNG ou WebP).
+                    Aucune image n'est stockée sur nos serveurs.
+                </p>
             </div>
 
-            {/* Actions */}
-            <div className="flex-1 min-w-0">
+            <form onSubmit={handleSubmit} className="space-y-3">
+                <Input
+                    label="URL de la photo"
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://exemple.com/photo.jpg"
+                    icon={<Link2 size={16} />}
+                    maxLength={MAX_URL_LENGTH}
+                    error={error ?? undefined}
+                />
+
                 <div className="flex flex-wrap gap-2">
                     <Button
-                        type="button"
-                        variant="ghost"
+                        type="submit"
+                        variant="primary"
                         size="sm"
-                        icon={Camera}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border border-slate-200! bg-white!"
+                        icon={Check}
+                        disabled={isSaving}
+                        className="rounded-xl!"
                     >
-                        Changer la photo
+                        {isSaving ? "Enregistrement…" : "Valider la photo"}
                     </Button>
 
                     {currentUrl && (
@@ -83,29 +116,14 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
                             size="sm"
                             icon={Trash2}
                             onClick={handleRemove}
+                            disabled={isSaving}
                             className="text-red-500! hover:bg-red-50!"
                         >
                             Retirer
                         </Button>
                     )}
                 </div>
-
-                <p className="text-[11px] text-slate-500 mt-2">
-                    JPG ou PNG, max 500 Ko.
-                </p>
-
-                {error && (
-                    <p className="text-[11px] text-red-500 mt-1 font-medium">{error}</p>
-                )}
-
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFile}
-                    className="hidden"
-                />
-            </div>
+            </form>
         </div>
     );
 };

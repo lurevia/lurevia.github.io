@@ -11,7 +11,6 @@ export type FilterSidebarProps = {
   filters: FilterState;
   onChange: (next: FilterState) => void;
   onReset: () => void;
-  categoryCounts: Record<string, number>;
   categories: { slug: string; name: string }[];
   isGlobalShop: boolean;
 };
@@ -40,7 +39,6 @@ export const FilterSidebar: FC<FilterSidebarProps> = (props) => {
           filters={filters}
           onChange={onChange}
           categories={props.categories}
-          categoryCounts={props.categoryCounts}
         />
       )}
       <PriceFilter filters={filters} onChange={onChange} />

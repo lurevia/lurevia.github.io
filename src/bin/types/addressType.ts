@@ -7,3 +7,6 @@ export interface Address extends ShippingAddress {
   isDefault: boolean;
   createdAt: string;
 }
+
+/** Données acceptées par l'API pour créer ou modifier une adresse. */
+export type AddressInput = Omit<Address, "id" | "userId" | "createdAt">;

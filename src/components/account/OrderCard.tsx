@@ -30,7 +30,7 @@ export const OrderCard: FC<OrderCardProps> = ({ order }) => {
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-slate-100 bg-slate-50/50">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-xs font-black text-slate-800 font-mono">
-            {order.id}
+            #{order.id.slice(-8).toUpperCase()}
           </span>
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${meta.color}`}
@@ -50,30 +50,30 @@ export const OrderCard: FC<OrderCardProps> = ({ order }) => {
 
       <ul className="p-4 space-y-3">
         {order.items.map((item) => (
-          <li key={item.product.id} className="flex gap-3 items-center">
+          <li key={item.productId} className="flex gap-3 items-center">
             <Link
-              to={`/produit/${item.product.id}`}
+              to={`/produit/${item.productId}`}
               className="w-12 h-12 rounded-lg overflow-hidden bg-slate-50 shrink-0"
             >
               <ProductImage
-                src={item.product.imageUrl}
-                alt={item.product.title}
+                src={item.imageUrl}
+                alt={item.title}
                 className="w-full h-full object-cover"
               />
             </Link>
             <div className="flex-1 min-w-0">
               <Link
-                to={`/produit/${item.product.id}`}
+                to={`/produit/${item.productId}`}
                 className="text-xs font-bold text-slate-800 line-clamp-1 hover:text-lurevia-orange"
               >
-                {item.product.title}
+                {item.title}
               </Link>
               <p className="text-[11px] text-slate-500">
-                {item.quantity} × {formatAriary(item.product.price)}
+                {item.quantity} × {formatAriary(item.price)}
               </p>
             </div>
             <span className="text-xs font-black text-slate-800 whitespace-nowrap">
-              {formatAriary(item.product.price * item.quantity)}
+              {formatAriary(item.price * item.quantity)}
             </span>
           </li>
         ))}

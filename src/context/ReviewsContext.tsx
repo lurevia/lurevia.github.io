@@ -1,234 +1,211 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+
 import { ReviewsContext } from "./reviewsContextDefinition";
+import { EMPTY_RATING, reviewsApi } from "../api/reviews";
 import { useAuth } from "../hooks/useAuth";
-import { useOrders } from "../hooks/useOrders";
-import type { ProductReview, ReviewEligibility } from "../bin/types/reviewType";
-import { REVIEW_DELAY_DAYS } from "../bin/utils/constant/constant";
+import type {
+  ProductRating,
+  ProductReview,
+  ReviewEligibility,
+  ReviewInput,
+} from "../bin/types/reviewType";
 
-const STORAGE_KEY = "lurevia_reviews";
+/**
+ * Avis produits.
+ *
+ * Toute la logique métier sensible (achat vérifié, délai de 5 jours,
+ * unicité de l'avis, propriété de l'avis) est tranchée par l'API : le
+ * client se contente d'afficher la décision du serveur. L'ancienne
+ * implémentation calculait l'éligibilité en local, ce qui rendait la
+ * règle contournable depuis la console du navigateur.
+ *
+ * Les réponses sont mises en cache par produit pour éviter de rejouer
+ * quatre requêtes à chaque rendu.
+ */
 
-
-const readStorage = (): ProductReview[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ProductReview[]) : [];
-  } catch {
-    return [];
-  }
+type ProductReviewsState = {
+  reviews: ProductReview[];
+  rating: ProductRating;
+  eligibility: ReviewEligibility;
+  mine: ProductReview | null;
+  isLoading: boolean;
 };
 
-const writeStorage = (reviews: ProductReview[]): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-  } catch (error) {
-    console.error("Impossible de sauvegarder les avis.", error);
-  }
+const DEFAULT_STATE: ProductReviewsState = {
+  reviews: [],
+  rating: EMPTY_RATING,
+  eligibility: { canReview: false, reason: "not_logged_in" },
+  mine: null,
+  isLoading: false,
 };
 
 export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
-  const { orders } = useOrders();
-  const [reviews, setReviews] = useState<ProductReview[]>(readStorage);
+  const { user, isReady } = useAuth();
+  const [byProduct, setByProduct] = useState<Record<string, ProductReviewsState>>({});
+  const inFlight = useRef<Set<string>>(new Set());
+  const loadedMine = useRef<Set<string>>(new Set());
 
+  const isAuthenticated = user !== null;
+
+  // Le cache dépend de l'utilisateur (éligibilité, « mon avis ») :
+  // on le purge à chaque changement de session.
   useEffect(() => {
-    writeStorage(reviews);
-  }, [reviews]);
+    setByProduct({});
+    inFlight.current.clear();
+    loadedMine.current.clear();
+  }, [user?.id]);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // HELPERS INTERNES
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /** Vérifie si l'utilisateur a acheté ce produit */
-  const hasPurchased = useCallback(
-    (productId: string): boolean => {
-      return orders.some((order) =>
-        order.items.some((item) => item.product.id === productId)
-      );
+  const patchProduct = useCallback(
+    (productId: string, patch: Partial<ProductReviewsState>) => {
+      setByProduct((prev) => ({
+        ...prev,
+        [productId]: { ...DEFAULT_STATE, ...prev[productId], ...patch },
+      }));
     },
-    [orders]
+    []
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // LECTURE DES AVIS
-  // ─────────────────────────────────────────────────────────────────────────
+  const loadProduct = useCallback(
+    async (productId: string): Promise<void> => {
+      if (!productId || !isReady) return;
+      if (inFlight.current.has(productId)) return;
 
-  /** Tous les avis d'un produit (réels uniquement) */
-  const getProductReviews = useCallback(
-    (productId: string): ProductReview[] =>
-      reviews
-        .filter((r) => r.productId === productId)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [reviews]
-  );
+      inFlight.current.add(productId);
+      patchProduct(productId, { isLoading: true });
 
-  /** L'avis de l'utilisateur courant pour un produit (s'il existe) */
-  const getUserReviewForProduct = useCallback(
-    (productId: string): ProductReview | null => {
-      if (!user) return null;
-      return (
-        reviews.find(
-          (r) => r.productId === productId && r.userId === user.id
-        ) ?? null
-      );
+      try {
+        const [reviews, rating] = await Promise.all([
+          reviewsApi.listForProduct(productId),
+          reviewsApi.rating(productId),
+        ]);
+
+        let eligibility: ReviewEligibility = { canReview: false, reason: "not_logged_in" };
+        let mine: ProductReview | null = null;
+
+        if (isAuthenticated) {
+          const [eligibilityResult, mineResult] = await Promise.allSettled([
+            reviewsApi.eligibility(productId),
+            reviewsApi.mine(productId),
+          ]);
+          if (eligibilityResult.status === "fulfilled") eligibility = eligibilityResult.value;
+          if (mineResult.status === "fulfilled") mine = mineResult.value;
+        }
+
+        patchProduct(productId, { reviews, rating, eligibility, mine, isLoading: false });
+      } catch {
+        patchProduct(productId, { isLoading: false });
+      } finally {
+        inFlight.current.delete(productId);
+      }
     },
-    [reviews, user]
+    [isAuthenticated, isReady, patchProduct]
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // 🎯 CALCUL DE LA NOTE (fusion mock + avis réels)
-  // ─────────────────────────────────────────────────────────────────────────
+  const loadMyReviews = useCallback(
+    async (productIds: string[]): Promise<void> => {
+      if (!isAuthenticated) return;
 
-  /**
-   * Calcule la note d'un produit en **fusionnant** :
-   * - Les avis réels (utilisateurs)
-   * - Les statistiques mockées (produits historiques)
-   *
-   * Formule :
-   *   totalSum   = sommeAvisRéels + (mockRating × mockCount)
-   *   totalCount = nombreAvisRéels + mockCount
-   *   moyenne    = totalSum / totalCount
-   *
-   * Si aucun avis réel ET pas de mock → moyenne = 0
-   */
-  const getProductRating = useCallback(
-    (productId: string, mockRating = 0, mockCount = 0) => {
-      const productReviews = reviews.filter(
-        (r) => r.productId === productId
+      const targets = Array.from(new Set(productIds)).filter(
+        (id) => id && !loadedMine.current.has(id)
+      );
+      if (targets.length === 0) return;
+
+      targets.forEach((id) => loadedMine.current.add(id));
+
+      const results = await Promise.allSettled(
+        targets.map(async (id) => ({ id, review: await reviewsApi.mine(id) }))
       );
 
-      // Somme et compte des avis réels
-      const realSum = productReviews.reduce((sum, r) => sum + r.rating, 0);
-      const realCount = productReviews.length;
-
-      // Fusion avec le mock
-      const totalSum = realSum + mockRating * mockCount;
-      const totalCount = realCount + mockCount;
-
-      const average =
-        totalCount === 0 ? 0 : totalSum / totalCount;
-
-      // Distribution : on ne peut distribuer que les avis RÉELS
-      // (le mock n'a pas de détail étoile par étoile)
-      const distribution: Record<1 | 2 | 3 | 4 | 5, number> = {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-      };
-      productReviews.forEach((r) => {
-        const rounded = Math.round(r.rating) as 1 | 2 | 3 | 4 | 5;
-        if (rounded >= 1 && rounded <= 5) distribution[rounded]++;
+      setByProduct((prev) => {
+        const next = { ...prev };
+        for (const result of results) {
+          if (result.status !== "fulfilled") continue;
+          next[result.value.id] = {
+            ...DEFAULT_STATE,
+            ...next[result.value.id],
+            mine: result.value.review,
+          };
+        }
+        return next;
       });
-
-      return { average, count: totalCount, distribution };
     },
-    [reviews]
+    [isAuthenticated]
+  );
+
+  const isProductLoading = useCallback(
+    (productId: string): boolean => byProduct[productId]?.isLoading ?? false,
+    [byProduct]
+  );
+
+  const getProductReviews = useCallback(
+    (productId: string): ProductReview[] => byProduct[productId]?.reviews ?? [],
+    [byProduct]
+  );
+
+  const getUserReviewForProduct = useCallback(
+    (productId: string): ProductReview | null => byProduct[productId]?.mine ?? null,
+    [byProduct]
+  );
+
+  const getProductRating = useCallback(
+    (productId: string): ProductRating => byProduct[productId]?.rating ?? EMPTY_RATING,
+    [byProduct]
   );
 
   const checkEligibility = useCallback(
-    (productId: string): ReviewEligibility => {
-      if (!user) {
-        return { canReview: false, reason: "not_logged_in" };
-      }
+    (productId: string): ReviewEligibility =>
+      byProduct[productId]?.eligibility ?? {
+        canReview: false,
+        reason: isAuthenticated ? "not_purchased" : "not_logged_in",
+      },
+    [byProduct, isAuthenticated]
+  );
 
-      const existing = reviews.find(
-        (r) => r.productId === productId && r.userId === user.id
-      );
-      if (existing) {
-        return { canReview: false, reason: "already_reviewed" };
-      }
-
-      const purchaseOrders = orders.filter((o) =>
-        o.items.some((item) => item.product.id === productId)
-      );
-      if (purchaseOrders.length === 0) {
-        return { canReview: false, reason: "not_purchased" };
-      }
-
-      const orderDate = new Date(purchaseOrders[0].createdAt).getTime();
-      const availableDate = new Date(
-        orderDate + REVIEW_DELAY_DAYS * 24 * 60 * 60 * 1000
-      );
-      const now = Date.now();
-
-      if (now < availableDate.getTime()) {
-        const daysRemaining = Math.ceil(
-          (availableDate.getTime() - now) / (24 * 60 * 60 * 1000)
-        );
-        return {
-          canReview: false,
-          reason: "waiting",
-          availableAt: availableDate.toISOString(),
-          daysRemaining,
-        };
-      }
-
-      return { canReview: true, reason: "eligible" };
+  /** Recharge l'état complet d'un produit après écriture. */
+  const reload = useCallback(
+    async (productId: string): Promise<void> => {
+      inFlight.current.delete(productId);
+      loadedMine.current.delete(productId);
+      setByProduct((prev) => {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      });
+      await loadProduct(productId);
     },
-    [user, reviews, orders]
+    [loadProduct]
   );
 
   const addReview = useCallback(
-    (
-      data: Omit<
-        ProductReview,
-        "id" | "createdAt" | "updatedAt" | "isVerifiedPurchase"
-      >
-    ) => {
-      if (!user) return;
-
-      const existing = reviews.find(
-        (r) => r.productId === data.productId && r.userId === user.id
-      );
-      if (existing) {
-        console.warn(
-          "[ReviewsContext] Vous avez déjà publié un avis sur ce produit."
-        );
-        return;
-      }
-
-      const now = new Date().toISOString();
-      const newReview: ProductReview = {
-        ...data,
-        id: `rev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        isVerifiedPurchase: hasPurchased(data.productId),
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      setReviews((prev) => [newReview, ...prev]);
+    async (productId: string, data: ReviewInput): Promise<void> => {
+      await reviewsApi.create(productId, data);
+      await reload(productId);
     },
-    [user, reviews, hasPurchased]
+    [reload]
   );
 
   const updateReview = useCallback(
-    (reviewId: string, data: Partial<ProductReview>) => {
-      if (!user) return;
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === reviewId && r.userId === user.id
-            ? { ...r, ...data, updatedAt: new Date().toISOString() }
-            : r
-        )
-      );
+    async (reviewId: string, productId: string, data: Partial<ReviewInput>): Promise<void> => {
+      await reviewsApi.update(reviewId, data);
+      await reload(productId);
     },
-    [user]
+    [reload]
   );
 
   const deleteReview = useCallback(
-    (reviewId: string) => {
-      if (!user) return;
-      setReviews((prev) =>
-        prev.filter((r) => !(r.id === reviewId && r.userId === user.id))
-      );
+    async (reviewId: string, productId: string): Promise<void> => {
+      await reviewsApi.remove(reviewId);
+      await reload(productId);
     },
-    [user]
+    [reload]
   );
 
   const value = useMemo(
     () => ({
+      loadProduct,
+      loadMyReviews,
+      isProductLoading,
       getProductReviews,
       getUserReviewForProduct,
       getProductRating,
@@ -238,6 +215,9 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
       deleteReview,
     }),
     [
+      loadProduct,
+      loadMyReviews,
+      isProductLoading,
       getProductReviews,
       getUserReviewForProduct,
       getProductRating,
@@ -248,9 +228,5 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     ]
   );
 
-  return (
-    <ReviewsContext.Provider value={value}>
-      {children}
-    </ReviewsContext.Provider>
-  );
+  return <ReviewsContext.Provider value={value}>{children}</ReviewsContext.Provider>;
 };

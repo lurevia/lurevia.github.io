@@ -1,12 +1,13 @@
 import type { FC } from "react";
 import { CategoryCard } from "../CategoryCard";
-import { CATEGORIES } from "../../../bin/utils/constant/constant";
+import { useCategories } from "../../../hooks/useCategories";
 
 
 export const CategoryDesktop: FC = () => {
-  const leftSideCategories = CATEGORIES.slice(0, 2);
-  const centerFeaturedCategory = CATEGORIES[2];
-  const rightSideCategories = CATEGORIES.slice(3, 5);
+  const { categories } = useCategories();
+  const leftSideCategories = categories.slice(0, 2);
+  const centerFeaturedCategory = categories[2];
+  const rightSideCategories = categories.slice(3, 5);
 
   return (
     <div className="hidden md:grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">

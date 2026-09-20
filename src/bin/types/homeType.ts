@@ -1,14 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 
-
-export type Review = {
-  id: string;
-  author: string;
-  rating: number;
-  comment: string;
-  date: string;
-};
-
 export type ColorVariant = {
   label: string;
   hex: string;
@@ -17,11 +8,11 @@ export type ColorVariant = {
 export interface Product {
   id: string;
   title: string;
+  slug?: string;
   price: number;
   imageUrl: string;
   categorySlugs: string[];
   rating?: number;
-  isFavorite?: boolean;
   outOfStock?: boolean;
 
   description?: string;
@@ -32,12 +23,11 @@ export interface Product {
   stock?: number;
   originalPrice?: number;
   isNew?: boolean;
-  reviews?: Review[];
   reviewCount?: number;
   sku?: string;
   tags?: string[];
+  createdAt?: string;
 }
-
 
 export type Category = {
   id: string;
@@ -48,7 +38,6 @@ export type Category = {
   icon: LucideIcon;
   description: string;
 };
-
 
 export type Feature = {
   id: string;
@@ -64,7 +53,6 @@ export type WhyUsItem = {
   description: string;
 };
 
-
 export interface CartItem {
   product: Product;
   quantity: number;
@@ -72,19 +60,23 @@ export interface CartItem {
 
 export interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void; 
-  removeFromCart: (productId: string) => void;
   totalItems: number;
   totalPrice: number;
-  setQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  isSyncing: boolean;
+  error: string | null;
+
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  removeFromCart: (productId: string) => Promise<void>;
+  setQuantity: (productId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 export interface FavoriteContextType {
   favorites: Product[];
-  isFavorite: (productId: string) => boolean;
-  toggleFavorite: (productId: Product) => void;
   totalFavorites: number;
+  isFavorite: (productId: string) => boolean;
+  toggleFavorite: (product: Product) => Promise<void>;
+  clearFavorites: () => Promise<void>;
 }
 
 export type FooterLink = {

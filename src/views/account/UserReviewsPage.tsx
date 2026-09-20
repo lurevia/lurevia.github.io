@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,113 +13,107 @@ import { useAuth } from "../../hooks/useAuth";
 import { useReviews } from "../../hooks/useReviews";
 import { useFeedback } from "../../hooks/useFeedback";
 import { useOrders } from "../../hooks/useOrders";
-import { MOCK_PRODUCTS } from "../../bin/data/mock";
-
-
+import { REVIEW_DELAY_DAYS } from "../../bin/config/env";
 import { Button } from "../../components/ui/Button";
-import type { Product } from "../../bin/types/homeType";
 import type { ProductReview } from "../../bin/types/reviewType";
+import type { ReviewableProduct } from "./reviewableProduct";
 import { MyReviewCard } from "./MyReviewCard";
 import { MyFeedbackCard } from "./MyFeedbackCard";
 import { PendingReviewCard } from "./PendingReviewCard";
-import { REVIEW_DELAY_DAYS } from "../../bin/utils/constant/constant";
 
 type Tab = "pending" | "product-reviews" | "service-feedback";
 
 type PendingReview = {
-  product: Product;
+  product: ReviewableProduct;
   daysRemaining: number;
   availableAt: string;
 };
 
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-
+/**
+ * Récapitulatif des avis de l'utilisateur.
+ *
+ * Les produits « notables » proviennent de ses commandes réelles (côté
+ * serveur) ; « mon avis » est demandé à l'API produit par produit, sans
+ * jamais exposer les avis d'autrui.
+ */
 export const UserReviewsPage: FC = () => {
   const { user } = useAuth();
   const { orders } = useOrders();
-  const {
-    getUserReviewForProduct,
-    deleteReview,
-  } = useReviews();
+  const { getUserReviewForProduct, loadMyReviews, deleteReview } = useReviews();
   const { myFeedbacks, deleteFeedback } = useFeedback();
 
   const [tab, setTab] = useState<Tab>("pending");
 
-  const pendingReviews = useMemo<PendingReview[]>(() => {
-    if (!user) return [];
-
-    const now = Date.now();
-    const delayMs = REVIEW_DELAY_DAYS * 24 * 60 * 60 * 1000;
-    const seen = new Set<string>();
-    const result: PendingReview[] = [];
+  /** Produits achetés, dédoublonnés, avec la date de commande la plus ancienne. */
+  const purchased = useMemo(() => {
+    const map = new Map<string, { product: ReviewableProduct; orderedAt: number }>();
 
     for (const order of orders) {
-      const orderTime = new Date(order.createdAt).getTime();
-      const availableAt = orderTime + delayMs;
-
+      const orderedAt = new Date(order.createdAt).getTime();
       for (const item of order.items) {
-        if (seen.has(item.product.id)) continue;
-        if (getUserReviewForProduct(item.product.id)) continue;
-
-        const fullProduct = MOCK_PRODUCTS.find(
-          (p) => p.id === item.product.id
-        );
-        if (!fullProduct) continue;
-
-        seen.add(item.product.id);
-        result.push({
-          product: fullProduct,
-          daysRemaining: Math.max(
-            0,
-            Math.ceil((availableAt - now) / delayMs)
-          ),
-          availableAt: new Date(availableAt).toISOString(),
+        const existing = map.get(item.productId);
+        if (existing && existing.orderedAt <= orderedAt) continue;
+        map.set(item.productId, {
+          product: { id: item.productId, title: item.title, imageUrl: item.imageUrl },
+          orderedAt,
         });
       }
     }
 
-    return result;
-  }, [user, orders, getUserReviewForProduct]);
+    return Array.from(map.values());
+  }, [orders]);
+
+  const purchasedKey = useMemo(
+    () => purchased.map((p) => p.product.id).join(","),
+    [purchased]
+  );
+
+  useEffect(() => {
+    if (!purchasedKey) return;
+    void loadMyReviews(purchasedKey.split(","));
+  }, [purchasedKey, loadMyReviews]);
+
+  const pendingReviews = useMemo<PendingReview[]>(() => {
+    if (!user) return [];
+    const now = Date.now();
+
+    return purchased
+      .filter((entry) => !getUserReviewForProduct(entry.product.id))
+      .map((entry) => {
+        const availableAt = entry.orderedAt + REVIEW_DELAY_DAYS * DAY_MS;
+        return {
+          product: entry.product,
+          daysRemaining: Math.max(0, Math.ceil((availableAt - now) / DAY_MS)),
+          availableAt: new Date(availableAt).toISOString(),
+        };
+      });
+  }, [user, purchased, getUserReviewForProduct]);
 
   const myProductReviews = useMemo<
-    { review: ProductReview; product: Product }[]
+    { review: ProductReview; product: ReviewableProduct }[]
   >(() => {
     if (!user) return [];
 
-    const result: { review: ProductReview; product: Product }[] = [];
-    const seen = new Set<string>();
+    return purchased
+      .map((entry) => {
+        const review = getUserReviewForProduct(entry.product.id);
+        return review ? { review, product: entry.product } : null;
+      })
+      .filter((v): v is { review: ProductReview; product: ReviewableProduct } => v !== null)
+      .sort((a, b) => b.review.updatedAt.localeCompare(a.review.updatedAt));
+  }, [user, purchased, getUserReviewForProduct]);
 
-    for (const order of orders) {
-      for (const item of order.items) {
-        if (seen.has(item.product.id)) continue;
-        seen.add(item.product.id);
-
-        const review = getUserReviewForProduct(item.product.id);
-        if (!review) continue;
-
-        const fullProduct = MOCK_PRODUCTS.find(
-          (p) => p.id === item.product.id
-        );
-        if (!fullProduct) continue;
-
-        result.push({ review, product: fullProduct });
-      }
-    }
-
-    return result.sort((a, b) =>
-      b.review.updatedAt.localeCompare(a.review.updatedAt)
-    );
-  }, [user, orders, getUserReviewForProduct]);
-
-  const handleDeleteReview = (reviewId: string) => {
+  const handleDeleteReview = (reviewId: string, productId: string) => {
     if (window.confirm("Supprimer cet avis définitivement ?")) {
-      deleteReview(reviewId);
+      void deleteReview(reviewId, productId);
     }
   };
 
   const handleDeleteFeedback = (id: string) => {
     if (window.confirm("Supprimer ce feedback ?")) {
-      deleteFeedback(id);
+      void deleteFeedback(id);
     }
   };
 
@@ -129,30 +123,18 @@ export const UserReviewsPage: FC = () => {
     serviceFeedback: myFeedbacks.length,
   };
 
-  const total =
-    counts.pending + counts.productReviews + counts.serviceFeedback;
+  const total = counts.pending + counts.productReviews + counts.serviceFeedback;
 
-  const TABS: { id: Tab; label: string; icon: typeof Star; count: number }[] =
-    [
-      {
-        id: "pending",
-        label: "À donner",
-        icon: Clock,
-        count: counts.pending,
-      },
-      {
-        id: "product-reviews",
-        label: "Avis produits",
-        icon: Star,
-        count: counts.productReviews,
-      },
-      {
-        id: "service-feedback",
-        label: "Feedbacks service",
-        icon: MessageSquareHeart,
-        count: counts.serviceFeedback,
-      },
-    ];
+  const TABS: { id: Tab; label: string; icon: typeof Star; count: number }[] = [
+    { id: "pending", label: "À donner", icon: Clock, count: counts.pending },
+    { id: "product-reviews", label: "Avis produits", icon: Star, count: counts.productReviews },
+    {
+      id: "service-feedback",
+      label: "Feedbacks service",
+      icon: MessageSquareHeart,
+      count: counts.serviceFeedback,
+    },
+  ];
 
   const renderContent = () => {
     switch (tab) {
@@ -194,7 +176,7 @@ export const UserReviewsPage: FC = () => {
                 key={review.id}
                 review={review}
                 product={product}
-                onDelete={() => handleDeleteReview(review.id)}
+                onDelete={() => handleDeleteReview(review.id, product.id)}
               />
             ))}
           </div>
@@ -215,9 +197,7 @@ export const UserReviewsPage: FC = () => {
               <MyFeedbackCard
                 key={fb.id}
                 feedback={fb}
-                onEdit={() => {
-                  window.location.href = "/feedback";
-                }}
+                to="/feedback"
                 onDelete={() => handleDeleteFeedback(fb.id)}
               />
             ))}
@@ -230,14 +210,12 @@ export const UserReviewsPage: FC = () => {
     <>
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-lurevia-dark">
-          Mes avis & feedbacks
+          Mes avis &amp; feedbacks
         </h1>
         <p className="text-sm text-slate-500 mt-1">
           {total === 0
             ? "Vous n’avez encore rien publié"
-            : `${total} élément${total > 1 ? "s" : ""} · ${
-                counts.pending
-              } en attente`}
+            : `${total} élément${total > 1 ? "s" : ""} · ${counts.pending} en attente`}
         </p>
       </div>
 
@@ -246,10 +224,11 @@ export const UserReviewsPage: FC = () => {
           <Clock size={14} className="text-lurevia-orange" />
         </div>
         <p className="text-[11px] text-slate-600 leading-relaxed">
-          <strong className="text-slate-800">Délai de 5 jours :</strong> pour
-          garantir la qualité des avis, vous pouvez noter un produit à partir
-          de 5 jours après la commande. Cela vous laisse le temps de bien
-          l’utiliser.
+          <strong className="text-slate-800">
+            Délai de {REVIEW_DELAY_DAYS} jours :
+          </strong>{" "}
+          pour garantir la qualité des avis, vous pouvez noter un produit à
+          partir de {REVIEW_DELAY_DAYS} jours après la commande.
         </p>
       </div>
 
@@ -272,11 +251,7 @@ export const UserReviewsPage: FC = () => {
                 <Icon size={12} />
                 {t.label}
                 {t.count > 0 && (
-                  <span
-                    className={`ml-0.5 ${
-                      active ? "opacity-70" : "opacity-60"
-                    }`}
-                  >
+                  <span className={`ml-0.5 ${active ? "opacity-70" : "opacity-60"}`}>
                     {t.count}
                   </span>
                 )}

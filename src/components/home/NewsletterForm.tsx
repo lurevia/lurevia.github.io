@@ -3,10 +3,16 @@ import type { FC, FormEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { newsletterApi } from "../../api/newsletter";
+import { toErrorMessage } from "../../api/http";
+
+const isValidEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export const NewsletterForm: FC = () => {
   const [email, setEmail] = useState<string>("");
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState<string>("");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
@@ -19,21 +25,31 @@ export const NewsletterForm: FC = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
 
-    if (!email.includes("@")) {
+    if (!isValidEmail(email)) {
       setStatus("error");
+      setMessage("Veuillez saisir une adresse email valide.");
       return;
     }
 
-    console.log("Inscription newsletter :", email);
+    void (async () => {
+      setStatus("loading");
+      try {
+        await newsletterApi.subscribe(email);
+        setStatus("success");
+        setMessage("Merci ! Votre inscription est confirmée.");
+        setEmail("");
 
-    setStatus("success");
-    setEmail("");
-
-    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
-    resetTimerRef.current = setTimeout(() => {
-      setStatus("idle");
-      resetTimerRef.current = null;
-    }, 3000);
+        if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(() => {
+          setStatus("idle");
+          setMessage("");
+          resetTimerRef.current = null;
+        }, 4000);
+      } catch (error) {
+        setStatus("error");
+        setMessage(toErrorMessage(error, "Inscription impossible pour le moment."));
+      }
+    })();
   };
 
   return (
@@ -46,6 +62,7 @@ export const NewsletterForm: FC = () => {
           placeholder="Votre email"
           aria-label="Adresse email"
           autoComplete="email"
+          maxLength={150}
           wrapperClassName="flex-1"
           className="rounded-l-lg! rounded-r-none! bg-emerald-900/60! text-white! placeholder-emerald-200/60! border-emerald-800! focus:ring-orange-400!"
         />
@@ -53,21 +70,14 @@ export const NewsletterForm: FC = () => {
           type="submit"
           variant="primary"
           icon={Send}
+          disabled={status === "loading"}
           aria-label="S'inscrire à la newsletter"
           className="rounded-r-lg rounded-l-none focus-visible:ring-2 focus-visible:ring-orange-300"
         />
       </div>
 
-      {status === "success" && (
-        <p className="text-xs text-emerald-300">
-          Merci ! Votre inscription est confirmée.
-        </p>
-      )}
-      {status === "error" && (
-        <p className="text-xs text-red-400">
-          Veuillez saisir une adresse email valide.
-        </p>
-      )}
+      {status === "success" && <p className="text-xs text-emerald-300">{message}</p>}
+      {status === "error" && <p className="text-xs text-red-400">{message}</p>}
     </form>
   );
 };

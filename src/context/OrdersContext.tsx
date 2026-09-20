@@ -1,95 +1,71 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+
 import { OrdersContext } from "./ordersContextDefinition";
+import { ordersApi } from "../api/orders";
+import { toErrorMessage } from "../api/http";
 import { useAuth } from "../hooks/useAuth";
-import type { Order, Transaction } from "../bin/types/orderType";
+import type { CheckoutPayload, Order, Transaction } from "../bin/types/orderType";
 
-const STORAGE_KEY = "lurevia_orders";
-
-type StorageShape = {
-    orders: Order[];
-    transactions: Transaction[];
-};
-
-const readStorage = (): StorageShape => {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as StorageShape) : { orders: [], transactions: [] };
-    } catch {
-        return { orders: [], transactions: [] };
-    }
-};
-
-const writeStorage = (data: StorageShape): void => {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-        console.error("Impossible de sauvegarder les commandes.", e);
-    }
-};
-
+/**
+ * Historique de commandes : intégralement serveur.
+ *
+ * Aucune commande n'est plus fabriquée côté client (l'ancienne version
+ * créait l'objet `Order` dans le navigateur, ce qui permettait de forger
+ * un historique et un montant arbitraires). Ici le client ne fait que
+ * lire ce que l'API renvoie pour l'utilisateur authentifié.
+ */
 export const OrdersProvider = ({ children }: { children: ReactNode }) => {
-    const { user } = useAuth();
-    const [all, setAll] = useState<StorageShape>(readStorage);
+  const { user, isReady } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        writeStorage(all);
-    }, [all]);
+  const refresh = useCallback(async (): Promise<void> => {
+    if (!user) {
+      setOrders([]);
+      return;
+    }
 
-    const orders = useMemo(
-        () =>
-            user
-                ? all.orders
-                    .filter((o) => o.userId === user.id)
-                    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-                : [],
-        [all.orders, user]
-    );
+    setIsLoading(true);
+    setError(null);
+    try {
+      setOrders(await ordersApi.list());
+    } catch (err) {
+      setError(toErrorMessage(err, "Impossible de charger vos commandes."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
-    const transactions = useMemo(
-        () =>
-            user
-                ? all.transactions
-                    .filter((t) => all.orders.some((o) => o.id === t.orderId && o.userId === user.id))
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                : [],
-        [all.transactions, all.orders, user]
-    );
+  useEffect(() => {
+    if (!isReady) return;
+    void refresh();
+  }, [isReady, refresh]);
 
-    const addOrder = useCallback((order: Order) => {
-        setAll((prev) => {
-            const transaction: Transaction = {
-                id: `tx-${Date.now()}`,
-                orderId: order.id,
-                amount: order.total,
-                method: order.paymentMethod,
-                status: order.paymentMethod === "cash" ? "pending" : "success",
-                date: new Date().toISOString(),
-            };
-            return {
-                orders: [...prev.orders, order],
-                transactions: [...prev.transactions, transaction],
-            };
-        });
-    }, []);
+  const checkout = useCallback(async (payload: CheckoutPayload): Promise<Order> => {
+    const order = await ordersApi.checkout(payload);
+    setOrders((prev) => [order, ...prev.filter((o) => o.id !== order.id)]);
+    return order;
+  }, []);
 
-    const cancelOrder = useCallback((orderId: string) => {
-        setAll((prev) => ({
-            orders: prev.orders.map((o) =>
-                o.id === orderId ? { ...o, status: "cancelled" } : o
-            ),
-            transactions: prev.transactions,
-        }));
-    }, []);
+  const cancelOrder = useCallback(async (orderId: string): Promise<void> => {
+    const updated = await ordersApi.cancel(orderId);
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  }, []);
 
-    const clearOrders = useCallback(() => {
-        setAll({ orders: [], transactions: [] });
-    }, []);
+  const transactions = useMemo<Transaction[]>(
+    () =>
+      orders
+        .flatMap((order) => order.transactions)
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    [orders]
+  );
 
-    const value = useMemo(
-        () => ({ orders, transactions, addOrder, cancelOrder, clearOrders }),
-        [orders, transactions, addOrder, cancelOrder, clearOrders]
-    );
+  const value = useMemo(
+    () => ({ orders, transactions, isLoading, error, refresh, checkout, cancelOrder }),
+    [orders, transactions, isLoading, error, refresh, checkout, cancelOrder]
+  );
 
-    return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
+  return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 };

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { AppNotification } from "../../bin/types/notificationType";
 import { ProductImage } from "../common/ProductImage";
+import { safeInternalPath } from "../../bin/utils/security";
 
 type NotificationItemProps = {
     notification: AppNotification;
@@ -37,7 +38,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
 
     return (
         <Link
-            to={notification.actionUrl}
+            to={safeInternalPath(notification.actionUrl)}
             onClick={onClick}
             className={`flex items-start gap-3 p-3 transition-colors ${notification.read
                     ? "hover:bg-slate-50"

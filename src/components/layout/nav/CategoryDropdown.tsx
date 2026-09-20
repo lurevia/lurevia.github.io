@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
-import { CATEGORIES } from "../../../bin/utils/constant/constant";
+import { useCategories } from "../../../hooks/useCategories";
 
 type CategoryDropdownProps = {
     isOpen: boolean;
@@ -14,6 +14,8 @@ export const CategoryDropdown: FC<CategoryDropdownProps> = ({
     currentPath,
     onClose,
 }) => {
+    const { categories } = useCategories();
+
     if (!isOpen) return null;
 
     return (
@@ -40,7 +42,7 @@ export const CategoryDropdown: FC<CategoryDropdownProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
-                    {CATEGORIES.map((cat) => {
+                    {categories.map((cat) => {
                         const Icon = cat.icon;
                         const isCurrentRoute =
                             currentPath === `/categories/${cat.slug}`;

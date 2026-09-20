@@ -24,7 +24,7 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const { suggestions, totalResults } = useSearchSuggestions(query);
+  const { suggestions, isLoading } = useSearchSuggestions(query);
 
   const showSuggestions = isOpen && query.trim().length >= 2;
 
@@ -76,7 +76,7 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const trimmed = query.trim();
+    const trimmed = query.trim().slice(0, 150);
     if (!trimmed) return;
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
     handleClose();
@@ -142,7 +142,7 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
         <SearchSuggestions
           query={query.trim()}
           suggestions={suggestions}
-          totalResults={totalResults}
+          isLoading={isLoading}
           activeIndex={activeIndex}
           onSelect={handleClose}
         />

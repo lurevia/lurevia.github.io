@@ -17,7 +17,7 @@ export type UseFavoritePageReturn = {
 };
 
 export const useFavoritePage = (): UseFavoritePageReturn => {
-    const { favorites, toggleFavorite, totalFavorites } = useFavorite();
+    const { favorites, toggleFavorite, totalFavorites, clearFavorites } = useFavorite();
     const { addToCart } = useCart();
 
     const [isAddingAll, setIsAddingAll] = useState(false);
@@ -26,28 +26,25 @@ export const useFavoritePage = (): UseFavoritePageReturn => {
     const isEmpty = useMemo(() => favorites.length === 0, [favorites]);
 
     const removeFromFavorites = (product: Product): void => {
-        toggleFavorite(product);
-    };
-
-    const clearFavorites = (): void => {
-        favorites.forEach((product) => toggleFavorite(product));
+        void toggleFavorite(product);
     };
 
     const addAllToCart = (): void => {
-        if (favorites.length === 0) return;
+        if (favorites.length === 0 || isAddingAll) return;
 
+        const available = favorites.filter((p) => p.outOfStock !== true);
         setIsAddingAll(true);
-        const count = favorites.length;
 
-        favorites.forEach((product) => {
-            addToCart(product, 1);
-        });
-
-        setLastAddedCount(count);
-        setTimeout(() => {
-            setIsAddingAll(false);
-            setLastAddedCount(0);
-        }, 2000);
+        void (async () => {
+            for (const product of available) {
+                await addToCart(product, 1);
+            }
+            setLastAddedCount(available.length);
+            setTimeout(() => {
+                setIsAddingAll(false);
+                setLastAddedCount(0);
+            }, 2000);
+        })();
     };
 
     return {
@@ -55,7 +52,7 @@ export const useFavoritePage = (): UseFavoritePageReturn => {
         totalFavorites,
         isEmpty,
         removeFromFavorites,
-        clearFavorites,
+        clearFavorites: () => void clearFavorites(),
         addAllToCart,
         isAddingAll,
         lastAddedCount,

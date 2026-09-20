@@ -29,12 +29,13 @@ export const CheckoutPage: FC = () => {
         updateShipping,
         selectPaymentMethod,
         updateMobileMoney,
-        updateCard,
         useSavedAddress,
         clearSavedShipping,
         validateShipping,
         validatePayment,
         submitOrder,
+        submitError,
+        isSubmitting,
         lastOrder,
     } = useCheckout();
 
@@ -54,7 +55,7 @@ export const CheckoutPage: FC = () => {
         if (state.step === 1 && validateShipping()) {
             nextStep();
         } else if (state.step === 2 && validatePayment()) {
-            submitOrder();
+            void submitOrder();
         }
     };
 
@@ -96,11 +97,15 @@ export const CheckoutPage: FC = () => {
                                     onChange={updateMobileMoney}
                                 />
                             )}
-                            {state.paymentMethod === "card" && (
-                                <CardForm value={state.card} onChange={updateCard} />
-                            )}
+                            {state.paymentMethod === "card" && <CardForm />}
                             {state.paymentMethod === "cash" && <CashForm />}
                         </>
+                    )}
+
+                    {submitError && (
+                        <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                            <p className="text-xs font-medium text-red-600">{submitError}</p>
+                        </div>
                     )}
 
                     <div className="flex gap-3 pt-2">
@@ -119,13 +124,16 @@ export const CheckoutPage: FC = () => {
                             type="button"
                             variant="primary"
                             onClick={handleNext}
+                            disabled={isSubmitting}
                             icon={state.step === 2 ? Lock : undefined}
                             iconPosition="left"
                             className="flex-1 py-3! rounded-xl! font-black text-sm"
                         >
                             {state.step === 1
                                 ? "Continuer vers le paiement"
-                                : "Confirmer et payer"}
+                                : isSubmitting
+                                    ? "Validation en cours…"
+                                    : "Confirmer et payer"}
                         </Button>
                     </div>
                 </div>

@@ -7,9 +7,16 @@ import type { Address } from "../../bin/types/addressType";
 
 type AddressFormProps = {
     initial?: Address;
+    isSubmitting?: boolean;
     onSubmit: (data: Omit<Address, "id" | "userId" | "createdAt">) => void;
     onCancel: () => void;
 };
+
+const isValidEmail = (email: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidMalagasyPhone = (phone: string): boolean =>
+    /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
 
 const REGIONS = [
     "Antananarivo",
@@ -24,12 +31,14 @@ const REGIONS = [
 
 export const AddressForm: FC<AddressFormProps> = ({
     initial,
+    isSubmitting = false,
     onSubmit,
     onCancel,
 }) => {
     const [label, setLabel] = useState(initial?.label ?? "Domicile");
     const [fullName, setFullName] = useState(initial?.fullName ?? "");
     const [phone, setPhone] = useState(initial?.phone ?? "");
+    const [email, setEmail] = useState(initial?.email ?? "");
     const [address, setAddress] = useState(initial?.address ?? "");
     const [city, setCity] = useState(initial?.city ?? "");
     const [region, setRegion] = useState(initial?.region ?? "");
@@ -39,8 +48,11 @@ export const AddressForm: FC<AddressFormProps> = ({
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const next: Record<string, string> = {};
-        if (!fullName.trim()) next.fullName = "Requis";
+        if (fullName.trim().length < 2) next.fullName = "Requis";
         if (!phone.trim()) next.phone = "Requis";
+        else if (!isValidMalagasyPhone(phone)) next.phone = "Numéro invalide";
+        if (!email.trim()) next.email = "Requis";
+        else if (!isValidEmail(email)) next.email = "Email invalide";
         if (!address.trim()) next.address = "Requis";
         if (!city.trim()) next.city = "Requis";
         if (!region.trim()) next.region = "Requis";
@@ -51,7 +63,7 @@ export const AddressForm: FC<AddressFormProps> = ({
             label,
             fullName,
             phone,
-            email: initial?.email ?? "",
+            email: email.trim().toLowerCase(),
             address,
             city,
             region,
@@ -100,6 +112,16 @@ export const AddressForm: FC<AddressFormProps> = ({
                     placeholder="034 12 345 67"
                 />
             </div>
+
+            <Input
+                label="Email de contact"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={errors.email}
+                placeholder="contact@exemple.mg"
+                autoComplete="email"
+            />
 
             <Input
                 label="Adresse"
@@ -151,8 +173,13 @@ export const AddressForm: FC<AddressFormProps> = ({
                 >
                     Annuler
                 </Button>
-                <Button type="submit" variant="primary" className="flex-1!">
-                    {initial ? "Modifier" : "Ajouter"}
+                <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                    className="flex-1!"
+                >
+                    {isSubmitting ? "Enregistrement…" : initial ? "Modifier" : "Ajouter"}
                 </Button>
             </div>
         </form>

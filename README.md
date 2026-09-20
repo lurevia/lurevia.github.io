@@ -73,3 +73,23 @@ export default defineConfig([
 ])
 
 ```
+
+
+## Connexion à l'API
+
+Le frontend ne contient plus de données simulées : il consomme l'API
+Lurevia (Express + Prisma).
+
+```bash
+cp .env.example .env.development   # puis ajustez VITE_API_URL
+npm install
+npm run dev
+```
+
+Côté backend, vérifiez que l'origine du frontend figure bien dans
+`CORS_ORIGINS` (par défaut `http://localhost:5173`), sinon le cookie de
+session ne sera pas accepté.
+
+Les choix de sécurité (session en mémoire, cookie httpOnly, absence de
+données bancaires, en-têtes HTTP à poser en production) sont détaillés
+dans [SECURITY.md](./SECURITY.md).

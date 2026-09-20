@@ -6,7 +6,8 @@ import { useFeedback } from "../hooks/useFeedback";
 import { ServiceFeedbackForm } from "../components/feedback/ServiceFeedbackForm";
 import { ServiceFeedbackList } from "../components/feedback/ServiceFeedbackList";
 import { Button } from "../components/ui/Button";
-import type { ServiceFeedback } from "../bin/types/feedbackType";
+import { toErrorMessage } from "../api/http";
+import type { FeedbackInput, ServiceFeedback } from "../bin/types/feedbackType";
 
 export const ServiceFeedbackPage: FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -17,24 +18,36 @@ export const ServiceFeedbackPage: FC = () => {
     updateFeedback,
     deleteFeedback,
     averageRating,
+    totalCount,
+    isLoading,
   } = useFeedback();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceFeedback | null>(null);
   const [tab, setTab] = useState<"mine" | "all">("all");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const displayed = tab === "mine" ? myFeedbacks : allFeedbacks;
 
-  const handleSubmit = (
-    data: Omit<ServiceFeedback, "id" | "createdAt" | "updatedAt" | "userId" | "userName">
-  ) => {
-    if (editing) {
-      updateFeedback(editing.id, data);
-      setEditing(null);
-    } else {
-      addFeedback(data);
-      setIsFormOpen(false);
-    }
+  const handleSubmit = (data: FeedbackInput) => {
+    void (async () => {
+      setIsSubmitting(true);
+      setFormError(null);
+      try {
+        if (editing) {
+          await updateFeedback(editing.id, data);
+          setEditing(null);
+        } else {
+          await addFeedback(data);
+          setIsFormOpen(false);
+        }
+      } catch (error) {
+        setFormError(toErrorMessage(error, "Votre feedback n'a pas pu être envoyé."));
+      } finally {
+        setIsSubmitting(false);
+      }
+    })();
   };
 
   return (
@@ -48,14 +61,14 @@ export const ServiceFeedbackPage: FC = () => {
           service client, site web… Vos retours sont précieux.
         </p>
 
-        {allFeedbacks.length > 0 && (
+        {totalCount > 0 && (
           <div className="inline-flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-full">
             <Star size={14} className="fill-lurevia-yellow text-lurevia-yellow" />
             <span className="text-sm font-black text-lurevia-dark">
               {averageRating.toFixed(1)} / 5
             </span>
             <span className="text-xs text-slate-500">
-              ({allFeedbacks.length} feedback{allFeedbacks.length > 1 ? "s" : ""})
+              ({totalCount} feedback{totalCount > 1 ? "s" : ""})
             </span>
           </div>
         )}
@@ -80,8 +93,14 @@ export const ServiceFeedbackPage: FC = () => {
           <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider mb-4">
             {editing ? "Modifier votre feedback" : "Nouveau feedback"}
           </h2>
+          {formError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+              <p className="text-xs font-medium text-red-600">{formError}</p>
+            </div>
+          )}
           <ServiceFeedbackForm
             initial={editing ?? undefined}
+            isSubmitting={isSubmitting}
             onSubmit={handleSubmit}
             onCancel={() => {
               setIsFormOpen(false);
@@ -122,14 +141,21 @@ export const ServiceFeedbackPage: FC = () => {
         </div>
       )}
 
-      <ServiceFeedbackList
-        feedbacks={displayed}
-        currentUserId={user?.id}
-        onEdit={setEditing}
-        onDelete={(fb) => {
-          if (window.confirm("Supprimer ce feedback ?")) deleteFeedback(fb.id);
-        }}
-      />
+      {isLoading ? (
+        <div className="flex justify-center py-16" role="status">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+          <span className="sr-only">Chargement des feedbacks</span>
+        </div>
+      ) : (
+        <ServiceFeedbackList
+          feedbacks={displayed}
+          currentUserId={user?.id}
+          onEdit={(fb: ServiceFeedback) => setEditing(fb)}
+          onDelete={(fb: ServiceFeedback) => {
+            if (window.confirm("Supprimer ce feedback ?")) void deleteFeedback(fb.id);
+          }}
+        />
+      )}
     </div>
   );
 };

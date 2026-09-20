@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
+import { toErrorMessage } from "../api/http";
 import type { AuthIdentifier } from "../bin/types/authType";
 
 const isValidEmail = (email: string): boolean =>
@@ -9,28 +10,40 @@ const isValidEmail = (email: string): boolean =>
 const isValidMalagasyPhone = (phone: string): boolean =>
     /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
 
+/**
+ * Politique de mot de passe alignée sur celle appliquée par l'API
+ * (8 caractères minimum, au moins une minuscule, une majuscule et un
+ * chiffre). La validation côté client n'est qu'un confort : le serveur
+ * reste l'autorité et refusera un mot de passe trop faible.
+ */
+const PASSWORD_RULES = [
+    { test: (v: string) => v.length >= 8, message: "au moins 8 caractères" },
+    { test: (v: string) => /[a-z]/.test(v), message: "une minuscule" },
+    { test: (v: string) => /[A-Z]/.test(v), message: "une majuscule" },
+    { test: (v: string) => /[0-9]/.test(v), message: "un chiffre" },
+];
+
+export const validatePasswordStrength = (password: string): string | null => {
+    const missing = PASSWORD_RULES.filter((rule) => !rule.test(password)).map((r) => r.message);
+    return missing.length === 0
+        ? null
+        : `Le mot de passe doit contenir ${missing.join(", ")}.`;
+};
+
 export type AuthMode = "login" | "register";
 
 /**
- * useAuthForm
- *
- * Contrôleur (hook) pour les formulaires de connexion et d'inscription.
- * Centralise l'état des champs, la validation métier (email, numéro
- * malgache, mot de passe, consentement CGU/cookies) et l'appel au
- * contexte d'authentification (`useAuth`). Les vues (`AuthPage`) restent
- * ainsi purement déclaratives et ne contiennent aucune logique de
- * validation ou d'appel réseau.
- *
- * @returns L'état des formulaires et les gestionnaires d'actions (bascule
- * de mode, connexion, inscription, réinitialisation)
+ * Contrôleur des formulaires de connexion et d'inscription.
+ * Toute la vérification d'identité est faite par l'API : ce hook ne
+ * compare aucun mot de passe et ne stocke aucun compte localement.
  */
 export const useAuthForm = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login, register } = useAuth();
 
     const [mode, setMode] = useState<AuthMode>("login");
-    const [identifierType, setIdentifierType] =
-        useState<AuthIdentifier>("email");
+    const [identifierType, setIdentifierType] = useState<AuthIdentifier>("email");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +55,16 @@ export const useAuthForm = () => {
     const [registerPhone, setRegisterPhone] = useState("");
     const [registerPassword, setRegisterPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    /** Vrai une fois que l'utilisateur a lu et accepté les CGU et la politique des cookies */
     const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+
+    /** Destination après authentification, sans redirection ouverte possible. */
+    const redirectTarget = (): string => {
+        const from = (location.state as { from?: unknown } | null)?.from;
+        if (typeof from === "string" && from.startsWith("/") && !from.startsWith("//")) {
+            return from;
+        }
+        return "/compte";
+    };
 
     const resetForm = () => {
         setLoginIdentifier("");
@@ -65,20 +86,19 @@ export const useAuthForm = () => {
     const handleLogin = async () => {
         setError(null);
 
-        if (!loginIdentifier.trim() || !loginPassword.trim()) {
+        if (!loginIdentifier.trim() || !loginPassword) {
             setError("Identifiant et mot de passe requis.");
             return;
         }
 
         setIsSubmitting(true);
         try {
-            await login({
-                identifier: loginIdentifier,
-                password: loginPassword,
-            });
-            navigate("/compte");
+            await login({ identifier: loginIdentifier, password: loginPassword });
+            setLoginPassword("");
+            navigate(redirectTarget(), { replace: true });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erreur de connexion.");
+            // Message volontairement générique : ne pas révéler si le compte existe.
+            setError(toErrorMessage(err, "Identifiants incorrects."));
         } finally {
             setIsSubmitting(false);
         }
@@ -87,7 +107,6 @@ export const useAuthForm = () => {
     const handleRegister = async () => {
         setError(null);
 
-        // Validation
         if (fullName.trim().length < 2) {
             setError("Le nom complet est requis.");
             return;
@@ -98,15 +117,14 @@ export const useAuthForm = () => {
                 setError("Email invalide.");
                 return;
             }
-        } else {
-            if (!isValidMalagasyPhone(registerPhone)) {
-                setError("Numéro malgache invalide (ex : 034 12 345 67).");
-                return;
-            }
+        } else if (!isValidMalagasyPhone(registerPhone)) {
+            setError("Numéro malgache invalide (ex : 034 12 345 67).");
+            return;
         }
 
-        if (registerPassword.length < 6) {
-            setError("Le mot de passe doit faire au moins 6 caractères.");
+        const passwordError = validatePasswordStrength(registerPassword);
+        if (passwordError) {
+            setError(passwordError);
             return;
         }
 
@@ -129,9 +147,11 @@ export const useAuthForm = () => {
                 password: registerPassword,
                 primaryIdentifier: identifierType,
             });
-            navigate("/compte");
+            setRegisterPassword("");
+            setConfirmPassword("");
+            navigate(redirectTarget(), { replace: true });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erreur d'inscription.");
+            setError(toErrorMessage(err, "Inscription impossible."));
         } finally {
             setIsSubmitting(false);
         }
@@ -146,14 +166,12 @@ export const useAuthForm = () => {
         error,
         setError,
 
-        // Login
         loginIdentifier,
         setLoginIdentifier,
         loginPassword,
         setLoginPassword,
         handleLogin,
 
-        // Register
         fullName,
         setFullName,
         registerEmail,

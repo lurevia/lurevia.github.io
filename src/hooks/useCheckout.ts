@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useCart } from "./useCart";
 import { useAuth } from "./useAuth";
 import { useOrders } from "./useOrders";
+import { toErrorMessage } from "../api/http";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from "../bin/config/env";
 import type {
   CheckoutState,
   PaymentMethod,
@@ -11,12 +13,15 @@ import type { Address } from "../bin/types/addressType";
 import type { Order } from "../bin/types/orderType";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONSTANTES
+// VALIDATION
 // ─────────────────────────────────────────────────────────────────────────────
 
-const SHIPPING_COST = 15_000;
-const FREE_SHIPPING_THRESHOLD = 200_000;
-const STORAGE_KEY = "lurevia_shipping";
+/** Numéros malgaches : 034 12 345 67 ou +261 34 12 345 67 */
+const isValidMalagasyPhone = (phone: string): boolean =>
+  /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
+
+const isValidEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const INITIAL_SHIPPING: ShippingAddress = {
   fullName: "",
@@ -28,137 +33,90 @@ const INITIAL_SHIPPING: ShippingAddress = {
   notes: "",
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Numéros malgaches : 034 12 345 67 ou +261 34 12 345 67 */
-const isValidMalagasyPhone = (phone: string): boolean =>
-  /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
-
-const isValidEmail = (email: string): boolean =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-/** Lit l'adresse sauvegardée, ou retourne l'adresse vide */
-const readShippingFromStorage = (): ShippingAddress => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return INITIAL_SHIPPING;
-
-    const parsed = JSON.parse(saved) as Partial<ShippingAddress>;
-    return { ...INITIAL_SHIPPING, ...parsed };
-  } catch {
-    return INITIAL_SHIPPING;
-  }
-};
-
-/** Construit l'état initial du checkout */
 const buildInitialState = (): CheckoutState => ({
   step: 1,
-  shipping: readShippingFromStorage(),
+  shipping: INITIAL_SHIPPING,
   paymentMethod: null,
   mobileMoney: { provider: "mvola", phoneNumber: "" },
-  card: { number: "", holderName: "", expiry: "", cvv: "" },
+  addressId: null,
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TYPE DE RETOUR
-// ─────────────────────────────────────────────────────────────────────────────
 
 export type UseCheckoutReturn = {
   state: CheckoutState;
   errors: Partial<Record<keyof ShippingAddress, string>>;
+  submitError: string | null;
+  isSubmitting: boolean;
   subtotal: number;
   shippingCost: number;
   total: number;
 
-  // Navigation
   goToStep: (step: 1 | 2 | 3) => void;
   nextStep: () => void;
   prevStep: () => void;
 
-  // Form
   updateShipping: (field: keyof ShippingAddress, value: string) => void;
   selectPaymentMethod: (method: PaymentMethod) => void;
   updateMobileMoney: (field: string, value: string) => void;
-  updateCard: (field: string, value: string) => void;
-
-  // Adresse enregistrée
   useSavedAddress: (address: Address) => void;
-
-  // Reset
   clearSavedShipping: () => void;
 
-  // Validation + submit
   validateShipping: () => boolean;
   validatePayment: () => boolean;
-  submitOrder: () => void;
+  submitOrder: () => Promise<void>;
   lastOrder: Order | null;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HOOK
-// ─────────────────────────────────────────────────────────────────────────────
-
+/**
+ * Tunnel de commande.
+ *
+ * Deux changements de sécurité par rapport à la version précédente :
+ *
+ * 1. **Aucune donnée de carte bancaire n'est saisie ni transmise.**
+ *    Collecter un PAN et un CVV dans une SPA place l'application dans le
+ *    périmètre PCI-DSS ; le paiement par carte doit passer par le champ
+ *    hébergé d'un prestataire qui renvoie un jeton opaque.
+ * 2. **La commande est créée par l'API** à partir du panier serveur : le
+ *    client n'envoie ni prix, ni total, ni statut.
+ *
+ * L'adresse de livraison n'est plus mémorisée dans le localStorage :
+ * elle est pré-remplie depuis le carnet d'adresses du compte.
+ */
 export const useCheckout = (): UseCheckoutReturn => {
   const { cart, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
-  const { addOrder } = useOrders();
+  const { checkout } = useOrders();
 
-  // ─── STATE INITIAL AVEC PERSISTANCE ───
   const [state, setState] = useState<CheckoutState>(buildInitialState);
-
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof ShippingAddress, string>>
-  >({});
-
+  const [errors, setErrors] = useState<Partial<Record<keyof ShippingAddress, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
-  // ─── CALCULS ───
+  // Estimation locale ; les montants facturés viennent de l'API.
   const subtotal = totalPrice;
   const shippingCost =
     subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : SHIPPING_COST;
   const total = subtotal + shippingCost;
 
-  // ─── NAVIGATION ───
-  const goToStep = (step: 1 | 2 | 3): void =>
-    setState((prev) => ({ ...prev, step }));
+  const goToStep = (step: 1 | 2 | 3): void => setState((prev) => ({ ...prev, step }));
 
   const nextStep = (): void =>
-    setState((prev) => ({
-      ...prev,
-      step: Math.min(prev.step + 1, 3) as 1 | 2 | 3,
-    }));
+    setState((prev) => ({ ...prev, step: Math.min(prev.step + 1, 3) as 1 | 2 | 3 }));
 
   const prevStep = (): void =>
-    setState((prev) => ({
-      ...prev,
-      step: Math.max(prev.step - 1, 1) as 1 | 2 | 3,
-    }));
+    setState((prev) => ({ ...prev, step: Math.max(prev.step - 1, 1) as 1 | 2 | 3 }));
 
-  // ─── FORM SHIPPING ───
-  const updateShipping = (
-    field: keyof ShippingAddress,
-    value: string
-  ): void => {
+  const updateShipping = (field: keyof ShippingAddress, value: string): void => {
     setState((prev) => ({
       ...prev,
+      // Saisie manuelle : on n'utilise plus l'adresse enregistrée.
+      addressId: null,
       shipping: { ...prev.shipping, [field]: value },
     }));
 
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  // ─── FORM PAYMENT ───
-  /**
-   * Sélectionne la méthode de paiement. Lors du premier passage sur
-   * "mobile-money", le numéro de téléphone est automatiquement pré-rempli
-   * avec celui enregistré sur le compte de l'utilisateur connecté, afin de
-   * lui éviter une ressaisie inutile ; l'utilisateur reste libre de le
-   * modifier ensuite.
-   */
   const selectPaymentMethod = (method: PaymentMethod): void =>
     setState((prev) => ({
       ...prev,
@@ -170,28 +128,12 @@ export const useCheckout = (): UseCheckoutReturn => {
     }));
 
   const updateMobileMoney = (field: string, value: string): void =>
-    setState((prev) => ({
-      ...prev,
-      mobileMoney: { ...prev.mobileMoney, [field]: value },
-    }));
+    setState((prev) => ({ ...prev, mobileMoney: { ...prev.mobileMoney, [field]: value } }));
 
-  const updateCard = (field: string, value: string): void =>
-    setState((prev) => ({
-      ...prev,
-      card: { ...prev.card, [field]: value },
-    }));
-
-  // ─── ADRESSE ENREGISTRÉE ───
-  /**
-   * Remplit instantanément tous les champs du formulaire de livraison à
-   * partir d'une adresse enregistrée sur le compte de l'utilisateur
-   * (bouton "Utiliser mon adresse enregistrée"). Efface également les
-   * erreurs de validation déjà affichées, puisque les champs concernés
-   * viennent d'être renseignés.
-   */
   const useSavedAddress = (address: Address): void => {
     setState((prev) => ({
       ...prev,
+      addressId: address.id,
       shipping: {
         fullName: address.fullName,
         phone: address.phone,
@@ -205,36 +147,25 @@ export const useCheckout = (): UseCheckoutReturn => {
     setErrors({});
   };
 
-  // ─── RESET ADRESSE ───
   const clearSavedShipping = (): void => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (error) {
-      console.error("Impossible d'effacer l'adresse sauvegardée.", error);
-    }
-
-    setState((prev) => ({ ...prev, shipping: INITIAL_SHIPPING }));
+    setState((prev) => ({ ...prev, shipping: INITIAL_SHIPPING, addressId: null }));
     setErrors({});
   };
 
-  // ─── VALIDATION SHIPPING ───
   const validateShipping = (): boolean => {
     const newErrors: Partial<Record<keyof ShippingAddress, string>> = {};
     const { fullName, phone, email, address, city, region } = state.shipping;
 
-    if (!fullName.trim()) newErrors.fullName = "Nom requis";
+    if (fullName.trim().length < 2) newErrors.fullName = "Nom requis";
 
-    if (!phone.trim()) {
-      newErrors.phone = "Téléphone requis";
-    } else if (!isValidMalagasyPhone(phone)) {
-      newErrors.phone = "Numéro invalide (ex : 034 12 345 67)";
-    }
+    if (!phone.trim()) newErrors.phone = "Téléphone requis";
+    else if (!isValidMalagasyPhone(phone)) newErrors.phone = "Numéro invalide (ex : 034 12 345 67)";
 
-    if (email.trim() && !isValidEmail(email)) {
-      newErrors.email = "Email invalide";
-    }
+    // L'API exige un email valide pour la confirmation de commande.
+    if (!email.trim()) newErrors.email = "Email requis";
+    else if (!isValidEmail(email)) newErrors.email = "Email invalide";
 
-    if (!address.trim()) newErrors.address = "Adresse requise";
+    if (address.trim().length < 3) newErrors.address = "Adresse requise";
     if (!city.trim()) newErrors.city = "Ville requise";
     if (!region.trim()) newErrors.region = "Région requise";
 
@@ -242,7 +173,6 @@ export const useCheckout = (): UseCheckoutReturn => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ─── VALIDATION PAYMENT ───
   const validatePayment = (): boolean => {
     if (!state.paymentMethod) return false;
 
@@ -250,58 +180,54 @@ export const useCheckout = (): UseCheckoutReturn => {
       return isValidMalagasyPhone(state.mobileMoney.phoneNumber);
     }
 
-    if (state.paymentMethod === "card") {
-      const { number, holderName, expiry, cvv } = state.card;
-      return (
-        number.replace(/\s/g, "").length === 16 &&
-        holderName.trim().length > 2 &&
-        /^\d{2}\/\d{2}$/.test(expiry) &&
-        cvv.length === 3
-      );
-    }
-
-    return true; // cash
+    // "card" et "cash" : aucune donnée sensible n'est saisie ici.
+    return true;
   };
 
-  // ─── SUBMIT ───
-  const submitOrder = (): void => {
-    if (!validatePayment()) return;
-    if (!state.paymentMethod) return;
-    if (!user) return;
-    if (cart.length === 0) return;
+  const submitOrder = useCallback(async (): Promise<void> => {
+    if (isSubmitting) return;
 
-    const order: Order = {
-      id: `ORD-${Date.now()}`,
-      userId: user.id,
-      items: [...cart],
-      shipping: { ...state.shipping },
-      paymentMethod: state.paymentMethod,
-      subtotal,
-      shippingCost,
-      total,
-      status: "paid",
-      createdAt: new Date().toISOString(),
-    };
+    setSubmitError(null);
 
-    // Enregistre la commande + la transaction dans le contexte
-    addOrder(order);
+    if (!state.paymentMethod || !validatePayment()) {
+      setSubmitError("Veuillez compléter les informations de paiement.");
+      return;
+    }
+    if (!user) {
+      setSubmitError("Votre session a expiré. Reconnectez-vous pour valider la commande.");
+      return;
+    }
+    if (cart.length === 0) {
+      setSubmitError("Votre panier est vide.");
+      return;
+    }
 
-    // Sauvegarde l'adresse pour la prochaine commande
+    setIsSubmitting(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.shipping));
+      const order = await checkout({
+        addressId: state.addressId ?? undefined,
+        shipping: state.addressId ? undefined : state.shipping,
+        paymentMethod: state.paymentMethod,
+        mobileMoney:
+          state.paymentMethod === "mobile-money" ? state.mobileMoney : undefined,
+      });
+
+      setLastOrder(order);
+      await clearCart();
+      setState((prev) => ({ ...prev, step: 3 }));
     } catch (error) {
-      console.error("Impossible de sauvegarder l'adresse.", error);
+      setSubmitError(toErrorMessage(error, "La commande n'a pas pu être enregistrée."));
+    } finally {
+      setIsSubmitting(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart.length, checkout, clearCart, isSubmitting, state, user]);
 
-    setLastOrder(order);
-    clearCart();
-    setState((prev) => ({ ...prev, step: 3 }));
-  };
-
-  // ─── RETURN ───
   return {
     state,
     errors,
+    submitError,
+    isSubmitting,
     subtotal,
     shippingCost,
     total,
@@ -311,7 +237,6 @@ export const useCheckout = (): UseCheckoutReturn => {
     updateShipping,
     selectPaymentMethod,
     updateMobileMoney,
-    updateCard,
     useSavedAddress,
     clearSavedShipping,
     validateShipping,

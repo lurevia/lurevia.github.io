@@ -24,6 +24,8 @@ export const ProductDetail: FC = () => {
 
   const {
     product,
+    isLoading,
+    notFound,
     selectedImage,
     selectedSize,
     selectedColor,
@@ -61,7 +63,16 @@ export const ProductDetail: FC = () => {
     }
   }, [location.hash, searchParams]);
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center" role="status">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+        <span className="sr-only">Chargement du produit</span>
+      </div>
+    );
+  }
+
+  if (notFound || !product) {
     return <Navigate to="/boutique" replace />;
   }
 
@@ -69,7 +80,7 @@ export const ProductDetail: FC = () => {
   const images = product.images?.length ? product.images : [product.imageUrl];
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    void addToCart(product, quantity);
     resetSelection();
   };
 
@@ -98,7 +109,7 @@ export const ProductDetail: FC = () => {
           images={images}
           title={product.title}
           isFavorite={isFav}
-          onToggleFavorite={() => toggleFavorite(product)}
+          onToggleFavorite={() => void toggleFavorite(product)}
           isNew={product.isNew}
           onSale={!!product.originalPrice}
           selectedImage={selectedImage}
@@ -122,7 +133,7 @@ export const ProductDetail: FC = () => {
             maxQuantity={product.stock ?? 99}
             onQuantityChange={setQuantity}
             onAddToCart={handleAddToCart}
-            onToggleFavorite={() => toggleFavorite(product)}
+            onToggleFavorite={() => void toggleFavorite(product)}
             isFavorite={isFav}
             outOfStock={product.outOfStock ?? false}
           />

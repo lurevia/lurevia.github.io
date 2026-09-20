@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { Link } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import type { ServiceFeedback } from "../../bin/types/feedbackType";
 import { StarRating } from "../../components/reviews/StarRating";
@@ -7,7 +8,8 @@ import { Button } from "../../components/ui/Button";
 
 type MyFeedbackCardProps = {
   feedback: ServiceFeedback;
-  onEdit: () => void;
+  /** Route interne d'édition (navigation SPA, pas de rechargement). */
+  to: string;
   onDelete: () => void;
 };
 
@@ -21,7 +23,7 @@ const CATEGORY_LABELS: Record<ServiceFeedback["category"], string> = {
 
 export const MyFeedbackCard: FC<MyFeedbackCardProps> = ({
   feedback,
-  onEdit,
+  to,
   onDelete,
 }) => (
   <article className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 space-y-3">
@@ -43,15 +45,15 @@ export const MyFeedbackCard: FC<MyFeedbackCardProps> = ({
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          icon={Pencil}
-          onClick={onEdit}
-          aria-label="Modifier"
-          className="w-8! h-8! text-slate-400! hover:text-lurevia-dark!"
-        />
+        <Link to={to} aria-label="Modifier">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            icon={Pencil}
+            className="w-8! h-8! text-slate-400! hover:text-lurevia-dark!"
+          />
+        </Link>
         <Button
           type="button"
           variant="ghost"

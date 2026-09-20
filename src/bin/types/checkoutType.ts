@@ -15,17 +15,11 @@ export interface MobileMoneyDetails {
   phoneNumber: string;
 }
 
-export interface CardDetails {
-  number: string;
-  holderName: string;
-  expiry: string;
-  cvv: string;
-}
-
 export interface CheckoutState {
   step: 1 | 2 | 3;
   shipping: ShippingAddress;
   paymentMethod: PaymentMethod | null;
   mobileMoney: MobileMoneyDetails;
-  card: CardDetails;
+  /** Adresse enregistrée sélectionnée, si l'utilisateur en a choisi une. */
+  addressId: string | null;
 }

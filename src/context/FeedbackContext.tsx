@@ -1,106 +1,110 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+
 import { FeedbackContext } from "./feedbackContextDefinition";
+import { feedbackApi } from "../api/feedback";
+import { toErrorMessage } from "../api/http";
 import { useAuth } from "../hooks/useAuth";
-import type { ServiceFeedback } from "../bin/types/feedbackType";
+import type { FeedbackInput, ServiceFeedback } from "../bin/types/feedbackType";
 
-const STORAGE_KEY = "lurevia_service_feedback";
+const PUBLIC_PAGE_SIZE = 20;
 
-const readStorage = (): ServiceFeedback[] => {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as ServiceFeedback[]) : [];
-    } catch {
-        return [];
-    }
-};
-
+/**
+ * Feedbacks sur le service.
+ *
+ * Les avis publics sont lus sans authentification ; la liste « mes
+ * feedbacks » et les écritures passent par les routes protégées, le
+ * serveur vérifiant la propriété de chaque feedback avant modification
+ * ou suppression.
+ */
 export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
-    const { user } = useAuth();
-    const [all, setAll] = useState<ServiceFeedback[]>(readStorage);
+  const { user, isReady } = useAuth();
+  const [allFeedbacks, setAllFeedbacks] = useState<ServiceFeedback[]>([]);
+  const [myFeedbacks, setMyFeedbacks] = useState<ServiceFeedback[]>([]);
+  const [stats, setStats] = useState({ average: 0, count: 0 });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-        } catch (e) {
-            console.error("Impossible de sauvegarder les feedbacks.", e);
-        }
-    }, [all]);
+  const refresh = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
 
-    const myFeedbacks = useMemo(
-        () =>
-            user
-                ? all
-                    .filter((f) => f.userId === user.id)
-                    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-                : [],
-        [all, user]
-    );
+    try {
+      const [publicList, publicStats] = await Promise.all([
+        feedbackApi.listPublic(1, PUBLIC_PAGE_SIZE),
+        feedbackApi.stats(),
+      ]);
+      setAllFeedbacks(publicList);
+      setStats(publicStats);
 
-    const allFeedbacks = useMemo(
-        () => [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-        [all]
-    );
+      if (user) {
+        setMyFeedbacks(await feedbackApi.listMine());
+      } else {
+        setMyFeedbacks([]);
+      }
+    } catch (err) {
+      setError(toErrorMessage(err, "Impossible de charger les feedbacks."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
-    const averageRating = useMemo(() => {
-        if (all.length === 0) return 0;
-        return all.reduce((sum, f) => sum + f.overallRating, 0) / all.length;
-    }, [all]);
+  useEffect(() => {
+    if (!isReady) return;
+    void refresh();
+  }, [isReady, refresh]);
 
-    const addFeedback = useCallback(
-        (data: Omit<ServiceFeedback, "id" | "createdAt" | "updatedAt" | "userId" | "userName">) => {
-            if (!user) return;
+  const addFeedback = useCallback(
+    async (data: FeedbackInput): Promise<void> => {
+      await feedbackApi.create(data);
+      await refresh();
+    },
+    [refresh]
+  );
 
-            const now = new Date().toISOString();
-            const newFeedback: ServiceFeedback = {
-                ...data,
-                id: `fb-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                userId: user.id,
-                userName: user.fullName,
-                createdAt: now,
-                updatedAt: now,
-            };
+  const updateFeedback = useCallback(
+    async (id: string, data: Partial<FeedbackInput>): Promise<void> => {
+      await feedbackApi.update(id, data);
+      await refresh();
+    },
+    [refresh]
+  );
 
-            setAll((prev) => [newFeedback, ...prev]);
-        },
-        [user]
-    );
+  const deleteFeedback = useCallback(
+    async (id: string): Promise<void> => {
+      await feedbackApi.remove(id);
+      setAllFeedbacks((prev) => prev.filter((f) => f.id !== id));
+      setMyFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    },
+    []
+  );
 
-    const updateFeedback = useCallback(
-        (id: string, data: Partial<ServiceFeedback>) => {
-            if (!user) return;
-            setAll((prev) =>
-                prev.map((f) =>
-                    f.id === id && f.userId === user.id
-                        ? { ...f, ...data, updatedAt: new Date().toISOString() }
-                        : f
-                )
-            );
-        },
-        [user]
-    );
+  const value = useMemo(
+    () => ({
+      myFeedbacks,
+      allFeedbacks,
+      averageRating: stats.average,
+      totalCount: stats.count,
+      isLoading,
+      error,
+      addFeedback,
+      updateFeedback,
+      deleteFeedback,
+      refresh,
+    }),
+    [
+      myFeedbacks,
+      allFeedbacks,
+      stats.average,
+      stats.count,
+      isLoading,
+      error,
+      addFeedback,
+      updateFeedback,
+      deleteFeedback,
+      refresh,
+    ]
+  );
 
-    const deleteFeedback = useCallback(
-        (id: string) => {
-            if (!user) return;
-            setAll((prev) => prev.filter((f) => !(f.id === id && f.userId === user.id)));
-        },
-        [user]
-    );
-
-    const value = useMemo(
-        () => ({
-            myFeedbacks,
-            allFeedbacks,
-            addFeedback,
-            updateFeedback,
-            deleteFeedback,
-            averageRating,
-        }),
-        [myFeedbacks, allFeedbacks, addFeedback, updateFeedback, deleteFeedback, averageRating]
-    );
-
-    return (
-        <FeedbackContext.Provider value={value}>{children}</FeedbackContext.Provider>
-    );
+  return <FeedbackContext.Provider value={value}>{children}</FeedbackContext.Provider>;
 };

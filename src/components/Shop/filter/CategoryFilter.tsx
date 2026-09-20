@@ -8,19 +8,18 @@ type CategoryFilterProps = {
   filters: FilterState;
   onChange: (next: FilterState) => void;
   categories: { slug: string; name: string }[];
-  categoryCounts: Record<string, number>;
 };
 
 export const CategoryFilter: FC<CategoryFilterProps> = ({
   filters,
   onChange,
   categories,
-  categoryCounts,
 }) => {
+  // Le décompte par catégorie n'est plus calculé côté client : le
+  // catalogue complet n'est plus chargé dans le navigateur.
   const options: CheckboxOption<string>[] = categories.map((cat) => ({
     value: cat.slug,
     label: cat.name,
-    count: categoryCounts[cat.slug] ?? 0,
   }));
 
   return (

@@ -32,7 +32,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
       (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         e.stopPropagation();
-        toggleFavorite(product);
+        void toggleFavorite(product);
       },
       [product, toggleFavorite]
     );
@@ -41,7 +41,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
       (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         e.stopPropagation();
-        addToCart(product);
+        void addToCart(product);
       },
       [addToCart, product]
     );

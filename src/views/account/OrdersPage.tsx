@@ -18,7 +18,7 @@ const TABS: { id: OrderStatus | "all"; label: string }[] = [
 ];
 
 export const OrdersPage: FC = () => {
-    const { orders, transactions } = useOrders();
+    const { orders, transactions, isLoading, error } = useOrders();
     const [tab, setTab] = useState<OrderStatus | "all">("all");
 
     const filtered = tab === "all" ? orders : orders.filter((o) => o.status === tab);
@@ -67,7 +67,14 @@ export const OrdersPage: FC = () => {
                 </div>
             )}
 
-            {orders.length === 0 ? (
+            {isLoading ? (
+                <div className="flex justify-center py-16" role="status">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
+                    <span className="sr-only">Chargement des commandes</span>
+                </div>
+            ) : error ? (
+                <div className="text-center py-16 text-slate-400 text-sm">{error}</div>
+            ) : orders.length === 0 ? (
                 <EmptyOrders />
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16 text-slate-400 text-sm">
@@ -93,7 +100,7 @@ export const OrdersPage: FC = () => {
                             <li key={t.id} className="flex items-center justify-between gap-3 py-3">
                                 <div className="min-w-0">
                                     <p className="text-xs font-bold text-slate-800 font-mono truncate">
-                                        {t.id}
+                                        #{t.id.slice(-8).toUpperCase()}
                                     </p>
                                     <p className="text-[11px] text-slate-500 mt-0.5">
                                         {new Date(t.date).toLocaleDateString("fr-FR")} ·{" "}

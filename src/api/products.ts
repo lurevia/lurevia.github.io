@@ -9,7 +9,6 @@ export type ProductQuery = {
   limit?: number;
   categories?: string[];
   sizes?: string[];
-  /** Libellés de couleur (ex : "Noir"), tels qu'attendus par l'API. */
   colors?: string[];
   priceMin?: number;
   priceMax?: number;

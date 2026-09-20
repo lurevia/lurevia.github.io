@@ -20,6 +20,5 @@ export interface CheckoutState {
   shipping: ShippingAddress;
   paymentMethod: PaymentMethod | null;
   mobileMoney: MobileMoneyDetails;
-  /** Adresse enregistrée sélectionnée, si l'utilisateur en a choisi une. */
   addressId: string | null;
 }

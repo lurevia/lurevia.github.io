@@ -43,8 +43,6 @@ export const authApi = {
     try {
       await api.post<void>("/auth/logout", undefined, { auth: false });
     } finally {
-      // Même si l'appel échoue (réseau coupé), la session locale est
-      // effacée : on ne garde jamais un token utilisable après un logout.
       tokenStore.clear();
     }
   },

@@ -16,13 +16,11 @@ const readNumber = (value: unknown, fallback: number): number => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-/** URL de base de l'API (préfixe inclus). Ex : http://localhost:4000/api/v1 */
 export const API_BASE_URL = readString(
   import.meta.env.VITE_API_URL,
-  "http://localhost:4000/api/v1"
+  "https://lurevia-ecommerce.onrender.com/api/v1"
 ).replace(/\/+$/, "");
 
-/** Délai maximum d'une requête réseau avant abandon (ms). */
 export const REQUEST_TIMEOUT_MS = readNumber(
   import.meta.env.VITE_API_TIMEOUT_MS,
   15_000

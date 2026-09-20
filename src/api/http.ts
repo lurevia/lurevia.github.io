@@ -40,7 +40,6 @@ export class ApiError extends Error {
     this.details = details;
   }
 
-  /** Vrai si l'erreur vient d'une session absente ou expirée. */
   get isUnauthorized(): boolean {
     return this.status === 401;
   }
@@ -86,9 +85,7 @@ export const tokenStore = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SessionHandlers = {
-  /** Appelé après un refresh réussi, avec l'utilisateur renvoyé par l'API. */
   onRefreshed?: (user: unknown) => void;
-  /** Appelé lorsqu'aucune session valide ne peut être rétablie. */
   onExpired?: () => void;
 };
 
@@ -108,7 +105,6 @@ export type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   body?: unknown;
   query?: Record<string, QueryValue>;
-  /** Joint le token d'accès et tente un refresh sur 401. Défaut : true. */
   auth?: boolean;
   signal?: AbortSignal;
 };
@@ -153,14 +149,11 @@ const rawRequest = async <T,>(path: string, options: RequestOptions): Promise<T>
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  // Propage une éventuelle annulation externe (démontage de composant).
   const onExternalAbort = () => controller.abort();
   signal?.addEventListener("abort", onExternalAbort);
 
   const headers: Record<string, string> = {
     Accept: "application/json",
-    // Signale une requête XHR : une requête <form> cross-site ne peut pas
-    // poser cet en-tête, ce qui ajoute une barrière anti-CSRF.
     "X-Requested-With": "XMLHttpRequest",
   };
 
@@ -174,9 +167,7 @@ const rawRequest = async <T,>(path: string, options: RequestOptions): Promise<T>
     response = await fetch(buildUrl(path, query), {
       method,
       headers,
-      // Nécessaire pour transporter le cookie httpOnly de refresh.
       credentials: "include",
-      // Pas de cache pour les données authentifiées.
       cache: "no-store",
       referrerPolicy: "strict-origin-when-cross-origin",
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -238,8 +229,6 @@ export const refreshSession = (): Promise<boolean> => {
       tokenStore.clear();
       return false;
     } finally {
-      // Libère le verrou au prochain tick pour que les appels concurrents
-      // aient tous récupéré la même promesse.
       setTimeout(() => {
         refreshInFlight = null;
       }, 0);

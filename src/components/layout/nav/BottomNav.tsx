@@ -21,7 +21,7 @@ export const BottomNav: FC = () => {
         onClose={closeDropdown}
       />
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-lg border-t border-white/20 pb-safe shadow-[0_-8px_32px_rgba(0,0,0,0.06)] overflow-visible">
+      <div className="glass-strong md:hidden fixed bottom-0 left-0 right-0 z-50 border-x-0 border-b-0 pb-safe overflow-visible">
         <nav
           className="flex justify-around items-center h-16 px-2 relative overflow-visible"
           aria-label="Navigation mobile"

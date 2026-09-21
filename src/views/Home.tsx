@@ -24,7 +24,12 @@ export const Home: FC = () => {
     const load = async () => {
       try {
         const page = await productsApi.list(
-          { page: 1, limit: POPULAR_LIMIT, sortBy: "popular", availability: "in-stock" },
+          {
+            page: 1,
+            limit: POPULAR_LIMIT,
+            sortBy: "popular",
+            availability: "in-stock",
+          },
           controller.signal
         );
         if (!controller.signal.aborted) setProducts(page.products);
@@ -40,30 +45,36 @@ export const Home: FC = () => {
   }, []);
 
   return (
-    <div className="space-y-12">
-      <HeroBanner />
-      <ScrollReveal delay={150}>
-        <FeatureBar />
-      </ScrollReveal>
-      <ScrollReveal delay={200}>
-        <CategorySection />
-      </ScrollReveal>
+    <div className="w-full overflow-hidden">
 
-      <ScrollReveal delay={250}>
-        <ProductGrid products={products} isLoading={isLoading} />
-      </ScrollReveal>
+      <div className="relative w-full bg-white">
+        <HeroBanner />
+      </div>
 
-      <ScrollReveal delay={200}>
-        <ArtisanBanner />
-      </ScrollReveal>
+        <div className="max-w-7xl mx-auto px-2 md:px-12">
+          <FeatureBar />
+      </div>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-16 mt-12">
+        <ScrollReveal delay={200}>
+          <CategorySection />
+        </ScrollReveal>
 
-      <ScrollReveal delay={200}>
-        <WhyUsSection />
-      </ScrollReveal>
+        <ScrollReveal delay={250}>
+          <ProductGrid products={products} isLoading={isLoading} />
+        </ScrollReveal>
 
-      <ScrollReveal delay={200}>
-        <PartnerBanner />
-      </ScrollReveal>
+        <ScrollReveal delay={200}>
+          <ArtisanBanner />
+        </ScrollReveal>
+
+        <ScrollReveal delay={200}>
+          <WhyUsSection />
+        </ScrollReveal>
+
+        <ScrollReveal delay={200}>
+          <PartnerBanner />
+        </ScrollReveal>
+      </div>
     </div>
   );
 };

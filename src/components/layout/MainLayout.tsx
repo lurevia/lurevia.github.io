@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
 
 export const MainLayout: React.FC = () => {
     return (
-        <div className="h-svh w-screen flex flex-col overflow-hidden bg-slate-50">
+        <div className="h-svh w-screen flex flex-col overflow-hidden">
 
             <Navbar />
             

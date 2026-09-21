@@ -33,7 +33,7 @@ export const BottomNavItemLink: FC<BottomNavItemLinkProps> = ({
       <div
         className={`relative flex items-center justify-center transition-all duration-500 ease-in-out ${
           isActive
-            ? "bg-amber-600 text-white w-12 h-12 rounded-full -translate-y-3 shadow-lg shadow-amber-600/30 border-4 border-gray-50 z-10 scale-110"
+            ? "bg-lurevia-blue-500 text-white w-12 h-12 rounded-full -translate-y-3 shadow-lg shadow-lurevia-blue-500/40 border-4 border-gray-50 z-10 scale-110"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >
@@ -49,8 +49,8 @@ export const BottomNavItemLink: FC<BottomNavItemLinkProps> = ({
           <span
             className={`absolute flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold ring-2 transition-all duration-300 ${
               isActive
-                ? "-top-1 -right-1 bg-slate-900 text-white ring-amber-600"
-                : "-top-1 -right-1.5 bg-amber-600 text-white ring-white"
+                ? "-top-1 -right-1 bg-slate-900 text-white ring-lurevia-blue-500"
+                : "-top-1 -right-1.5 bg-lurevia-blue-500 text-white ring-white"
             }`}
           >
             {item.badge}

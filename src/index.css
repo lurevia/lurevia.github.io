@@ -1,10 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-lurevia-cyan: #00a8e8;
-  --color-lurevia-yellow: #ffcc00;
-  --color-lurevia-orange: #ff6600;
-  --color-lurevia-dark: #0c3c4c;
+  --color-lurevia-cyan: #2F7BF6;
+  --color-lurevia-blue-50: #EFF5FF;
+  --color-lurevia-blue-100: #DCE9FF;
+  --color-lurevia-blue-200: #B7D3FF;
+  --color-lurevia-blue-300: #8AB4FF;
+  --color-lurevia-blue-400: #5A93F9;
+  --color-lurevia-blue-500: #2F7BF6;
+  --color-lurevia-blue-600: #1C5FE0;
+  --color-lurevia-blue-700: #1749B0;
+
+  --color-lurevia-dark: #0A1B3D;
+
+  --color-lurevia-orange: #E8703A;
+  --color-lurevia-yellow: #F2B33D;
+
+  --shadow-glass-sm: 0 4px 24px -4px rgba(20, 60, 140, 0.12);
+  --shadow-glass-lg: 0 20px 60px -12px rgba(10, 27, 61, 0.35);
 
   --animate-micro-shake: micro-shake 3s ease-in-out infinite;
   --animate-marquee: marquee 20s linear infinite;
@@ -29,8 +42,60 @@ body,
 }
 
 body {
-  background-color: #f8f9fa;
+  /* background-color: #EFF5FF; */
+  /* background-image:
+    radial-gradient(48rem 30rem at 8% -10%, rgba(47, 123, 246, 0.22), transparent 60%),
+    radial-gradient(40rem 26rem at 108% 10%, rgba(90, 147, 249, 0.18), transparent 55%),
+    radial-gradient(50rem 34rem at 50% 120%, rgba(10, 27, 61, 0.10), transparent 60%),
+    linear-gradient(180deg, #F3F8FF 0%, #EAF2FF 100%); */
+  background-attachment: fixed;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Système Glassmorphism Lurevia ────────────────────────────────── */
+/* Verre standard : surfaces flottantes (cartes, panneaux) sur fond bleu */
+.glass {
+  background-color: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-glass-sm);
+}
+
+/* Verre renforcé : navigation, modales, éléments qui doivent rester lisibles */
+.glass-strong {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: var(--shadow-glass-sm);
+}
+
+/* Verre sombre : surfaces sur fond bleu nuit (footer, sections contrastées) */
+.glass-dark {
+  background-color: rgba(10, 27, 61, 0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Bordure interne lumineuse, effet de bord de verre */
+.glass-edge {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-glass-sm);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+
+.glass-card:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-glass-lg);
 }
 
 .scrollbar-none::-webkit-scrollbar {

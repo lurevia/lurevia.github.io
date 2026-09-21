@@ -29,28 +29,32 @@ export const Navbar: FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shrink-0">
+      <header className="glass-strong sticky top-0 z-50 w-full border-x-0 border-t-0 border-b-lurevia-blue-100 shrink-0">
         <nav className="max-w-7xl mx-auto px-3 md:px-6 flex items-center justify-between h-16 md:h-20 gap-2 relative">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-expanded={isMenuOpen}
-            className="shrink-0 z-20"
-          >
-            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </Button>
+          <div className="flex items-center gap-1 md:gap-3 shrink-0 z-20">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={isMenuOpen}
+            >
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </Button>
 
-          <Link
-            to="/"
-            className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:ml-4 flex flex-col justify-center shrink-0 group select-none z-10"
-          >
-            <span className="text-lg sm:text-2xl md:text-3xl font-black font-serif italic tracking-wide bg-linear-to-r from-lurevia-dark to-lurevia-orange bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-105 origin-left">
-              Lurevia
-            </span>
-          </Link>
+            <Link
+              to="/"
+              className="flex items-center select-none group shrink-0"
+              aria-label="Lurevia — Accueil"
+            >
+              <img
+                src="/images/logo.jpeg"
+                alt="Lurevia"
+                className="h-9 md:h-11 w-auto object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
+              />
+            </Link>
+          </div>
 
           <div className="hidden md:flex flex-1 justify-center max-w-md mx-6">
             <NavbarSearch variant="desktop" />

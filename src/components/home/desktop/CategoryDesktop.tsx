@@ -2,32 +2,33 @@ import type { FC } from "react";
 import { CategoryCard } from "../CategoryCard";
 import { useCategories } from "../../../hooks/useCategories";
 
-
 export const CategoryDesktop: FC = () => {
   const { categories } = useCategories();
-  const leftSideCategories = categories.slice(0, 2);
-  const centerFeaturedCategory = categories[2];
-  const rightSideCategories = categories.slice(3, 5);
+
+  const [featured, ...others] = categories;
+
+  if (!featured || others.length < 4) return null;
+
+  const [topLeft, topRight, bottomLeft, bottomRight] = others;
 
   return (
-    <div className="hidden md:grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
-      <div className="md:col-span-1 flex flex-col gap-6">
-        {leftSideCategories.map((category) => (
-          <CategoryCard key={category.id} category={category} isFeatured={false} />
-        ))}
+    <div className="hidden md:grid grid-cols-12 grid-rows-2 gap-2 h-130">
+      <div className="col-span-5 row-span-2">
+        <CategoryCard category={featured} isFeatured size="lg" />
       </div>
-      
-      {centerFeaturedCategory && (
-        <CategoryCard 
-          category={centerFeaturedCategory} 
-          isFeatured={true} 
-        />
-      )}
-      
-      <div className="md:col-span-1 flex flex-col gap-6">
-        {rightSideCategories.map((category) => (
-          <CategoryCard key={category.id} category={category} isFeatured={false} />
-        ))}
+
+      <div className="col-span-4 row-span-1">
+        <CategoryCard category={topLeft} size="md" />
+      </div>
+      <div className="col-span-3 row-span-1">
+        <CategoryCard category={topRight} size="sm" />
+      </div>
+
+      <div className="col-span-3 row-span-1">
+        <CategoryCard category={bottomLeft} size="sm" />
+      </div>
+      <div className="col-span-4 row-span-1">
+        <CategoryCard category={bottomRight} size="md" />
       </div>
     </div>
   );

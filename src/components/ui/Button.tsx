@@ -22,12 +22,14 @@ export const Button: FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    "inline-flex items-center justify-center gap-2 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer select-none";
+    "inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer select-none";
 
   const variantStyle = {
-    primary: "bg-orange-500 text-white hover:bg-orange-600",
-    secondary: "bg-red-400 text-gray-800 hover:bg-red-500",
-    ghost: "bg-transparent text-slate-700 hover:bg-slate-100",
+    primary:
+      "bg-linear-to-b from-lurevia-blue-500 to-lurevia-blue-600 text-white shadow-[0_8px_24px_-6px_rgba(47,123,246,0.55)] hover:from-lurevia-blue-400 hover:to-lurevia-blue-500 hover:shadow-[0_10px_28px_-6px_rgba(47,123,246,0.65)] active:scale-[0.98]",
+    secondary:
+      "glass text-lurevia-blue-700 hover:bg-white/80 border-lurevia-blue-100!",
+    ghost: "bg-transparent text-slate-700 hover:bg-lurevia-blue-50",
   }[variant];
 
   const sizeStyle = {

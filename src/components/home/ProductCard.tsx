@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
         className="block h-full group"
         aria-label={`Voir ${title}`}
       >
-        <article className="bg-white md:border md:border-slate-100 rounded-2xl overflow-hidden md:shadow-xs p-2 md:p-4 flex flex-col justify-between h-full transition-all duration-300 md:group-hover:shadow-md md:group-hover:border-slate-200/80">
+        <article className="glass-card md:border-white/60 rounded-2xl overflow-hidden p-2 md:p-4 flex flex-col justify-between h-full md:hover:-translate-y-0.5">
           <div className="space-y-2 md:space-y-3">
             <div className="relative w-full h-40 sm:h-44 md:h-48 bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center">
               <Button

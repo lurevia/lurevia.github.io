@@ -9,7 +9,7 @@
     "copy:404": "node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist -b main"  
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

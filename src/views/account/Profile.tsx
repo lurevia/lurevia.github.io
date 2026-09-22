@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Star,
   KeyRound,
+  ShieldCheck,
 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";
@@ -22,12 +23,14 @@ import { toErrorMessage } from "../../api/http";
 import { validatePasswordStrength } from "../../hooks/useAuthForm";
 import { initialsOf } from "../../bin/utils/security";
 import { AvatarUploader } from "../../components/account/AvatarUploader";
+import { useVerification } from "../../hooks/useVerification";
 
 export const ProfilePage: FC = () => {
   const { user, updateProfile, changePassword } = useAuth();
   const { orders, transactions } = useOrders();
   const { totalFavorites } = useFavorite();
   const { unreadCount } = useNotifications();
+  const { status: verificationStatus } = useVerification();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [isSaving, setIsSaving] = useState(false);
@@ -144,6 +147,22 @@ export const ProfilePage: FC = () => {
       )}
 
       <Link
+        to="/compte/verification"
+        className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 hover:shadow-sm transition-all"
+      >
+        <div className={`p-2 rounded-lg ${user.isVerified ? "bg-emerald-50" : "bg-orange-50"}`}>
+          <ShieldCheck size={16} className={user.isVerified ? "text-emerald-600" : "text-lurevia-orange"} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-black text-lurevia-dark">Vérification du compte</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            {user.isVerified || verificationStatus === "APPROVED" ? "Compte vérifié" : verificationStatus === "PENDING" ? "Demande en attente d’approbation" : "Renforcer la sécurité de votre compte"}
+          </p>
+        </div>
+        <ChevronRight size={16} className="text-slate-400 shrink-0" />
+      </Link>
+
+      <Link
         to="/compte/avis"
         className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 hover:shadow-sm transition-all"
       >
@@ -213,6 +232,11 @@ export const ProfilePage: FC = () => {
         {profileError && (
           <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
             <p className="text-xs font-medium text-red-600">{profileError}</p>
+          </div>
+        )}
+        {saved && (
+          <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+            <p className="text-xs font-medium text-amber-800">Votre modification a été envoyée et reste en attente d’approbation par notre équipe.</p>
           </div>
         )}
 

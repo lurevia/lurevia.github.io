@@ -5,6 +5,8 @@ import {
     Package,
     Heart,
     MapPin,
+    Mail,
+    ShieldCheck,
     LogOut,
     ChevronRight,
 } from "lucide-react";
@@ -20,6 +22,8 @@ const NAV_ITEMS = [
     { to: "/compte/commandes", label: "Commandes", icon: Package },
     { to: "/compte/favoris", label: "Favoris", icon: Heart },
     { to: "/compte/adresses", label: "Adresses", icon: MapPin },
+    { to: "/compte/messages", label: "Messages", icon: Mail },
+    { to: "/compte/verification", label: "Vérifier mon compte", icon: ShieldCheck },
 ];
 
 export const AccountSidebar: FC = () => {

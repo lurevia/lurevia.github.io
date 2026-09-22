@@ -57,6 +57,12 @@ const UserReviewsPage = lazy(() =>
     default: module.UserReviewsPage,
   }))
 );
+const MessagesPage = lazy(() =>
+  import("./views/account/MessagesPage").then((module) => ({ default: module.MessagesPage }))
+);
+const VerificationPage = lazy(() =>
+  import("./views/account/VerificationPage").then((module) => ({ default: module.VerificationPage }))
+);
 
 function RouteFallback() {
   return (
@@ -106,6 +112,8 @@ export default function App() {
                 <Route path="favoris" element={<AccountFavoritesPage />} />
                 <Route path="adresses" element={<AddressesPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="messages" element={<MessagesPage />} />
+                <Route path="verification" element={<VerificationPage />} />
                 <Route path="avis" element={<UserReviewsPage />} />
               </Route>
             </Route>

@@ -45,7 +45,7 @@ export const MobileMoneyForm: FC<MobileMoneyFormProps> = ({
                                 : "border-slate-200 bg-white hover:border-slate-300"
                                 }`}
                         >
-                            <PaymentLogo provider={p.id} className="h-6 max-w-[88px]" />
+                            <PaymentLogo provider={p.id} className="h-6 max-w-22" />
                             <span className="text-[10px] font-bold text-slate-600">{p.label}</span>
                         </button>
                     );

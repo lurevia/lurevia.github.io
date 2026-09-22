@@ -2,7 +2,8 @@ export type NotificationType =
     | "review_pending"
     | "order_shipped"
     | "order_delivered"
-    | "promo";
+    | "promo"
+    | "account_verification";
 
 export interface AppNotification {
     id: string;

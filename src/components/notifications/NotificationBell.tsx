@@ -16,12 +16,10 @@ export const NotificationBell: FC = () => {
     const panelRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
 
-    /** Ferme le panneau si on change de page */
     useEffect(() => {
         setIsOpen(false);
     }, [location.pathname]);
 
-    /** 🔒 Bloque le scroll du body quand ouvert sur mobile */
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -33,7 +31,6 @@ export const NotificationBell: FC = () => {
         };
     }, [isOpen]);
 
-    /** Ferme le panneau si on clique ailleurs (desktop uniquement) */
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
@@ -46,7 +43,6 @@ export const NotificationBell: FC = () => {
         }
     }, [isOpen]);
 
-    /** ⌨️ Ferme avec Échap */
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isOpen) setIsOpen(false);
@@ -104,7 +100,6 @@ export const NotificationBell: FC = () => {
                         )}
                     </header>
 
-                    {/* Compteur */}
                     {unreadCount > 0 && (
                         <div className="px-4 py-2 bg-orange-50/50 border-b border-orange-100">
                             <p className="text-[11px] font-bold text-lurevia-orange">
@@ -113,7 +108,6 @@ export const NotificationBell: FC = () => {
                         </div>
                     )}
 
-                    {/* Liste scrollable */}
                     <div className="flex-1 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
@@ -189,7 +183,6 @@ export const NotificationBell: FC = () => {
                         </div>
                     </div>
 
-                    {/* Liste */}
                     {notifications.length === 0 ? (
                         <div className="p-8 text-center">
                             <div className="inline-flex p-4 bg-slate-50 rounded-full mb-3">

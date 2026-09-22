@@ -175,6 +175,7 @@ const NOTIFICATION_TYPES: Record<string, NotificationType> = {
   ORDER_SHIPPED: "order_shipped",
   ORDER_DELIVERED: "order_delivered",
   PROMO: "promo",
+  ACCOUNT_VERIFICATION: "account_verification",
 };
 
 export const toNotification = (dto: NotificationDto): AppNotification => ({

@@ -1,2 +1,0 @@
-import{i as e,o as t}from"./Button-BE-5Tcuq.js";import{f as n}from"./index-qL_z8jS6.js";var r=t(e(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useFeedback doit être utilisé dans un FeedbackProvider`);return e};export{i as t};
-//# sourceMappingURL=useFeedback-CcbCQ3qY.js.map

@@ -30,6 +30,7 @@ export type UserDto = {
   role: string;
   primaryIdentifier: string;
   createdAt: string;
+  isVerified: boolean;
   updatedAt: string;
   lastLoginAt: string | null;
 };

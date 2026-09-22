@@ -72,11 +72,11 @@ export const toProduct = (dto: ProductDto): Product => {
 export const toUser = (dto: UserDto): User => ({
   id: dto.id,
   fullName: sanitizeText(dto.fullName, 120),
-  email: dto.email ?? undefined,
-  phone: dto.phone ?? undefined,
+  email: dto.email ?? "",
+  phone: dto.phone ?? "",
   avatarUrl: safeImageUrl(dto.avatarUrl),
   role: dto.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
-  primaryIdentifier: dto.primaryIdentifier === "PHONE" ? "phone" : "email",
+  isVerified: Boolean(dto.isVerified),
   createdAt: dto.createdAt,
   lastLoginAt: dto.lastLoginAt ?? undefined,
 });

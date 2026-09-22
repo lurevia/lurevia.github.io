@@ -6,7 +6,6 @@ import type { Category } from "../../bin/types/homeType";
 type CategoryCardProps = {
   category: Category;
   isFeatured?: boolean;
-  /** 🆕 Taille visuelle */
   size?: "sm" | "md" | "lg";
 };
 
@@ -82,8 +81,6 @@ export const CategoryCard: FC<CategoryCardProps> = ({
             <ArrowUpRight size={16} className="text-white" strokeWidth={2.5} />
           </div>
         </div>
-
-        {/* Titre en bas */}
         <div>
           <h3
             className={`font-black text-white uppercase tracking-wider leading-tight ${config.title} drop-shadow-md`}

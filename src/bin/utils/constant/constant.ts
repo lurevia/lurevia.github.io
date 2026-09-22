@@ -23,6 +23,15 @@ import heroImg1 from "/images/hero/hero_1.png";
 import heroImg2 from "/images/hero/hero_2.png";
 import heroImg3 from "/images/hero/hero_3.png";
 
+import category_1 from "/images/categories/category_1.jpg";
+import category_2 from "/images/categories/category_2.jpg";
+import category_3 from "/images/categories/category_3.jpg";
+import category_4 from "/images/categories/category_4.jpg";
+import category_5 from "/images/categories/category_5.jpg";
+import category_6 from "/images/categories/category_6.jpg";
+
+
+
 
 export const CATEGORIES: Category[] = [
   {
@@ -30,7 +39,7 @@ export const CATEGORIES: Category[] = [
     name: "Artisanat malgache",
     slug: "artisanat-malgache",
     description: "Découvrez des pièces uniques faites main par des artisans passionnés, valorisant les matières naturelles locales et durables de Madagascar.",
-    imageUrl: "/images/categories/category_1.jpg",
+    imageUrl: category_1,
     bannerUrl: "/images/hero/banner_artisanat.jpg", 
     icon: ShoppingBag,
   },
@@ -39,7 +48,7 @@ export const CATEGORIES: Category[] = [
     name: "Mode & accessoires",
     slug: "mode-accessoires",
     description: "Découvrez notre sélection exclusive de vêtements, sacs cabas en raphia, chapeaux et accessoires pour un style unique, moderne et authentique.",
-    imageUrl: "/images/categories/category_2.jpg",
+    imageUrl: category_2,
     bannerUrl: "/images/hero/banner_mode.jpg",
     icon: Shirt,
   },
@@ -48,7 +57,7 @@ export const CATEGORIES: Category[] = [
     name: "Bijoux artisanaux",
     slug: "bijoux-artisanaux",
     description: "Des parures élégantes, colliers en corne et laiton forgés à la main par nos maîtres bijoutiers locaux.",
-    imageUrl: "/images/categories/category_3.jpg",
+    imageUrl: category_3,
     bannerUrl: "/images/hero/banner_bijoux.jpg",
     icon: Sparkles,
   },
@@ -57,7 +66,7 @@ export const CATEGORIES: Category[] = [
     name: "Maison & décoration",
     slug: "maison-decoration",
     description: "Sublimez votre intérieur avec des poteries, vanneries, paniers en jonc naturel et objets de décoration authentiques de la Grande Île.",
-    imageUrl: "/images/categories/category_4.jpg",
+    imageUrl: category_4,
     bannerUrl: "/images/hero/banner_maison.jpg",
     icon: Home,
   },
@@ -66,7 +75,7 @@ export const CATEGORIES: Category[] = [
     name: "Beauté & bien-être",
     slug: "beaute-bien-etre",
     description: "Prenez soin de vous grâce à des huiles essentielles pures, des soins naturels et des produits de bien-être issus de la biodiversité malgache.",
-    imageUrl: "/images/categories/category_5.jpg",
+    imageUrl: category_5,
     bannerUrl: "/images/hero/banner_beaute.jpg",
     icon: Sparkles,
   },
@@ -75,7 +84,7 @@ export const CATEGORIES: Category[] = [
     name: "Gadgets & quotidien",
     slug: "gadgets-quotidien",
     description: "Une sélection d'objets pratiques, cadeaux originaux et accessoires utiles pour simplifier et égayer votre quotidien.",
-    imageUrl: "/images/categories/category_6.png",
+    imageUrl: category_6,
     bannerUrl: "/images/hero/banner_gadgets.jpg",
     icon: Gift,
   },

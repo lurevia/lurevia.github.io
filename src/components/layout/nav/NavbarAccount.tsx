@@ -20,7 +20,7 @@ export const NavbarAccount: FC<NavbarAccountProps> = ({ className = "" }) => {
         className={`flex flex-col items-center justify-center gap-0.5 p-2 rounded-xl text-slate-600 hover:text-lurevia-dark hover:bg-slate-50 transition-colors ${className}`}
       >
         <User size={20} />
-        <span className="text-[10px] font-bold leading-none">Compte</span>
+        {/* <span className="text-[10px] font-bold leading-none">Compte</span> */}
       </Link>
     );
   }

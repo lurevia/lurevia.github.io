@@ -2,7 +2,6 @@ import { FALLBACK_IMAGE } from "./constant/assets";
 import { safeImageUrl } from "./security";
 import type { Product } from "../types/homeType";
 
-/** Liste d'images sûres d'un produit, avec repli garanti. */
 export const getProductImages = (product: Product): string[] => {
   const images = (product.images ?? [])
     .map((url) => safeImageUrl(url))

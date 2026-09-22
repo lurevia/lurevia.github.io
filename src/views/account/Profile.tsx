@@ -12,7 +12,6 @@ import {
   KeyRound,
 } from "lucide-react";
 
-import { AvatarUploader } from "../../components/account/AvatarUploader";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
@@ -22,6 +21,7 @@ import { useNotifications } from "../../hooks/useNotifications";
 import { toErrorMessage } from "../../api/http";
 import { validatePasswordStrength } from "../../hooks/useAuthForm";
 import { initialsOf } from "../../bin/utils/security";
+import { AvatarUploader } from "../../components/account/AvatarUploader";
 
 export const ProfilePage: FC = () => {
   const { user, updateProfile, changePassword } = useAuth();
@@ -169,10 +169,8 @@ export const ProfilePage: FC = () => {
           initials={initials}
           isSaving={isSaving}
           onChange={(url) => void saveProfile({ avatarUrl: url })}
-        />
-      </div>
+        />      </div>
 
-      {/* Informations personnelles */}
       <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">
         <h2 className="text-sm font-black text-lurevia-dark uppercase tracking-wider">
           Informations personnelles

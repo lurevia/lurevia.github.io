@@ -1,117 +1,122 @@
-import type { FC } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-    User as UserIcon,
-    Package,
-    Heart,
-    MapPin,
-    LogOut,
-    ChevronRight,
-} from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
-import { useFavorite } from "../../hooks/useFavorite";
-import { useOrders } from "../../hooks/useOrders";
+import { useRef, useState } from "react";
+import type { ChangeEvent, FC } from "react";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { Button } from "../ui/Button";
-import { initialsOf } from "../../bin/utils/security";
-import { buildImageUrl } from "../../bin/utils/images";
 
-const NAV_ITEMS = [
-    { to: "/compte", label: "Profil", icon: UserIcon, exact: true },
-    { to: "/compte/commandes", label: "Commandes", icon: Package },
-    { to: "/compte/favoris", label: "Favoris", icon: Heart },
-    { to: "/compte/adresses", label: "Adresses", icon: MapPin },
-];
+type AvatarUploaderProps = {
+  currentUrl?: string | null;
+  initials: string;
+  isSaving?: boolean;
+  onChange: (dataUrl: string | undefined) => void;
+};
 
-export const AccountSidebar: FC = () => {
-    const { user, logout } = useAuth();
-    const { totalFavorites } = useFavorite();
-    const { orders } = useOrders();
-    const location = useLocation();
+const MAX_SIZE = 500 * 1024;
 
-    if (!user) return null;
+export const AvatarUploader: FC<AvatarUploaderProps> = ({
+  currentUrl,
+  initials,
+  isSaving = false,
+  onChange,
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
-    const initials = initialsOf(user.fullName);
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    return (
-        <aside className="bg-white border border-slate-100 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">
-            <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                {user.avatarUrl ? (
-                    <img
-                        src={buildImageUrl(user.avatarUrl)}
-                        alt=""
-                        referrerPolicy="no-referrer"
-                        className="w-12 h-12 rounded-full object-cover shrink-0"
-                    />
-                ) : (
-                    <div className="w-12 h-12 rounded-full bg-lurevia-dark text-white flex items-center justify-center font-black text-sm shrink-0">
-                        {initials || "?"}
-                    </div>
-                )}
-                <div className="min-w-0">
-                    <p className="text-sm font-black text-slate-800 truncate">
-                        {user.fullName}
-                    </p>
-                    <p className="text-xs text-slate-500 truncate">
-                        {user.email ?? user.phone}
-                    </p>
-                </div>
-            </div>
+    if (!file.type.startsWith("image/")) {
+      setError("Le fichier doit être une image.");
+      return;
+    }
 
-            <nav>
-                <ul className="space-y-1">
-                    {NAV_ITEMS.map(({ to, label, icon: Icon, exact }) => {
-                        const active = exact
-                            ? location.pathname === to
-                            : location.pathname.startsWith(to);
+    if (file.size > MAX_SIZE) {
+      setError("Image trop lourde (max 500 Ko).");
+      return;
+    }
 
-                        const badge =
-                            to === "/compte/favoris"
-                                ? totalFavorites
-                                : to === "/compte/commandes"
-                                    ? orders.length
-                                    : 0;
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result as string);
+    reader.onerror = () => setError("Impossible de lire le fichier.");
+    reader.readAsDataURL(file);
+  };
 
-                        return (
-                            <li key={to}>
-                                <Link
-                                    to={to}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${active
-                                            ? "bg-lurevia-dark text-white"
-                                            : "text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark"
-                                        }`}
-                                >
-                                    <Icon size={16} />
-                                    <span className="flex-1">{label}</span>
-                                    {badge > 0 && (
-                                        <span
-                                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${active
-                                                    ? "bg-white text-lurevia-dark"
-                                                    : "bg-lurevia-orange text-white"
-                                                }`}
-                                        >
-                                            {badge}
-                                        </span>
-                                    )}
-                                    {active && <ChevronRight size={14} />}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </nav>
+  const handleRemove = () => {
+    setError(null);
+    onChange(undefined);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
-            <div className="pt-4 border-t border-slate-100">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    icon={LogOut}
-                    onClick={() => void logout()}
-                    className="w-full! justify-start! text-slate-400! hover:text-red-500! hover:bg-red-50!"
-                >
-                    Se déconnecter
-                </Button>
-            </div>
-        </aside>
-    );
+  return (
+    <div className="flex items-center gap-4">
+      {/* Aperçu */}
+      <div className="relative shrink-0">
+        {currentUrl ? (
+          <img
+            src={currentUrl}
+            alt="Avatar"
+            className="w-20 h-20 rounded-full object-cover border-2 border-slate-100"
+          />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-lurevia-dark text-white flex items-center justify-center font-black text-xl">
+            {initials}
+          </div>
+        )}
+
+        {isSaving && (
+          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+            <Loader2 size={20} className="text-white animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            icon={Camera}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isSaving}
+            className="border border-slate-200! bg-white!"
+          >
+            Changer la photo
+          </Button>
+
+          {currentUrl && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={Trash2}
+              onClick={handleRemove}
+              disabled={isSaving}
+              className="text-red-500! hover:bg-red-50!"
+            >
+              Retirer
+            </Button>
+          )}
+        </div>
+
+        <p className="text-[11px] text-slate-500 mt-2">
+          JPG ou PNG, max 500 Ko.
+        </p>
+
+        {error && (
+          <p className="text-[11px] text-red-500 mt-1 font-medium">{error}</p>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFile}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
 };

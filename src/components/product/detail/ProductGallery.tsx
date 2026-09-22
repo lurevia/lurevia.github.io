@@ -3,6 +3,7 @@ import type { FC } from "react";
 import { ChevronLeft, ChevronRight, Heart, Share2 } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { ProductImage } from "../../common/ProductImage";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 type ProductGalleryProps = {
   images: string[];
@@ -48,7 +49,7 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
     <div className="space-y-4 text-left">
       <div className="relative group rounded-3xl overflow-hidden bg-slate-50 aspect-square border border-slate-100/60 shadow-xs">
         <ProductImage
-          src={currentImage}
+          src={buildImageUrl(currentImage)}
           alt={title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
@@ -140,7 +141,7 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
                   }`}
               >
                 <ProductImage
-                  src={img}
+                  src={buildImageUrl(img)}
                   alt={`${title} ${i + 1}`}
                   className="w-full h-full object-cover pointer-events-none select-none"
                 />

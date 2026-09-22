@@ -2,13 +2,14 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { Handshake, ArrowRight } from "lucide-react";
 import { Button } from "../../ui/Button";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 export const PartnerMobile: FC = () => {
   return (
     <div className="block md:hidden relative w-full rounded-3xl overflow-hidden bg-lurevia-dark shadow-xl min-h-105">
       
       <img
-        src="/images/baobab-sunset.jpg"
+        src={buildImageUrl("/images/baobab-sunset.jpg")}
         alt="Baobabs au coucher de soleil à Madagascar"
         loading="lazy"
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"

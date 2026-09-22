@@ -9,6 +9,7 @@ import {
   FOOTER_SERVICES,
   FOOTER_LEGAL,
 } from "../../bin/utils/constant/constant";
+import { buildImageUrl } from "../../bin/utils/images";
 
 const FooterColumn: FC<{ title: string; links: FooterLink[] }> = ({
   title,
@@ -48,7 +49,7 @@ export const Footer: FC = () => {
           <div className="sm:col-span-2 md:col-span-3 lg:col-span-1 text-left flex flex-col items-start justify-start">
             <Link to="/" className="flex items-center gap-3 mb-5 group">
               <img
-                src="/images/logo.jpeg"
+                src={buildImageUrl("/images/logo.jpeg")}
                 alt="Lurevia"
                 loading="lazy"
                 className="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter brightness-110"

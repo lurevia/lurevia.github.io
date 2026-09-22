@@ -13,6 +13,7 @@ import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
 import { Button } from "../ui/Button";
 import { initialsOf } from "../../bin/utils/security";
+import { buildImageUrl } from "../../bin/utils/images";
 
 const NAV_ITEMS = [
     { to: "/compte", label: "Profil", icon: UserIcon, exact: true },
@@ -36,7 +37,7 @@ export const AccountSidebar: FC = () => {
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                 {user.avatarUrl ? (
                     <img
-                        src={user.avatarUrl}
+                        src={buildImageUrl(user.avatarUrl)}
                         alt=""
                         referrerPolicy="no-referrer"
                         className="w-12 h-12 rounded-full object-cover shrink-0"

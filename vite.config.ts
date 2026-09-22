@@ -12,6 +12,7 @@ export default defineConfig({
     host: true,
   },
 
+
   build: {
     sourcemap: true,
     target: "es2020",
@@ -19,5 +20,9 @@ export default defineConfig({
 
   resolve: {
     dedupe: ["react", "react-dom"],
+  },
+  
+  define: {
+    __BUILD_TIME__: JSON.stringify(Date.now()),
   },
 });

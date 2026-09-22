@@ -4,8 +4,8 @@ import {
   Home,
   Sparkles,
   Gift,
-  Leaf, 
-  CreditCard, 
+  Leaf,
+  CreditCard,
   Truck,
   BookOpen,
   Info,
@@ -17,78 +17,93 @@ import {
   Headphones,
   MessageSquareHeart,
 } from "lucide-react";
-import type { Category, Feature, FooterLink, SocialLink, WhyUsItem } from "../../types/homeType";
+import type {
+  Category,
+  Feature,
+  FooterLink,
+  SocialLink,
+  WhyUsItem,
+} from "../../types/homeType";
+import { buildImageUrl } from "../images";
 
-import heroImg1 from "/images/hero/hero_1.png";
-import heroImg2 from "/images/hero/hero_2.png";
-import heroImg3 from "/images/hero/hero_3.png";
+// ═══════════════════════════════════════════════════════════════════════════
+// HERO SLIDES
+// ═══════════════════════════════════════════════════════════════════════════
 
-import category_1 from "/images/categories/category_1.jpg";
-import category_2 from "/images/categories/category_2.jpg";
-import category_3 from "/images/categories/category_3.jpg";
-import category_4 from "/images/categories/category_4.jpg";
-import category_5 from "/images/categories/category_5.jpg";
-import category_6 from "/images/categories/category_6.jpg";
+const heroImg1 = buildImageUrl("/images/hero/hero_1.png");
+const heroImg2 = buildImageUrl("/images/hero/hero_2.png");
+const heroImg3 = buildImageUrl("/images/hero/hero_3.png");
 
-
-
+// ═══════════════════════════════════════════════════════════════════════════
+// CATEGORIES
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const CATEGORIES: Category[] = [
   {
     id: "artisanat",
     name: "Artisanat malgache",
     slug: "artisanat-malgache",
-    description: "Découvrez des pièces uniques faites main par des artisans passionnés, valorisant les matières naturelles locales et durables de Madagascar.",
-    imageUrl: category_1,
-    bannerUrl: "/images/hero/banner_artisanat.jpg", 
+    description:
+      "Découvrez des pièces uniques faites main par des artisans passionnés, valorisant les matières naturelles locales et durables de Madagascar.",
+    imageUrl: buildImageUrl("/images/categories/category_1.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_artisanat.jpg"),
     icon: ShoppingBag,
   },
   {
     id: "mode",
     name: "Mode & accessoires",
     slug: "mode-accessoires",
-    description: "Découvrez notre sélection exclusive de vêtements, sacs cabas en raphia, chapeaux et accessoires pour un style unique, moderne et authentique.",
-    imageUrl: category_2,
-    bannerUrl: "/images/hero/banner_mode.jpg",
+    description:
+      "Découvrez notre sélection exclusive de vêtements, sacs cabas en raphia, chapeaux et accessoires pour un style unique, moderne et authentique.",
+    imageUrl: buildImageUrl("/images/categories/category_2.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_mode.jpg"),
     icon: Shirt,
   },
   {
     id: "bijoux",
     name: "Bijoux artisanaux",
     slug: "bijoux-artisanaux",
-    description: "Des parures élégantes, colliers en corne et laiton forgés à la main par nos maîtres bijoutiers locaux.",
-    imageUrl: category_3,
-    bannerUrl: "/images/hero/banner_bijoux.jpg",
+    description:
+      "Des parures élégantes, colliers en corne et laiton forgés à la main par nos maîtres bijoutiers locaux.",
+    imageUrl: buildImageUrl("/images/categories/category_3.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_bijoux.jpg"),
     icon: Sparkles,
   },
   {
     id: "maison",
     name: "Maison & décoration",
     slug: "maison-decoration",
-    description: "Sublimez votre intérieur avec des poteries, vanneries, paniers en jonc naturel et objets de décoration authentiques de la Grande Île.",
-    imageUrl: category_4,
-    bannerUrl: "/images/hero/banner_maison.jpg",
+    description:
+      "Sublimez votre intérieur avec des poteries, vanneries, paniers en jonc naturel et objets de décoration authentiques de la Grande Île.",
+    imageUrl: buildImageUrl("/images/categories/category_4.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_maison.jpg"),
     icon: Home,
   },
   {
     id: "beaute",
     name: "Beauté & bien-être",
     slug: "beaute-bien-etre",
-    description: "Prenez soin de vous grâce à des huiles essentielles pures, des soins naturels et des produits de bien-être issus de la biodiversité malgache.",
-    imageUrl: category_5,
-    bannerUrl: "/images/hero/banner_beaute.jpg",
+    description:
+      "Prenez soin de vous grâce à des huiles essentielles pures, des soins naturels et des produits de bien-être issus de la biodiversité malgache.",
+    imageUrl: buildImageUrl("/images/categories/category_5.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_beaute.jpg"),
     icon: Sparkles,
   },
   {
     id: "gadgets",
     name: "Gadgets & quotidien",
     slug: "gadgets-quotidien",
-    description: "Une sélection d'objets pratiques, cadeaux originaux et accessoires utiles pour simplifier et égayer votre quotidien.",
-    imageUrl: category_6,
-    bannerUrl: "/images/hero/banner_gadgets.jpg",
+    description:
+      "Une sélection d'objets pratiques, cadeaux originaux et accessoires utiles pour simplifier et égayer votre quotidien.",
+    imageUrl: buildImageUrl("/images/categories/category_6.jpg"),
+    bannerUrl: buildImageUrl("/images/hero/banner_gadgets.jpg"),
     icon: Gift,
   },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FEATURES
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const FEATURES: Feature[] = [
   {
@@ -117,6 +132,10 @@ export const FEATURES: Feature[] = [
   },
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// FOOTER
+// ═══════════════════════════════════════════════════════════════════════════
+
 export const FOOTER_NAVIGATION: FooterLink[] = [
   { label: "Accueil", to: "/" },
   { label: "Boutique", to: "/boutique" },
@@ -141,6 +160,10 @@ export const FOOTER_LEGAL: FooterLink[] = [
   { label: "Politique de retour", to: "/politique-retour" },
   { label: "Mentions légales", to: "/mentions-legales" },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SOCIAL
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
@@ -174,6 +197,10 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// HERO SLIDES
+// ═══════════════════════════════════════════════════════════════════════════
+
 export const SLIDES = [
   {
     id: 1,
@@ -195,8 +222,12 @@ export const SLIDES = [
     discount: "Nouveautés Exclusives",
     bgClass: "bg-lurevia-cyan/10",
     image: heroImg3,
-  }
+  },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const NAV_LINKS = [
   { to: "/", label: "Accueil", icon: Home },
@@ -207,6 +238,10 @@ export const NAV_LINKS = [
   { to: "/blog", label: "Blog", icon: BookOpen },
   { to: "/contact", label: "Contact", icon: Mail },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WHY US
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const WHY_US_ITEMS: WhyUsItem[] = [
   {
@@ -234,5 +269,9 @@ export const WHY_US_ITEMS: WhyUsItem[] = [
     description: "Une communauté locale et engagée.",
   },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTANTES MÉTIER
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const REVIEW_DELAY_DAYS = 5;

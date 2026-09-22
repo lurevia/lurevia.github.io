@@ -1,10 +1,9 @@
 import type { FC } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { buildImageUrl } from "../../bin/utils/images";
 
 type UserAvatarProps = {
-    /** Taille en pixels */
     size?: number;
-    /** Affiche un ring autour (utile pour distinguer "actif") */
     showRing?: boolean;
     className?: string;
 };
@@ -32,7 +31,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
     if (user.avatarUrl) {
         return (
             <img
-                src={user.avatarUrl}
+                src={buildImageUrl(user.avatarUrl)}
                 alt={user.fullName}
                 width={size}
                 height={size}

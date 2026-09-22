@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../ui/Button";
 import { SLIDES } from "../../../bin/utils/constant/constant";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 
 type HeroMobileProps = {
@@ -37,7 +38,7 @@ export const HeroMobile: React.FC<HeroMobileProps> = ({ currentSlide, setCurrent
 
           <div className="absolute -top-8 right-2 w-[46%] h-[calc(100%+2rem)] flex items-end justify-center z-10 overflow-visible pointer-events-none">
             <img
-              src={activeSlide.image}
+              src={buildImageUrl(activeSlide.image)}
               alt={activeSlide.title}
               loading="eager"
               className="h-full w-full object-contain object-bottom select-none transition-all duration-700 ease-out animate-[fadeInRight_0.6s_ease-out] overflow-visible"

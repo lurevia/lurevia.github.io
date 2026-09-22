@@ -3,6 +3,7 @@ import { CheckCircle2, Pencil, Trash2, Star } from "lucide-react";
 import type { ProductReview } from "../../bin/types/reviewType";
 import { Button } from "../ui/Button";
 import { initialsOf } from "../../bin/utils/security";
+import { buildImageUrl } from "../../bin/utils/images";
 
 type ProductReviewCardProps = {
     review: ProductReview;
@@ -32,7 +33,7 @@ export const ProductReviewCard: FC<ProductReviewCardProps> = ({
             <header className="flex items-start gap-3">
                 {review.userAvatar ? (
                     <img
-                        src={review.userAvatar}
+                        src={buildImageUrl(review.userAvatar)}
                         alt=""
                         referrerPolicy="no-referrer"
                         className="w-10 h-10 rounded-full object-cover shrink-0"

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import heroImg3 from "/images/hero/hero_3.png";
 import { Button } from "../../ui/Button";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 export const HeroDesktop: React.FC = () => {
   return (
@@ -58,7 +59,7 @@ export const HeroDesktop: React.FC = () => {
       </div>
       <div className="absolute bottom-0 left-[0%] right-[5%] h-[92%] flex items-end justify-center z-25 pointer-events-none">
         <img
-          src={heroImg3}
+          src={buildImageUrl(heroImg3)}
           alt="Collection Lurevia"
           loading="eager"
           fetchPriority="high"

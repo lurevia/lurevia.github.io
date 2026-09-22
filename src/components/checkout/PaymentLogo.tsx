@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
+import { buildImageUrl } from "../../bin/utils/images";
 
 export type MobileMoneyProviderId = "mvola" | "orange-money" | "airtel-money";
 
@@ -64,7 +65,7 @@ export const PaymentLogo: FC<PaymentLogoProps> = ({ provider, className = "" }) 
 
     return (
         <img
-            src={meta.logoSrc}
+            src={buildImageUrl(meta.logoSrc)}
             alt={meta.label}
             className={`object-contain ${className}`}
             onError={() => setHasError(true)}

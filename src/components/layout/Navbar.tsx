@@ -13,6 +13,7 @@ import { NavbarSearch } from "./nav/Search";
 import { NavbarLinkIcon } from "./nav/NavBarLinkIcon";
 import { NavbarAccount } from "./nav/NavbarAccount";
 import { NavbarSidebar } from "./nav/Sidebar";
+import { buildImageUrl } from "../../bin/utils/images";
 
 export const Navbar: FC = () => {
   const { totalItems } = useCart();
@@ -49,7 +50,7 @@ export const Navbar: FC = () => {
               aria-label="Lurevia — Accueil"
             >
               <img
-                src="/images/logo.jpeg"
+                src={buildImageUrl("/images/logo.jpeg")}
                 alt="Lurevia"
                 className="h-9 md:h-11 w-auto object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
               />

@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import type { Category } from "../../bin/types/homeType";
+import { buildImageUrl } from "../../bin/utils/images";
 
 type CategoryCardProps = {
   category: Category;
@@ -43,7 +44,7 @@ export const CategoryCard: FC<CategoryCardProps> = ({
       className="group relative block w-full h-full overflow-hidden rounded-md ring-1 ring-black/5 transition-all duration-500 hover:ring-black/20"
     >
       <img
-        src={imageUrl}
+        src={buildImageUrl(imageUrl)}
         alt={name}
         loading="lazy"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"

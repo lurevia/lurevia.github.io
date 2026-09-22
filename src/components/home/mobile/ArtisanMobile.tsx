@@ -2,13 +2,14 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { Button } from "../../ui/Button";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 export const ArtisanMobile: FC = () => {
     return (
         <div className="block md:hidden relative w-full rounded-3xl overflow-hidden bg-lurevia-dark shadow-xl min-h-85">
 
             <img
-                src="/images/artisant_banner.jpg"
+                src={buildImageUrl("/images/artisant_banner.jpg")}
                 alt="Artisan malgache"
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"

@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { Button } from "../../ui/Button";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 export const ArtisanDesktop: FC = () => {
     return (
@@ -22,7 +23,9 @@ export const ArtisanDesktop: FC = () => {
                     </h2>
 
                     <p className="text-sm text-emerald-100/80 font-medium leading-relaxed max-w-md">
-                        Derrière chaque création, il y a un savoir-faire, une histoire et une personne. Lurevia souhaite contribuer à donner davantage de visibilité aux créateurs et producteurs malgaches grâce au numérique.
+                        Derrière chaque création, il y a un savoir-faire, une histoire et une
+                        personne. Lurevia souhaite contribuer à donner davantage de
+                        visibilité aux créateurs et producteurs malgaches grâce au numérique.
                     </p>
 
                     <div className="pt-2 select-none">
@@ -31,7 +34,7 @@ export const ArtisanDesktop: FC = () => {
                                 variant="secondary"
                                 icon={ArrowRight}
                                 iconPosition="right"
-                                className="px-6! py-3! rounded-full! font-bold text-xs tracking-widest transition-all shadow-md"
+                                className="px-6! py-3! rounded-full! font-bold text-xs tracking-widest transition-all shadow-md hover:shadow-lg hover:scale-105"
                             >
                                 Découvrir nos partenaires
                             </Button>
@@ -41,12 +44,15 @@ export const ArtisanDesktop: FC = () => {
 
                 <div className="w-[50%] h-full relative overflow-hidden">
                     <img
-                        src="/images/artisant_banner.jpg"
+                        src={buildImageUrl("/images/artisant_banner.jpg")}
                         alt="Artisan malgache travaillant le raphia"
                         loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover object-center"
+                        className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                     />
+
                     <div className="absolute inset-0 bg-linear-to-r from-lurevia-dark via-lurevia-dark/40 to-transparent" />
+
+                    <div className="absolute inset-0 bg-linear-to-t from-lurevia-dark/50 via-transparent to-transparent" />
                 </div>
 
             </div>

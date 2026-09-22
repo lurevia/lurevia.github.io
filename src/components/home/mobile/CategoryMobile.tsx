@@ -3,6 +3,7 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCategories } from "../../../hooks/useCategories";
+import { buildImageUrl } from "../../../bin/utils/images";
 
 export const CategoryMobile: FC = () => {
   const { categories } = useCategories();
@@ -54,7 +55,6 @@ export const CategoryMobile: FC = () => {
         </div>
       </div>
 
-      {/* ─── Carrousel ─── */}
       <div
         ref={carouselRef}
         className="w-full overflow-x-auto overflow-y-hidden scrollbar-none snap-x snap-mandatory scroll-smooth"
@@ -70,7 +70,7 @@ export const CategoryMobile: FC = () => {
                 className="group relative snap-start shrink-0 w-40 h-52 overflow-hidden rounded-md ring-1 ring-black/5 active:ring-black/20 transition-all"
               >
                 <img
-                  src={category.imageUrl}
+                  src={buildImageUrl(category.imageUrl)}
                   alt={category.name}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-active:scale-105"

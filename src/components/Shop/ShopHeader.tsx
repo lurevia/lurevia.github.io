@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { buildImageUrl } from "../../bin/utils/images";
 
 type ShopHeaderProps = {
     title: string;
@@ -21,7 +22,7 @@ export const ShopHeader: FC<ShopHeaderProps> = ({
         <section className="w-full bg-lurevia-dark rounded-3xl overflow-hidden relative min-h-55 md:h-64 flex items-center shadow-lg group">
 
             <img
-                src={imageUrl}
+                src={buildImageUrl(imageUrl)}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover object-center scale-101 transition-transform duration-700 group-hover:scale-100 pointer-events-none select-none"
             />

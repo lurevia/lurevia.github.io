@@ -1,8 +1,9 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Truck, Tag } from "lucide-react";
+import { ArrowRight, ShieldAlert, ShieldCheck, Truck, Tag } from "lucide-react";
 import { Button } from "../ui/Button";
 import { formatAriary } from "../../bin/utils/formatAriary";
+import { useAuth } from "../../hooks/useAuth";
 import type { CartSummaryData } from "../../hooks/useCartPage";
 
 type CartSummaryProps = {
@@ -18,6 +19,9 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
     amountToFreeShipping,
     hasFreeShipping,
   } = summary;
+
+  const { user } = useAuth();
+  const isVerified = user?.isVerified ?? false;
 
   const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
 
@@ -51,7 +55,6 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
         </div>
       )}
 
-      {/* Lignes de calcul */}
       <div className="space-y-2.5 text-sm">
         <div className="flex justify-between text-slate-600">
           <span>Sous-total</span>
@@ -86,19 +89,39 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
         </div>
       </div>
 
-      {/* CTA */}
-      <Link to="/checkout" className="block">
-        <Button
-          variant="primary"
-          icon={ArrowRight}
-          iconPosition="right"
-          className="w-full! py-3.5! rounded-xl! font-black text-sm"
-        >
-          Passer la commande
-        </Button>
-      </Link>
+      {isVerified ? (
+        <Link to="/checkout" className="block">
+          <Button
+            variant="primary"
+            icon={ArrowRight}
+            iconPosition="right"
+            className="w-full! py-3.5! rounded-xl! font-black text-sm"
+          >
+            Passer la commande
+          </Button>
+        </Link>
+      ) : (
+        <div className="space-y-3">
+          <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2">
+            <ShieldAlert
+              size={14}
+              className="text-amber-600 shrink-0 mt-0.5"
+            />
+            <p className="text-xs text-amber-800 font-medium leading-snug">
+              Vérifiez votre compte pour passer commande.
+            </p>
+          </div>
+          <Link to="/compte" className="block">
+            <Button
+              variant="primary"
+              className="w-full! py-3.5! rounded-xl! font-black text-sm"
+            >
+              Vérifier mon compte
+            </Button>
+          </Link>
+        </div>
+      )}
 
-      {/* Lien continuer achats */}
       <Link
         to="/boutique"
         className="block text-center text-xs font-bold text-slate-500 hover:text-lurevia-orange transition-colors"
@@ -106,7 +129,6 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
         Continuer mes achats
       </Link>
 
-      {/* Réassurance */}
       <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
         <ShieldCheck size={12} className="text-emerald-500" />
         Paiement 100 % sécurisé

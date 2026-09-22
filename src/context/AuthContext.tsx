@@ -117,6 +117,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async (): Promise<void> => {
+    try {
+      const current = await authApi.me();
+      if (isMounted.current) setUser(current);
+    } catch {
+    }
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       user,
@@ -127,8 +135,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       updateProfile,
       changePassword,
+      refreshUser,
     }),
-    [user, isReady, login, register, logout, updateProfile, changePassword]
+    [
+      user,
+      isReady,
+      login,
+      register,
+      logout,
+      updateProfile,
+      changePassword,
+      refreshUser,
+    ]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

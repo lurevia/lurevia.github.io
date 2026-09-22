@@ -44,4 +44,5 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (data: ProfileUpdatePayload) => Promise<void>;
   changePassword: (payload: ChangePasswordPayload) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }

@@ -13,12 +13,17 @@ const METHODS: {
     label: string;
     description: string;
     icon: typeof Smartphone;
+    disabled?: boolean;
 }[] = [
         {
             id: "mobile-money",
             label: "Mobile Money",
             description: "MVola, Orange Money, Airtel Money",
             icon: Smartphone,
+            // Le paiement mobile money n'est pas encore branché à un vrai
+            // compte marchand — on le laisse visible (pour donner envie /
+            // informer) mais désactivé, plutôt que de le retirer.
+            disabled: true,
         },
         {
             id: "card",
@@ -58,6 +63,7 @@ export const PaymentMethodSelector: FC<PaymentMethodSelectorProps> = ({
             {METHODS.map((method) => {
                 const Icon = method.icon;
                 const isActive = value === method.id;
+                const isDisabled = Boolean(method.disabled);
 
                 return (
                     <li key={method.id}>
@@ -65,20 +71,34 @@ export const PaymentMethodSelector: FC<PaymentMethodSelectorProps> = ({
                             type="button"
                             role="radio"
                             aria-checked={isActive}
-                            onClick={() => onChange(method.id)}
-                            className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all cursor-pointer ${isActive
-                                    ? "border-lurevia-orange bg-orange-50/50 shadow-sm"
-                                    : "border-slate-200 hover:border-slate-300 active:bg-slate-50"
+                            aria-disabled={isDisabled}
+                            disabled={isDisabled}
+                            onClick={() => {
+                                if (isDisabled) return;
+                                onChange(method.id);
+                            }}
+                            className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all ${
+                                isDisabled
+                                    ? "border-slate-200 bg-slate-50/70 opacity-60 cursor-not-allowed grayscale"
+                                    : isActive
+                                    ? "border-lurevia-orange bg-orange-50/50 shadow-sm cursor-pointer"
+                                    : "border-slate-200 hover:border-slate-300 active:bg-slate-50 cursor-pointer"
                                 }`}
                         >
-                            {isActive && (
+                            {isDisabled && (
+                                <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-wide">
+                                    Bientôt
+                                </span>
+                            )}
+
+                            {isActive && !isDisabled && (
                                 <span className="absolute top-2 right-2 w-5 h-5 bg-lurevia-orange rounded-full flex items-center justify-center">
                                     <Check size={12} strokeWidth={3} className="text-white" />
                                 </span>
                             )}
 
                             <div
-                                className={`p-2 rounded-lg inline-flex mb-2 ${isActive
+                                className={`p-2 rounded-lg inline-flex mb-2 ${isActive && !isDisabled
                                         ? "bg-lurevia-orange text-white"
                                         : "bg-slate-100 text-slate-600"
                                     }`}
@@ -93,12 +113,18 @@ export const PaymentMethodSelector: FC<PaymentMethodSelectorProps> = ({
                             {method.id === "mobile-money" ? (
                                 <div className="flex items-center gap-1.5 mt-1.5">
                                     {MOBILE_MONEY_PROVIDERS.map((p) => (
-                                        <PaymentLogo key={p.id} provider={p.id} className="h-4 max-w-[56px]" />
+                                        <PaymentLogo key={p.id} provider={p.id} className="h-4 max-w-14" />
                                     ))}
                                 </div>
                             ) : (
                                 <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                                     {method.description}
+                                </p>
+                            )}
+
+                            {isDisabled && (
+                                <p className="text-[11px] text-slate-400 mt-1 leading-snug italic">
+                                    Disponible prochainement
                                 </p>
                             )}
                         </button>

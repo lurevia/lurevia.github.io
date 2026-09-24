@@ -1,2 +1,0 @@
-var e=(e,t)=>typeof e==`string`&&e.trim()!==``?e.trim():t,t=(e,t)=>{let n=Number(e);return Number.isFinite(n)&&n>0?n:t},n=e(`http://localhost:4000/api/v1`,`https://lurevia-ecommerce.onrender.com/api/v1`).replace(/\/+$/,``),r=t(`15000`,15e3),i=t(`5`,5),a=t(`8000`,8e3),o=t(`250000`,25e4);export{a,i,o as n,r,n as t};
-//# sourceMappingURL=env-NRxi3hw2.js.map

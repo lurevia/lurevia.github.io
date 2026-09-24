@@ -26,7 +26,7 @@ type LocationState = {
 };
 
 export const AuthPage: FC = () => {
-  const { isAuthenticated, isReady, loginWithOAuth } = useAuth();
+  const { user, isAuthenticated, isReady, loginWithOAuth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const form = useAuthForm();
@@ -38,9 +38,9 @@ export const AuthPage: FC = () => {
 
   useEffect(() => {
     if (isReady && isAuthenticated) {
-      navigate(from, { replace: true });
+      navigate(user?.phone ? from : "/compte/complete-oauth", { replace: true });
     }
-  }, [isReady, isAuthenticated, from, navigate]);
+  }, [isReady, isAuthenticated, user, from, navigate]);
 
   const isLogin = form.mode === "login";
 

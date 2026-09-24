@@ -22,6 +22,7 @@ import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
 import { useNotifications } from "../../hooks/useNotifications";
 import { toErrorMessage } from "../../api/http";
+import { mediaApi } from "../../api/media";
 import { validatePasswordStrength } from "../../hooks/useAuthForm";
 import { initialsOf } from "../../bin/utils/security";
 import { AvatarUploader } from "../../components/account/AvatarUploader";
@@ -196,7 +197,18 @@ export const ProfilePage: FC = () => {
           currentUrl={user.avatarUrl}
           initials={initials}
           isSaving={isSaving}
-          onChange={(url) => void saveProfile({ avatarUrl: url })}
+          onChange={(url) => void (async () => {
+            if (!url) {
+              await saveProfile({ avatarUrl: null });
+              return;
+            }
+            try {
+              const media = await mediaApi.importUrl(url);
+              await saveProfile({ avatarUrl: media.publicUrl });
+            } catch (error) {
+              setProfileError(toErrorMessage(error, "Import de l'image impossible."));
+            }
+          })()}
         />      </div>
 
       <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">

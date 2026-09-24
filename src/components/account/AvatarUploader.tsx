@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
-import type { ChangeEvent, FC } from "react";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { useState } from "react";
+import type { FC } from "react";
+import { Link, Loader2, Trash2 } from "lucide-react";
 import { Button } from "../ui/Button";
 
 type AvatarUploaderProps = {
@@ -10,42 +10,18 @@ type AvatarUploaderProps = {
   onChange: (dataUrl: string | undefined) => void;
 };
 
-const MAX_SIZE = 500 * 1024;
-
 export const AvatarUploader: FC<AvatarUploaderProps> = ({
   currentUrl,
   initials,
   isSaving = false,
   onChange,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    setError(null);
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Le fichier doit être une image.");
-      return;
-    }
-
-    if (file.size > MAX_SIZE) {
-      setError("Image trop lourde (max 500 Ko).");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => onChange(reader.result as string);
-    reader.onerror = () => setError("Impossible de lire le fichier.");
-    reader.readAsDataURL(file);
-  };
+  const [url, setUrl] = useState("");
 
   const handleRemove = () => {
     setError(null);
     onChange(undefined);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -74,17 +50,27 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
       {/* Actions */}
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            icon={Camera}
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSaving}
-            className="border border-slate-200! bg-white!"
-          >
-            Changer la photo
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="url"
+              value={url}
+              onChange={(event) => { setUrl(event.target.value); setError(null); }}
+              placeholder="https://photos.google.com/..."
+              className="min-w-60 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              disabled={isSaving}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={Link}
+              onClick={() => url.trim() ? onChange(url.trim()) : setError("Collez un lien image public.")}
+              disabled={isSaving}
+              className="border border-slate-200! bg-white!"
+            >
+              Importer le lien
+            </Button>
+          </div>
 
           {currentUrl && (
             <Button
@@ -102,20 +88,13 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
         </div>
 
         <p className="text-[11px] text-slate-500 mt-2">
-          JPG ou PNG, max 500 Ko.
+          Collez un lien public JPG, PNG, GIF ou WebP. L’image sera copiée dans le stockage média Lurevia.
         </p>
 
         {error && (
           <p className="text-[11px] text-red-500 mt-1 font-medium">{error}</p>
         )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFile}
-          className="hidden"
-        />
       </div>
     </div>
   );

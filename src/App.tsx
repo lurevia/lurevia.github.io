@@ -66,6 +66,9 @@ const MessagesPage = lazy(() =>
 const VerificationPage = lazy(() =>
   import("./views/account/VerificationPage").then((module) => ({ default: module.VerificationPage }))
 );
+const CompleteOAuthProfile = lazy(() =>
+  import("./views/account/CompleteOAuthProfile").then((module) => ({ default: module.CompleteOAuthProfile }))
+);
 const SellerSpace = lazy(() => import("./views/seller/SellerSpace").then((module) => ({ default: module.SellerSpace })));
 
 function RouteFallback() {
@@ -116,6 +119,7 @@ export default function App() {
                 }
               >
                 <Route index element={<ProfilePage />} />
+                <Route path="complete-oauth" element={<CompleteOAuthProfile />} />
                 <Route path="commandes" element={<OrdersPage />} />
                 <Route path="favoris" element={<AccountFavoritesPage />} />
                 <Route path="adresses" element={<AddressesPage />} />

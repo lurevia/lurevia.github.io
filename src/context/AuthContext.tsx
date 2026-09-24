@@ -9,6 +9,7 @@ import { toUser } from "../api/mappers";
 import type { UserDto } from "../api/dto";
 import type {
   ChangePasswordPayload,
+  CompleteOAuthProfilePayload,
   LoginPayload,
   ProfileUpdatePayload,
   RegisterPayload,
@@ -109,6 +110,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(updated);
   }, []);
 
+  const completeOAuthProfile = useCallback(async (data: CompleteOAuthProfilePayload): Promise<void> => {
+    const updated = await usersApi.completeOAuthProfile(data);
+    setUser(updated);
+  }, []);
+
   const changePassword = useCallback(async (payload: ChangePasswordPayload): Promise<void> => {
     await usersApi.changePassword(payload);
     // Le serveur révoque toutes les sessions : on repart d'une session
@@ -140,6 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       register,
       logout,
       updateProfile,
+      completeOAuthProfile,
       changePassword,
       refreshUser,
       loginWithOAuth,
@@ -151,6 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       register,
       logout,
       updateProfile,
+      completeOAuthProfile,
       changePassword,
       refreshUser,
       loginWithOAuth,

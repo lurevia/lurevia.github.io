@@ -6,6 +6,7 @@ import type { Product } from "../../bin/types/homeType";
 import type { Order } from "../../bin/types/orderType";
 import type { ServiceFeedback } from "../../bin/types/feedbackType";
 import { toErrorMessage } from "../../api/http";
+import { mediaApi } from "../../api/media";
 
 const money = (n: number) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "MGA", maximumFractionDigits: 0 }).format(n);
 const statuses = ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -34,7 +35,11 @@ export function SellerSpace() {
   const save = async (event: React.FormEvent) => {
     event.preventDefault(); if (!form) return;
     try {
-      const payload = { ...form, categoryIds: form.categoryIds.filter(Boolean), images: form.images.filter(Boolean) };
+      const sourceImages = form.images.filter(Boolean);
+      const images = await Promise.all(sourceImages.map(async (url) => (
+        url.includes("raw.githubusercontent.com/") ? url : (await mediaApi.importUrl(url)).publicUrl
+      )));
+      const payload = { ...form, categoryIds: form.categoryIds.filter(Boolean), images };
       if (editing) await sellerApi.updateProduct(editing, payload);
       else await sellerApi.createProduct(payload);
       setForm(null); setEditing(null); await load();

@@ -29,7 +29,7 @@ export const NavbarAccount: FC<NavbarAccountProps> = ({ className = "" }) => {
 
   return (
     <Link
-      to={user.role === "SELLER" ? "/vendeur" : "/compte"}
+      to="/compte"
       aria-label={`Mon compte : ${user.fullName}`}
       className={`flex flex-col items-center justify-center gap-1 p-1 rounded-xl hover:bg-slate-50 transition-colors ${className}`}
     >

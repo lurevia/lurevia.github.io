@@ -1,7 +1,7 @@
 import { api } from "./http";
 import { toUser } from "./mappers";
 import type { UserDto } from "./dto";
-import type { ChangePasswordPayload, ProfileUpdatePayload, User } from "../bin/types/authType";
+import type { ChangePasswordPayload, CompleteOAuthProfilePayload, ProfileUpdatePayload, User } from "../bin/types/authType";
 
 export const usersApi = {
   async updateProfile(payload: ProfileUpdatePayload): Promise<User> {
@@ -15,5 +15,10 @@ export const usersApi = {
 
   changePassword(payload: ChangePasswordPayload): Promise<void> {
     return api.post<void>("/users/me/change-password", payload);
+  },
+
+  async completeOAuthProfile(payload: CompleteOAuthProfilePayload): Promise<User> {
+    const data = await api.patch<{ user: UserDto }>("/users/me/oauth-profile", payload);
+    return toUser(data.user);
   },
 };

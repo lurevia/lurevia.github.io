@@ -18,6 +18,7 @@ import { Button } from "../components/ui/Button";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { ConsentModal } from "../components/auth/ConsentModal";
 import { oauthHelper } from "../utils/oauth";
+import { GoogleIcon, FacebookIcon } from "../components/icons/SocialIcons";
 
 type LocationState = {
   from?: string;
@@ -82,11 +83,10 @@ export const AuthPage: FC = () => {
                 key={m}
                 type="button"
                 onClick={() => form.switchMode(m)}
-                className={`flex-1 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  form.mode === m
+                className={`flex-1 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${form.mode === m
                     ? "bg-white text-lurevia-dark shadow-sm"
                     : "text-slate-500 hover:text-slate-700"
-                }`}
+                  }`}
               >
                 {m === "login" ? "Connexion" : "Inscription"}
               </button>
@@ -183,11 +183,10 @@ export const AuthPage: FC = () => {
                     onClick={() => {
                       if (!form.hasAcceptedTerms) setIsConsentModalOpen(true);
                     }}
-                    className={`mt-0.5 shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
-                      form.hasAcceptedTerms
+                    className={`mt-0.5 shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${form.hasAcceptedTerms
                         ? "bg-lurevia-orange border-lurevia-orange"
                         : "border-slate-300 bg-white"
-                    }`}
+                      }`}
                   >
                     {form.hasAcceptedTerms && (
                       <Check size={10} strokeWidth={3} className="text-white" />
@@ -227,11 +226,10 @@ export const AuthPage: FC = () => {
               {form.isSubmitting
                 ? "Chargement…"
                 : isLogin
-                ? "Se connecter"
-                : "Créer mon compte"}
+                  ? "Se connecter"
+                  : "Créer mon compte"}
             </Button>
 
-            {/* Séparateur Social */}
             <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200"></div>
@@ -242,26 +240,25 @@ export const AuthPage: FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button
+              <button
                 type="button"
-                variant="secondary"
                 onClick={() => void handleSocialLogin("GOOGLE")}
                 disabled={form.isSubmitting}
-                className="rounded-xl! py-2!"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <img src="/google-icon.svg" alt="Google" className="w-4 h-4 mr-2" />
-                Google
-              </Button>
-              <Button
+                <GoogleIcon size={18} />
+                <span>Google</span>
+              </button>
+
+              <button
                 type="button"
-                variant="secondary"
                 onClick={() => void handleSocialLogin("FACEBOOK")}
                 disabled={form.isSubmitting}
-                className="rounded-xl! py-2!"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <img src="/facebook-icon.svg" alt="Facebook" className="w-4 h-4 mr-2" />
-                Facebook
-              </Button>
+                <FacebookIcon size={18} />
+                <span>Facebook</span>
+              </button>
             </div>
 
             <p className="text-center text-[11px] text-slate-500">

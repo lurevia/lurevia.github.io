@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FC, FormEvent } from "react";
 import { ArrowLeft, CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useVerification } from "../../hooks/useVerification";
@@ -12,13 +12,24 @@ const labels = {
   APPROVED: "Votre compte est vérifié.",
   REJECTED: "Votre demande a été refusée. Vous pouvez en envoyer une nouvelle.",
   USED: "Votre compte est vérifié.",
-  EXPIRED: "Votre code a expiré. Demandez un nouveau code.",
+  EXPIRED: "Votre lien a expiré. Demandez un nouveau code.",
 } as const;
 
 export const VerificationPage: FC = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { status, isLoading, error, request, confirm } = useVerification();
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      void confirm(token).then(() => {
+        setTimeout(() => navigate("/compte"), 2000);
+      }).catch(() => {});
+    }
+  }, [searchParams, confirm, navigate]);
 
   const submitCode = (event: FormEvent) => {
     event.preventDefault();
@@ -50,11 +61,11 @@ export const VerificationPage: FC = () => {
         {!verified && status !== "PENDING" && (
           <>
             <Button type="button" onClick={() => void requestCode()} disabled={isLoading} className="rounded-xl!">
-              {isLoading ? "Envoi…" : sent ? "Code renvoyé" : "Demander un code de vérification"}
+              {isLoading ? "Envoi…" : sent ? "Lien renvoyé" : "Demander un lien de vérification"}
             </Button>
             {(sent || status === "EXPIRED") && (
               <form onSubmit={submitCode} className="space-y-3 pt-2 border-t border-slate-100">
-                <Input label="Code reçu par email ou SMS" value={code} onChange={(event) => setCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" />
+                <Input label="Code de secours (si reçu)" value={code} onChange={(event) => setCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" />
                 <Button type="submit" disabled={isLoading || !code.trim()} className="rounded-xl!">Confirmer le code</Button>
               </form>
             )}

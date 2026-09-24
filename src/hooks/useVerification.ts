@@ -33,14 +33,14 @@ export const useVerification = () => {
     }
   }, []);
 
-  const confirm = useCallback(async (code: string) => {
+  const confirm = useCallback(async (token: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      await verificationApi.confirm(code);
+      await verificationApi.confirm(token);
       setStatus("USED");
     } catch (err) {
-      setError(toErrorMessage(err, "Code invalide ou expiré."));
+      setError(toErrorMessage(err, "Lien de vérification invalide ou expiré."));
       throw err;
     } finally {
       setIsLoading(false);

@@ -11,10 +11,13 @@ import {
   Star,
   KeyRound,
   ShieldCheck,
+  Calendar,
+  Users,
 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
 import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
 import { useOrders } from "../../hooks/useOrders";
@@ -24,6 +27,7 @@ import { validatePasswordStrength } from "../../hooks/useAuthForm";
 import { initialsOf } from "../../bin/utils/security";
 import { AvatarUploader } from "../../components/account/AvatarUploader";
 import { useVerification } from "../../hooks/useVerification";
+import type { User } from "../../bin/types/authType";
 
 export const ProfilePage: FC = () => {
   const { user, updateProfile, changePassword } = useAuth();
@@ -33,6 +37,8 @@ export const ProfilePage: FC = () => {
   const { status: verificationStatus } = useVerification();
 
   const [fullName, setFullName] = useState(user?.fullName ?? "");
+  const [age, setAge] = useState<number | undefined>(user?.age);
+  const [gender, setGender] = useState<User["gender"]>(user?.gender ?? "OTHER");
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -46,7 +52,7 @@ export const ProfilePage: FC = () => {
 
   const initials = initialsOf(user.fullName);
 
-  const saveProfile = async (data: { fullName?: string; avatarUrl?: string | null }) => {
+  const saveProfile = async (data: { fullName?: string; avatarUrl?: string | null; age?: number; gender?: User["gender"] }) => {
     setIsSaving(true);
     setProfileError(null);
     try {
@@ -66,7 +72,11 @@ export const ProfilePage: FC = () => {
       setProfileError("Le nom complet doit contenir au moins 2 caractères.");
       return;
     }
-    void saveProfile({ fullName: trimmed });
+    void saveProfile({
+      fullName: trimmed,
+      age: age,
+      gender: gender
+    });
   };
 
   const handleChangePassword = (e: FormEvent) => {
@@ -206,6 +216,32 @@ export const ProfilePage: FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
+            label="Âge"
+            type="number"
+            value={age ?? ""}
+            onChange={(e) => setAge(parseInt(e.target.value, 10) || undefined)}
+            icon={<Calendar size={16} />}
+            placeholder="Ex: 25"
+            min={0}
+            max={120}
+          />
+          <div className="flex flex-col gap-2">
+            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
+              Genre
+            </label>
+            <Select
+              value={gender}
+              onChange={(e) => setGender(e.target.value as User["gender"])}
+            >
+              <option value="MALE">Homme</option>
+              <option value="FEMALE">Femme</option>
+              <option value="OTHER">Autre</option>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
             label="Email"
             type="email"
             value={user.email ?? "— non renseigné —"}
@@ -288,14 +324,14 @@ export const ProfilePage: FC = () => {
           />
 
           <p className="text-[11px] text-slate-500">
-            8 caractères minimum, avec au moins une minuscule, une majuscule et
-            un chiffre. Changer votre mot de passe déconnecte tous vos appareils.
+          8 caractères minimum, avec au moins une minuscule, une majuscule et
+          un chiffre. Changer votre mot de passe déconnecte tous vos appareils.
           </p>
 
           {passwordError && (
             <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
-              <p className="text-xs font-medium text-red-600">{passwordError}</p>
-            </div>
+            <p className="text-xs font-medium text-red-600">{passwordError}</p>
+          </div>
           )}
 
           <Button
@@ -319,8 +355,6 @@ const StatCard: FC<{
 }> = ({ label, value, isText }) => (
   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
     <p className={`font-black ${isText ? "text-sm md:text-base" : "text-2xl"}`}>{value}</p>
-    <p className="text-[10px] uppercase tracking-wider text-emerald-100/80 font-bold mt-0.5">
-      {label}
-    </p>
+    <p className="text-[10px] uppercase tracking-wider text-emerald-100/80 font-bold mt-0.5">{label}</p>
   </div>
 );

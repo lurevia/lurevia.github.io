@@ -17,6 +17,7 @@ import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { ConsentModal } from "../components/auth/ConsentModal";
+import { oauthHelper } from "../utils/oauth";
 
 type LocationState = {
   from?: string;
@@ -24,7 +25,7 @@ type LocationState = {
 };
 
 export const AuthPage: FC = () => {
-  const { isAuthenticated, isReady } = useAuth();
+  const { isAuthenticated, isReady, loginWithOAuth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const form = useAuthForm();
@@ -42,14 +43,21 @@ export const AuthPage: FC = () => {
 
   const isLogin = form.mode === "login";
 
+  const handleSocialLogin = async (provider: "GOOGLE" | "FACEBOOK") => {
+    try {
+      const token = await oauthHelper.triggerLogin(provider);
+      await loginWithOAuth(provider, token);
+    } catch (err: any) {
+      form.setError(err.message || "Erreur lors de la connexion sociale.");
+    }
+  };
+
   return (
     <AuthLayout>
-      {/* 🎯 LA BOÎTE */}
       <div className="bg-white border border-slate-200/70 rounded-2xl shadow-xl shadow-slate-900/5 overflow-hidden">
         <div className="h-1 bg-linear-to-r from-lurevia-dark via-lurevia-blue-500 to-lurevia-cyan" />
 
         <div className="p-6 md:p-7 space-y-5">
-          {/* En-tête */}
           <div className="space-y-1 text-center">
             <h2 className="text-2xl font-black text-lurevia-dark">
               {isLogin ? "Bon retour 👋" : "Créer un compte"}
@@ -68,7 +76,6 @@ export const AuthPage: FC = () => {
             </div>
           )}
 
-          {/* Tabs */}
           <div className="bg-slate-100 rounded-xl p-1 flex">
             {(["login", "register"] as const).map((m) => (
               <button
@@ -86,7 +93,6 @@ export const AuthPage: FC = () => {
             ))}
           </div>
 
-          {/* Formulaire */}
           <div className="space-y-3">
             {isLogin ? (
               <>
@@ -169,7 +175,6 @@ export const AuthPage: FC = () => {
                   />
                 </div>
 
-                {/* CGU */}
                 <div className="flex items-start gap-2.5 pt-1">
                   <button
                     type="button"
@@ -202,7 +207,6 @@ export const AuthPage: FC = () => {
               </>
             )}
 
-            {/* Erreur */}
             {form.error && (
               <div className="p-2.5 bg-red-50 border border-red-100 rounded-lg">
                 <p className="text-[11px] font-medium text-red-600">
@@ -211,7 +215,6 @@ export const AuthPage: FC = () => {
               </div>
             )}
 
-            {/* Submit */}
             <Button
               type="button"
               variant="primary"
@@ -228,7 +231,39 @@ export const AuthPage: FC = () => {
                 : "Créer mon compte"}
             </Button>
 
-            {/* Switch */}
+            {/* Séparateur Social */}
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-slate-400">Ou continuer avec</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void handleSocialLogin("GOOGLE")}
+                disabled={form.isSubmitting}
+                className="rounded-xl! py-2!"
+              >
+                <img src="/google-icon.svg" alt="Google" className="w-4 h-4 mr-2" />
+                Google
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void handleSocialLogin("FACEBOOK")}
+                disabled={form.isSubmitting}
+                className="rounded-xl! py-2!"
+              >
+                <img src="/facebook-icon.svg" alt="Facebook" className="w-4 h-4 mr-2" />
+                Facebook
+              </Button>
+            </div>
+
             <p className="text-center text-[11px] text-slate-500">
               {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"}{" "}
               <button
@@ -245,7 +280,6 @@ export const AuthPage: FC = () => {
         </div>
       </div>
 
-      {/* Sécurité (sous la boîte) */}
       <p className="text-center text-[10px] text-slate-400 flex items-center justify-center gap-1.5 mt-4">
         <ShieldCheck size={12} />
         Vos données sont chiffrées et sécurisées.

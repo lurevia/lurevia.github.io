@@ -46,4 +46,15 @@ export const authApi = {
     const data = await api.get<{ user: UserDto }>("/auth/me");
     return toUser(data.user);
   },
+
+  async oauthCallback(provider: string, token: string): Promise<User> {
+    const data = await api.post<AuthSessionDto>(
+      "/auth/oauth/callback",
+      { provider, token },
+      { auth: false }
+    );
+
+    tokenStore.set(data.accessToken);
+    return toUser(data.user);
+  },
 };

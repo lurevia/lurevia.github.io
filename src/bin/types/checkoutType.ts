@@ -7,6 +7,8 @@ export interface ShippingAddress {
   address: string;
   city: string;
   region: string;
+  latitude?: number;
+  longitude?: number;
   notes?: string;
 }
 

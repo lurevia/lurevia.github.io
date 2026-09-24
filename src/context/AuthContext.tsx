@@ -120,9 +120,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
       const current = await authApi.me();
-      if (isMounted.current) setUser(current);
-    } catch {
+      setUser(current);
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
     }
+  }, []);
+
+  const loginWithOAuth = useCallback(async (provider: "GOOGLE" | "FACEBOOK", token: string): Promise<void> => {
+    const loggedUser = await authApi.oauthCallback(provider, token);
+    setUser(loggedUser);
   }, []);
 
   const contextValue = useMemo(
@@ -136,6 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       updateProfile,
       changePassword,
       refreshUser,
+      loginWithOAuth,
     }),
     [
       user,
@@ -146,6 +153,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       updateProfile,
       changePassword,
       refreshUser,
+      loginWithOAuth,
     ]
   );
 

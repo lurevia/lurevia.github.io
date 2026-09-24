@@ -10,6 +10,8 @@ export interface User {
   isVerified: boolean;
   createdAt: string;
   lastLoginAt?: string;
+  age?: number;
+  gender?: "MALE" | "FEMALE" | "OTHER";
 }
 
 export interface RegisterPayload {
@@ -27,6 +29,8 @@ export interface LoginPayload {
 export interface ProfileUpdatePayload {
   fullName?: string;
   avatarUrl?: string | null;
+  age?: number;
+  gender?: "MALE" | "FEMALE" | "OTHER";
 }
 
 export interface ChangePasswordPayload {
@@ -45,4 +49,5 @@ export interface AuthContextType {
   updateProfile: (data: ProfileUpdatePayload) => Promise<void>;
   changePassword: (payload: ChangePasswordPayload) => Promise<void>;
   refreshUser: () => Promise<void>;
+  loginWithOAuth: (provider: "GOOGLE" | "FACEBOOK", token: string) => Promise<void>;
 }

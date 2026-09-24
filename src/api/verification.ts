@@ -25,8 +25,8 @@ export const verificationApi = {
     return api.post<RequestVerificationResponse>("/auth/verification/request");
   },
 
-  async confirm(code: string): Promise<{ success: true }> {
-    return api.post<{ success: true }>("/auth/verification/confirm", { code });
+  async confirm(token: string): Promise<{ success: true }> {
+    return api.post<{ success: true }>("/auth/verification/confirm", { token });
   },
 
   async status(): Promise<VerificationStatusResponse> {

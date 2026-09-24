@@ -1,0 +1,2 @@
+import{U as e}from"./index-0T-0hia9.js";var t={name:`plus`,size:24,node:[[`path`,{d:`M5 12h14`,key:`1ays0h`}],[`path`,{d:`M12 5v14`,key:`s699le`}]]};t.node;var n=e(t);export{n as t};
+//# sourceMappingURL=plus-CTfkBQ5J.js.map

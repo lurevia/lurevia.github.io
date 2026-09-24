@@ -11,8 +11,7 @@ import {
   Star,
   KeyRound,
   ShieldCheck,
-  Calendar,
-  Users,
+  Calendar
 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";

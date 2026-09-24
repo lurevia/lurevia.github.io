@@ -1,0 +1,2 @@
+import{i as e,n as t,t as n}from"./jsx-runtime-Dk72oS4N.js";import{t as r}from"./oauth-Dphhh8Gf.js";var i=e(t(),1),a=n();function o(){return(0,i.useEffect)(()=>{r()},[]),(0,a.jsx)(`main`,{className:`flex min-h-screen items-center justify-center bg-slate-50`,children:(0,a.jsx)(`p`,{className:`text-sm font-semibold text-slate-600`,children:`Finalisation de la connexion…`})})}export{o as OAuthCallback};
+//# sourceMappingURL=OAuthCallback-DBu-Xic9.js.map

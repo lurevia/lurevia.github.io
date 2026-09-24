@@ -1,2 +1,0 @@
-import{i as e,n as t}from"./jsx-runtime-Dk72oS4N.js";import{p as n}from"./index-CoAUwwho.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useFeedback doit être utilisé dans un FeedbackProvider`);return e};export{i as t};
-//# sourceMappingURL=useFeedback-DUOWLbYA.js.map

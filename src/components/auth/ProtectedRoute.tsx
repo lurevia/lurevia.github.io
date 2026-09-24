@@ -6,13 +6,15 @@ type ProtectedRouteProps = {
     children: ReactNode;
     redirectTo?: string;
     reason?: string;
+    roles?: Array<"CUSTOMER" | "SELLER" | "ADMIN">;
 };
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({
     children,
     redirectTo = "/auth",
+    roles,
 }) => {
-    const { isAuthenticated, isReady } = useAuth();
+    const { isAuthenticated, isReady, user } = useAuth();
     const location = useLocation();
 
     if (!isReady) {
@@ -36,6 +38,10 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
                 state={{ from: location.pathname + location.search }}
             />
         );
+    }
+
+    if (roles && (!user || !roles.includes(user.role))) {
+        return <Navigate to="/" replace />;
     }
 
     return <>{children}</>;

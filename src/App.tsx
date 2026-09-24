@@ -63,6 +63,7 @@ const MessagesPage = lazy(() =>
 const VerificationPage = lazy(() =>
   import("./views/account/VerificationPage").then((module) => ({ default: module.VerificationPage }))
 );
+const SellerSpace = lazy(() => import("./views/seller/SellerSpace").then((module) => ({ default: module.SellerSpace })));
 
 function RouteFallback() {
   return (
@@ -80,6 +81,9 @@ export default function App() {
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/vendeur" element={<MainLayout />}>
+              <Route index element={<ProtectedRoute roles={["SELLER"]}><SellerSpace /></ProtectedRoute>} />
+            </Route>
 
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />

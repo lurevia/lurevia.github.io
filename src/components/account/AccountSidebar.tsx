@@ -9,6 +9,7 @@ import {
     ShieldCheck,
     LogOut,
     ChevronRight,
+    Store,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useFavorite } from "../../hooks/useFavorite";
@@ -33,8 +34,13 @@ export const AccountSidebar: FC = () => {
     const location = useLocation();
 
     if (!user) return null;
-
     const initials = initialsOf(user.fullName);
+    const navigationItems = user.role === "SELLER"
+        ? [
+            { to: "/vendeur", label: "Tableau de bord vendeur", icon: Store },
+            ...NAV_ITEMS,
+        ]
+        : NAV_ITEMS;
 
     return (
         <aside className="bg-white border border-slate-100 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">
@@ -61,7 +67,7 @@ export const AccountSidebar: FC = () => {
 
             <nav>
                 <ul className="space-y-1">
-                    {NAV_ITEMS.map(({ to, label, icon: Icon, exact }) => {
+                    {navigationItems.map(({ to, label, icon: Icon, exact }) => {
                         const active = exact
                             ? location.pathname === to
                             : location.pathname.startsWith(to);

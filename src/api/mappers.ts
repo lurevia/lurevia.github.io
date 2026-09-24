@@ -75,7 +75,7 @@ export const toUser = (dto: UserDto): User => ({
   email: dto.email ?? "",
   phone: dto.phone ?? "",
   avatarUrl: safeImageUrl(dto.avatarUrl),
-  role: dto.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
+  role: dto.role === "ADMIN" ? "ADMIN" : dto.role === "SELLER" ? "SELLER" : "CUSTOMER",
   isVerified: Boolean(dto.isVerified),
   createdAt: dto.createdAt,
   lastLoginAt: dto.lastLoginAt ?? undefined,

@@ -1,4 +1,5 @@
 export type AuthIdentifier = "email" | "phone";
+export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN";
 
 export interface User {
   id: string;
@@ -6,7 +7,7 @@ export interface User {
   email: string;
   phone: string;
   avatarUrl?: string;
-  role: "CUSTOMER" | "ADMIN";
+  role: UserRole;
   isVerified: boolean;
   createdAt: string;
   lastLoginAt?: string;

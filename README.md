@@ -95,6 +95,25 @@ Pour une build de production, définissez `VITE_API_URL` sur
 automatiquement une URL `localhost` lorsque Vite construit une build de
 production, afin d'éviter de publier des appels vers l'ordinateur du visiteur.
 
+Pour activer Google et Facebook, ajoutez aussi ces variables dans
+l'environnement de build GitHub Pages/CI :
+
+```env
+VITE_GOOGLE_CLIENT_ID=votre-client-id-google.apps.googleusercontent.com
+VITE_FACEBOOK_APP_ID=votre-app-id-facebook
+```
+
+Les URI de redirection OAuth doivent être autorisées exactement chez les
+fournisseurs :
+
+```text
+https://lurevia.github.io/auth/callback
+```
+
+Le bouton de partage d'un produit copie ou partage une URL publique de la
+forme `https://lurevia.github.io/produit/<id>`, utilisable dans une fiche
+Facebook Shop comme lien d'achat.
+
 Les choix de sécurité (session en mémoire, cookie httpOnly, absence de
 données bancaires, en-têtes HTTP à poser en production) sont détaillés
 dans [SECURITY.md](./SECURITY.md).

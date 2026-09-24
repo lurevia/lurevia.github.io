@@ -84,6 +84,15 @@ export const ProductDetail: FC = () => {
     resetSelection();
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/produit/${encodeURIComponent(product.id)}`;
+    if (navigator.share) {
+      await navigator.share({ title: product.title, text: `Découvrez ${product.title} sur Lurevia`, url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 space-y-10">
       <nav
@@ -136,6 +145,7 @@ export const ProductDetail: FC = () => {
             onToggleFavorite={() => void toggleFavorite(product)}
             isFavorite={isFav}
             outOfStock={product.outOfStock ?? false}
+            onShare={() => void handleShare()}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-100">

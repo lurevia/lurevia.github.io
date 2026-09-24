@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart, Share2 } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { QuantitySelector } from "./QuantitySelector";
 
@@ -11,6 +11,7 @@ type ProductActionsProps = {
   onToggleFavorite: () => void;
   isFavorite: boolean;
   outOfStock: boolean;
+  onShare: () => void;
 };
 
 export const ProductActions: FC<ProductActionsProps> = ({
@@ -21,6 +22,7 @@ export const ProductActions: FC<ProductActionsProps> = ({
   onToggleFavorite,
   isFavorite,
   outOfStock,
+  onShare,
 }) => {
   return (
     <div className="space-y-4 text-left">
@@ -48,6 +50,15 @@ export const ProductActions: FC<ProductActionsProps> = ({
             size={18}
             className={isFavorite ? "fill-red-500" : ""}
           />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onShare}
+          aria-label="Partager ce produit"
+          className="border border-slate-200! w-11! h-11! p-0! rounded-xl! flex items-center justify-center text-slate-400! hover:text-lurevia-dark! shadow-none"
+        >
+          <Share2 size={18} />
         </Button>
       </div>
 

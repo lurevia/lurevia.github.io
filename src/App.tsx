@@ -25,6 +25,9 @@ const FavoritesPage = lazy(() =>
 const AuthPage = lazy(() =>
   import("./views/Auth").then((module) => ({ default: module.AuthPage }))
 );
+const OAuthCallback = lazy(() =>
+  import("./views/OAuthCallback").then((module) => ({ default: module.OAuthCallback }))
+);
 const ServiceFeedbackPage = lazy(() =>
   import("./views/ServiceFeedbackPage").then((module) => ({
     default: module.ServiceFeedbackPage,
@@ -81,6 +84,7 @@ export default function App() {
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/callback" element={<OAuthCallback />} />
             <Route path="/vendeur" element={<MainLayout />}>
               <Route index element={<ProtectedRoute roles={["SELLER"]}><SellerSpace /></ProtectedRoute>} />
             </Route>

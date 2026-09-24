@@ -103,6 +103,12 @@ VITE_GOOGLE_CLIENT_ID=votre-client-id-google.apps.googleusercontent.com
 VITE_FACEBOOK_APP_ID=votre-app-id-facebook
 ```
 
+Si le déploiement est lancé localement avec `npm run deploy`, créez
+`.env.production.local` (ce fichier ne doit jamais être commité) avec ces
+variables avant le build. Si le déploiement passe par GitHub Actions, ajoutez
+les valeurs comme variables du dépôt puis injectez-les dans l'étape `npm run
+build`.
+
 Les URI de redirection OAuth doivent être autorisées exactement chez les
 fournisseurs :
 

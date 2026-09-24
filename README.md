@@ -120,6 +120,15 @@ Le bouton de partage d'un produit copie ou partage une URL publique de la
 forme `https://lurevia.github.io/produit/<id>`, utilisable dans une fiche
 Facebook Shop comme lien d'achat.
 
+Les avatars et images produits peuvent être déposés ou sélectionnés directement
+dans l'interface. Le navigateur envoie un data URL au backend authentifié : le
+token GitHub ne quitte jamais le serveur. Chaque image validée est enregistrée
+dans le dépôt GitHub via l'API Contents et crée donc **un commit GitHub**.
+Configurez côté backend `MEDIA_GITHUB_TOKEN`, `MEDIA_GITHUB_OWNER`,
+`MEDIA_GITHUB_REPOSITORY`, `MEDIA_GITHUB_BRANCH` et `MEDIA_GITHUB_PATH`.
+`MEDIA_MAX_BYTES` limite la taille binaire (10 Mo par défaut, 25 Mo maximum) ;
+seuls JPEG, PNG, GIF et WebP dont la signature correspond au MIME sont acceptés.
+
 Les choix de sécurité (session en mémoire, cookie httpOnly, absence de
 données bancaires, en-têtes HTTP à poser en production) sont détaillés
 dans [SECURITY.md](./SECURITY.md).

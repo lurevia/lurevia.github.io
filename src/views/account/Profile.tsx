@@ -203,7 +203,9 @@ export const ProfilePage: FC = () => {
               return;
             }
             try {
-              const media = await mediaApi.importUrl(url);
+              const media = url.startsWith("data:")
+                ? await mediaApi.uploadDataUrl(url)
+                : await mediaApi.importUrl(url);
               await saveProfile({ avatarUrl: media.publicUrl });
             } catch (error) {
               setProfileError(toErrorMessage(error, "Import de l'image impossible."));

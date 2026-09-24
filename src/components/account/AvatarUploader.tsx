@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FC } from "react";
-import { Link, Loader2, Trash2 } from "lucide-react";
+import { ImagePlus, Link, Loader2, Trash2 } from "lucide-react";
 import { Button } from "../ui/Button";
 
 type AvatarUploaderProps = {
@@ -18,6 +18,18 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
 }) => {
   const [error, setError] = useState<string | null>(null);
   const [url, setUrl] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+
+  const readFile = (file: File) => {
+    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+      setError("Sélectionnez une image JPG, PNG, GIF ou WebP.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => onChange(String(reader.result));
+    reader.onerror = () => setError("Lecture de l'image impossible.");
+    reader.readAsDataURL(file);
+  };
 
   const handleRemove = () => {
     setError(null);
@@ -50,6 +62,15 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
       {/* Actions */}
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap gap-2">
+          <label
+            className={`flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm ${isDragging ? "border-lurevia-orange bg-orange-50" : "border-slate-200"}`}
+            onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(event) => { event.preventDefault(); setIsDragging(false); const file = event.dataTransfer.files[0]; if (file) readFile(file); }}
+          >
+            <ImagePlus size={16} /> Choisir ou déposer une image
+            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" disabled={isSaving} onChange={(event) => { const file = event.target.files?.[0]; if (file) readFile(file); }} />
+          </label>
           <div className="flex flex-wrap gap-2">
             <input
               type="url"

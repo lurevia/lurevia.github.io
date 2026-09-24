@@ -1,0 +1,1 @@
+{"version":3,"file":"assets-BrQ3UuKv.js","names":[],"sources":["../../src/bin/utils/constant/assets.ts"],"sourcesContent":["export const FALLBACK_IMAGE = \"/images/logo.jpeg\";\n"],"mappings":"AAAA,IAAa,EAAiB"}

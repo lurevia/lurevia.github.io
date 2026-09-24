@@ -1,2 +1,0 @@
-import{a as e,r as t}from"./createLucideIcon-ChhPh1Qd.js";import{X as n}from"./index-DPDs29YX.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useAddresses doit être utilisé dans un AddressesProvider`);return e};export{i as t};
-//# sourceMappingURL=useAddresses-DrMBxg2d.js.map

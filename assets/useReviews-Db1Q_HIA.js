@@ -1,2 +1,0 @@
-import{a as e,r as t}from"./createLucideIcon-ChhPh1Qd.js";import{f as n}from"./index-DPDs29YX.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useReviews doit être utilisé dans un ReviewsProvider`);return e};export{i as t};
-//# sourceMappingURL=useReviews-Db1Q_HIA.js.map

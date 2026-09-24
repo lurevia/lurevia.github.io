@@ -1,2 +1,0 @@
-import{n as e}from"./createLucideIcon-ChhPh1Qd.js";import{S as t}from"./index-DPDs29YX.js";var n=e(),r=({value:e,size:r=14,className:i=``})=>{let a=Math.round(e);return(0,n.jsx)(`div`,{className:`inline-flex items-center gap-0.5 ${i}`,"aria-label":`Note ${e.toFixed(1)} sur 5`,role:`img`,children:[1,2,3,4,5].map(e=>(0,n.jsx)(t,{size:r,className:e<=a?`fill-lurevia-yellow text-lurevia-yellow stroke-none`:`text-slate-300`},e))})};export{r as t};
-//# sourceMappingURL=StarRating-DDouNgiT.js.map

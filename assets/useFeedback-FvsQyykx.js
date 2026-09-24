@@ -1,2 +1,0 @@
-import{a as e,r as t}from"./createLucideIcon-ChhPh1Qd.js";import{p as n}from"./index-DPDs29YX.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useFeedback doit être utilisé dans un FeedbackProvider`);return e};export{i as t};
-//# sourceMappingURL=useFeedback-FvsQyykx.js.map

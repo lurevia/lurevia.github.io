@@ -1,2 +1,0 @@
-import{i as e,n as t}from"./jsx-dev-runtime-CELT78vh.js";import{p as n}from"./index-0T-0hia9.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useFeedback doit être utilisé dans un FeedbackProvider`);return e};export{i as t};
-//# sourceMappingURL=useFeedback-DLnIojhy.js.map

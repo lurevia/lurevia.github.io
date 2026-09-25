@@ -1,2 +1,0 @@
-var e=(e,t)=>typeof e==`string`&&e.trim()!==``?e.trim():t,t=(e,t)=>{let n=Number(e);return Number.isFinite(n)&&n>0?n:t},n=e(`https://lurevia-ecommerce.onrender.com/api/v1`,`https://lurevia-ecommerce.onrender.com/api/v1`).replace(/\/+$/,``),r=e(`820540711070-ta9t1j3gkjgn3m21q5ia877rqa1g73gu.apps.googleusercontent.com`,``),i=e(`2850172492042722`,``),a=t(`15000`,15e3),o=t(`5`,5),s=t(`8000`,8e3),c=t(`250000`,25e4);export{a,r as i,i as n,o,c as r,s,n as t};
-//# sourceMappingURL=env-XaB0cjTt.js.map

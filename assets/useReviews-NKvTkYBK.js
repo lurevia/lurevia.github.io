@@ -1,2 +1,0 @@
-import{i as e,n as t}from"./jsx-dev-runtime-CELT78vh.js";import{f as n}from"./index-0T-0hia9.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useReviews doit être utilisé dans un ReviewsProvider`);return e};export{i as t};
-//# sourceMappingURL=useReviews-NKvTkYBK.js.map

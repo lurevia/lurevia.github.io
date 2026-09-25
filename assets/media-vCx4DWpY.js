@@ -1,2 +1,0 @@
-import{Y as e}from"./index-0T-0hia9.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
-//# sourceMappingURL=media-vCx4DWpY.js.map

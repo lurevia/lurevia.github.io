@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FC, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Save,
   User as UserIcon,
@@ -11,9 +11,9 @@ import {
   Star,
   KeyRound,
   ShieldCheck,
-  Calendar
+  Calendar,
+  Store
 } from "lucide-react";
-
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -27,10 +27,12 @@ import { validatePasswordStrength } from "../../hooks/useAuthForm";
 import { initialsOf } from "../../bin/utils/security";
 import { AvatarUploader } from "../../components/account/AvatarUploader";
 import { useVerification } from "../../hooks/useVerification";
+import { sellerApi } from "../../api/seller";
 import type { User } from "../../bin/types/authType";
 
 export const ProfilePage: FC = () => {
-  const { user, updateProfile, changePassword } = useAuth();
+  const { user, updateProfile, changePassword, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const { orders, transactions } = useOrders();
   const { totalFavorites } = useFavorite();
   const { unreadCount } = useNotifications();
@@ -47,10 +49,39 @@ export const ProfilePage: FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showSellerForm, setShowSellerForm] = useState(false);
+  const [sellerContractType, setSellerContractType] = useState<"PERCENTAGE" | "MONTHLY_FIXED">("PERCENTAGE");
+  const [sellerContractValue, setSellerContractValue] = useState("10");
+  const [sellerError, setSellerError] = useState<string | null>(null);
+  const [isApplyingSeller, setIsApplyingSeller] = useState(false);
 
   if (!user) return null;
 
   const initials = initialsOf(user.fullName);
+  const isVerified = user.isVerified || verificationStatus === "APPROVED" || verificationStatus === "USED";
+
+  const handleBecomeSeller = async (event: FormEvent) => {
+    event.preventDefault();
+    setSellerError(null);
+    const value = Number(sellerContractValue);
+    if (!Number.isInteger(value) || value < 0 || (sellerContractType === "PERCENTAGE" && value > 100)) {
+      setSellerError(sellerContractType === "PERCENTAGE"
+        ? "Le pourcentage doit être compris entre 0 et 100."
+        : "Le montant mensuel doit être un nombre positif.");
+      return;
+    }
+
+    setIsApplyingSeller(true);
+    try {
+      await sellerApi.apply({ type: sellerContractType, value });
+      await refreshUser();
+      navigate("/vendeur");
+    } catch (error) {
+      setSellerError(toErrorMessage(error, "Impossible d'envoyer votre contrat vendeur."));
+    } finally {
+      setIsApplyingSeller(false);
+    }
+  };
 
   const saveProfile = async (data: { fullName?: string; avatarUrl?: string | null; age?: number; gender?: User["gender"] }) => {
     setIsSaving(true);
@@ -187,6 +218,60 @@ export const ProfilePage: FC = () => {
         </div>
         <ChevronRight size={16} className="text-slate-400 shrink-0" />
       </Link>
+
+      {user.role === "CUSTOMER" && (
+        <section className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-orange-50 text-lurevia-orange">
+              <Store size={18} />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-sm font-black text-lurevia-dark">Vendre sur Lurevia</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Seuls les comptes vérifiés peuvent vendre. Votre contrat sera envoyé à l’administration pour approbation.
+              </p>
+            </div>
+          </div>
+
+          {!isVerified ? (
+            <Link to="/compte/verification" className="inline-flex items-center justify-center rounded-xl bg-lurevia-orange px-4 py-2.5 text-sm font-bold text-white">
+              Vérifier mon compte pour vendre
+            </Link>
+          ) : !showSellerForm ? (
+            <Button type="button" icon={Store} onClick={() => setShowSellerForm(true)} className="rounded-xl!">
+              Devenir vendeur
+            </Button>
+          ) : (
+            <form onSubmit={handleBecomeSeller} className="space-y-3 border-t border-slate-100 pt-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Type de contrat</label>
+                <Select value={sellerContractType} onChange={(event) => setSellerContractType(event.target.value as "PERCENTAGE" | "MONTHLY_FIXED")}>
+                  <option value="PERCENTAGE">Commission sur les ventes (%)</option>
+                  <option value="MONTHLY_FIXED">Forfait mensuel (MGA)</option>
+                </Select>
+              </div>
+              <Input
+                label={sellerContractType === "PERCENTAGE" ? "Commission (%)" : "Forfait mensuel (MGA)"}
+                type="number"
+                min={0}
+                max={sellerContractType === "PERCENTAGE" ? 100 : 100000000}
+                value={sellerContractValue}
+                onChange={(event) => setSellerContractValue(event.target.value)}
+                required
+              />
+              {sellerError && <p className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600">{sellerError}</p>}
+              <div className="flex flex-wrap gap-2">
+                <Button type="submit" disabled={isApplyingSeller} className="rounded-xl!">
+                  {isApplyingSeller ? "Envoi du contrat…" : "Devenir vendeur et envoyer le contrat"}
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setShowSellerForm(false)} disabled={isApplyingSeller} className="rounded-xl!">
+                  Annuler
+                </Button>
+              </div>
+            </form>
+          )}
+        </section>
+      )}
 
       {/* Photo de profil */}
       <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 space-y-4">

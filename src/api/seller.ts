@@ -31,6 +31,11 @@ export type SellerProductInput = {
   sizes: string[];
 };
 
+export type SellerContractInput = {
+  type: "PERCENTAGE" | "MONTHLY_FIXED";
+  value: number;
+};
+
 type SellerPage<T> = { items: T[]; pagination?: { totalItems: number; totalPages: number; page: number } };
 
 const unwrapPage = <T,>(value: SellerPage<T> | { products?: SellerPage<T>; orders?: SellerPage<T> }): SellerPage<T> => {
@@ -62,6 +67,9 @@ const sellerOrderDto = (value: OrderDto & Record<string, unknown>): OrderDto => 
 });
 
 export const sellerApi = {
+  async apply(input: SellerContractInput): Promise<void> {
+    await api.post("/seller/apply", input);
+  },
   async stats(signal?: AbortSignal): Promise<SellerStats> {
     const data = await api.get<{ stats: SellerStats }>("/seller/stats", { signal });
     return data.stats;

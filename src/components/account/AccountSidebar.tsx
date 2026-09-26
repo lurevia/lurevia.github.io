@@ -40,7 +40,9 @@ export const AccountSidebar: FC = () => {
             { to: "/vendeur", label: "Tableau de bord vendeur", icon: Store },
             ...NAV_ITEMS,
         ]
-        : NAV_ITEMS;
+        : user.role === "CUSTOMER"
+            ? [...NAV_ITEMS, { to: "/compte/devenir-vendeur", label: "Devenir vendeur", icon: Store }]
+            : NAV_ITEMS;
 
     return (
         <aside className="bg-white border border-slate-100 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">

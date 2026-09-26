@@ -69,6 +69,9 @@ const VerificationPage = lazy(() =>
 const CompleteOAuthProfile = lazy(() =>
   import("./views/account/CompleteOAuthProfile").then((module) => ({ default: module.CompleteOAuthProfile }))
 );
+const BecomeSellerPage = lazy(() =>
+  import("./views/account/BecomeSeller").then((module) => ({ default: module.BecomeSellerPage }))
+);
 const SellerSpace = lazy(() => import("./views/seller/SellerSpace").then((module) => ({ default: module.SellerSpace })));
 
 function RouteFallback() {
@@ -126,6 +129,7 @@ export default function App() {
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="verification" element={<VerificationPage />} />
+                <Route path="devenir-vendeur" element={<BecomeSellerPage />} />
                 <Route path="avis" element={<UserReviewsPage />} />
               </Route>
             </Route>

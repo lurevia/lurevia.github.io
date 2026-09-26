@@ -252,12 +252,15 @@ export const AuthPage: FC = () => {
 
               <button
                 type="button"
-                onClick={() => void handleSocialLogin("FACEBOOK")}
-                disabled={form.isSubmitting}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                disabled
+                title="Bientôt disponible"
+                className="relative flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-400 opacity-60 grayscale cursor-not-allowed"
               >
                 <FacebookIcon size={18} />
                 <span>Facebook</span>
+                <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-wide">
+                  Bientôt
+                </span>
               </button>
             </div>
 

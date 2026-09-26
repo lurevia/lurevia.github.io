@@ -1,13 +1,26 @@
 import { useState } from "react";
-import type { FC } from "react";
-import { ImagePlus, Link, Loader2, Trash2 } from "lucide-react";
+import type { FC, FormEvent } from "react";
+import { Check, ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { Button } from "../ui/Button";
 
 type AvatarUploaderProps = {
   currentUrl?: string | null;
   initials: string;
   isSaving?: boolean;
-  onChange: (dataUrl: string | undefined) => void;
+  onChange: (url: string | undefined) => void;
+};
+
+// L'avatar n'est plus stocké tel quel (le backend valide `avatarUrl` comme
+// une URL de 2048 caractères max — un fichier encodé en base64 dépasse
+// toujours cette limite et échouait silencieusement). On demande donc un
+// lien direct vers une image déjà hébergée ailleurs.
+const isPlausibleImageUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
 };
 
 export const AvatarUploader: FC<AvatarUploaderProps> = ({
@@ -16,19 +29,31 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
   isSaving = false,
   onChange,
 }) => {
+  const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [url, setUrl] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
+  const [previewFailed, setPreviewFailed] = useState(false);
 
-  const readFile = (file: File) => {
-    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
-      setError("Sélectionnez une image JPG, PNG, GIF ou WebP.");
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const trimmed = draft.trim();
+
+    if (!trimmed) {
+      setError("Colle un lien d'image.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => onChange(String(reader.result));
-    reader.onerror = () => setError("Lecture de l'image impossible.");
-    reader.readAsDataURL(file);
+    if (!isPlausibleImageUrl(trimmed)) {
+      setError("Ce lien ne ressemble pas à une URL valide (http:// ou https://).");
+      return;
+    }
+    if (trimmed.length > 2048) {
+      setError("Ce lien est trop long.");
+      return;
+    }
+
+    setPreviewFailed(false);
+    onChange(trimmed);
+    setDraft("");
   };
 
   const handleRemove = () => {
@@ -37,13 +62,14 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-start gap-4">
       {/* Aperçu */}
       <div className="relative shrink-0">
-        {currentUrl ? (
+        {currentUrl && !previewFailed ? (
           <img
             src={currentUrl}
             alt="Avatar"
+            onError={() => setPreviewFailed(true)}
             className="w-20 h-20 rounded-full object-cover border-2 border-slate-100"
           />
         ) : (
@@ -59,40 +85,23 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
         )}
       </div>
 
-      {/* Actions */}
+      {/* Lien */}
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap gap-2">
-          <label
-            className={`flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm ${isDragging ? "border-lurevia-orange bg-orange-50" : "border-slate-200"}`}
-            onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(event) => { event.preventDefault(); setIsDragging(false); const file = event.dataTransfer.files[0]; if (file) readFile(file); }}
-          >
-            <ImagePlus size={16} /> Choisir ou déposer une image
-            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" disabled={isSaving} onChange={(event) => { const file = event.target.files?.[0]; if (file) readFile(file); }} />
-          </label>
-          <div className="flex flex-wrap gap-2">
+        <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-[180px]">
+            <ImageIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="url"
-              value={url}
-              onChange={(event) => { setUrl(event.target.value); setError(null); }}
-              placeholder="https://photos.google.com/..."
-              className="min-w-60 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="https://exemple.com/ma-photo.jpg"
               disabled={isSaving}
+              className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-lurevia-blue-300 focus:border-lurevia-blue-400"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              icon={Link}
-              onClick={() => url.trim() ? onChange(url.trim()) : setError("Collez un lien image public.")}
-              disabled={isSaving}
-              className="border border-slate-200! bg-white!"
-            >
-              Importer le lien
-            </Button>
           </div>
-
+          <Button type="submit" variant="ghost" size="sm" icon={Check} disabled={isSaving} className="border border-slate-200! bg-white!">
+            Utiliser ce lien
+          </Button>
           {currentUrl && (
             <Button
               type="button"
@@ -106,16 +115,18 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
               Retirer
             </Button>
           )}
-        </div>
+        </form>
 
         <p className="text-[11px] text-slate-500 mt-2">
-          Collez un lien public JPG, PNG, GIF ou WebP. L’image sera copiée dans le stockage média Lurevia.
+          Colle le lien direct d'une image déjà en ligne (imgur, ta page Facebook, etc.).
         </p>
 
-        {error && (
-          <p className="text-[11px] text-red-500 mt-1 font-medium">{error}</p>
+        {previewFailed && currentUrl && (
+          <p className="text-[11px] text-amber-600 mt-1 font-medium">
+            Ce lien ne charge pas d'image — vérifie qu'il pointe bien vers un fichier image.
+          </p>
         )}
-
+        {error && <p className="text-[11px] text-red-500 mt-1 font-medium">{error}</p>}
       </div>
     </div>
   );

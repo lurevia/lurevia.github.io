@@ -1,0 +1,2 @@
+import{X as e}from"./index-DLOJ670r.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
+//# sourceMappingURL=media-CmSXZQa3.js.map

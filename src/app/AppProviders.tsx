@@ -10,6 +10,7 @@ import { NotificationsProvider } from "../context/NotificationsContext";
 import { OrdersProvider } from "../context/OrdersContext";
 import { ReviewsProvider } from "../context/ReviewsContext";
 import { UIProvider } from "../context/UIContext";
+import { BrandSettingsProvider } from "../context/BrandSettingsContext";
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -22,8 +23,9 @@ type AppProvidersProps = {
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <AuthProvider>
-      <UIProvider>
+    <BrandSettingsProvider>
+      <AuthProvider>
+        <UIProvider>
         <CategoriesProvider>
           <CartProvider>
             <FavoriteProvider>
@@ -39,7 +41,8 @@ export function AppProviders({ children }: AppProvidersProps) {
             </FavoriteProvider>
           </CartProvider>
         </CategoriesProvider>
-      </UIProvider>
-    </AuthProvider>
+        </UIProvider>
+      </AuthProvider>
+    </BrandSettingsProvider>
   );
 }

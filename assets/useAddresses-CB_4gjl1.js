@@ -1,0 +1,2 @@
+import{i as e,n as t}from"./jsx-runtime-Dk72oS4N.js";import{J as n}from"./index-D6SBkfh4.js";var r=e(t(),1),i=()=>{let e=(0,r.useContext)(n);if(!e)throw Error(`useAddresses doit être utilisé dans un AddressesProvider`);return e};export{i as t};
+//# sourceMappingURL=useAddresses-CB_4gjl1.js.map

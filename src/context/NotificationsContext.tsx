@@ -19,7 +19,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   const [isLoading, setIsLoading] = useState(false);
 
   const refresh = useCallback(async (): Promise<void> => {
-    if (!user) {
+    if (!user || user.role === "ADMIN") {
       setNotifications([]);
       return;
     }

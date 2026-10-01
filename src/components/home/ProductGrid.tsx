@@ -39,13 +39,13 @@ export const ProductGrid: FC<ProductGridProps> = ({
     <section className="mx-auto max-w-7xl px-3 py-8 sm:px-6 md:py-12">
       <div
         className={[
-          "relative overflow-hidden rounded-[2rem] bg-[#211b17]",
-          "px-4 py-7 shadow-[0_28px_80px_-36px_rgba(40,25,15,0.8)]",
+          "relative overflow-hidden bg-[#10243e]",
+          "px-4 py-7 shadow-[0_28px_80px_-36px_rgba(16,36,62,0.8)]",
           "sm:px-7 md:px-9 md:py-9",
         ].join(" ")}
       >
-        <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full bg-orange-600/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-36 left-1/3 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 bg-blue-600/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-36 left-1/3 h-72 w-72 bg-sky-500/10 blur-3xl" />
         <div className="relative z-10 mb-6 flex items-end justify-between gap-4 border-b border-white/10 pb-5 md:mb-8">
           <div className="space-y-2">
             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-300">

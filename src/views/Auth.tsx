@@ -10,6 +10,8 @@ import { AuthLayout } from "../components/auth/AuthLayout";
 import { ConsentModal } from "../components/auth/ConsentModal";
 import { AuthFormFields } from "../components/auth/AuthFormFields";
 import { AuthProviderButtons } from "../components/auth/AuthProviderButtons";
+import { AdminSessionNotice } from "../components/auth/AdminSessionNotice";
+import { AuthModeSwitch } from "../components/auth/AuthModeSwitch";
 import { oauthHelper } from "../utils/oauth";
 import { toErrorMessage } from "../api/http";
 import type { OAuthProvider } from "../api/auth";
@@ -20,7 +22,7 @@ type LocationState = {
 };
 
 export const AuthPage: FC = () => {
-  const { user, isAuthenticated, isReady, loginWithOAuth } = useAuth();
+  const { user, isAuthenticated, isReady, loginWithOAuth, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const form = useAuthForm();
@@ -89,6 +91,26 @@ export const AuthPage: FC = () => {
     }
   };
 
+  const handleAdminLogout = async () => {
+    try {
+      await logout();
+      form.setError(null);
+    } catch (err: unknown) {
+      form.setError(toErrorMessage(err, "Impossible de fermer cette session."));
+    }
+  };
+
+  if (user?.role === "ADMIN") {
+    return (
+      <AuthLayout>
+        <AdminSessionNotice
+          error={form.error}
+          onLogout={() => void handleAdminLogout()}
+        />
+      </AuthLayout>
+    );
+  }
+
   return (
     <AuthLayout>
       <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-[0_24px_80px_-24px_rgba(68,43,27,0.22)]">
@@ -113,22 +135,7 @@ export const AuthPage: FC = () => {
             </div>
           )}
 
-          <div className="flex rounded-xl bg-stone-100 p-1">
-            {(["login", "register"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => form.switchMode(m)}
-                className={`flex-1 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  form.mode === m
-                    ? "bg-white text-stone-900 shadow-sm"
-                    : "text-stone-500 hover:text-stone-800"
-                }`}
-              >
-                {m === "login" ? "Connexion" : "Inscription"}
-              </button>
-            ))}
-          </div>
+          <AuthModeSwitch mode={form.mode} onSwitch={form.switchMode} />
 
           <div className="space-y-3">
             {isLogin && <AuthFormFields form={form} />}

@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
 @theme {
-  --color-lurevia-cyan: #D97946;
-  --color-lurevia-blue-50: #FBF6F1;
-  --color-lurevia-blue-100: #F3E8DC;
-  --color-lurevia-blue-200: #E8D0B9;
-  --color-lurevia-blue-300: #D9B08E;
-  --color-lurevia-blue-400: #C98A61;
-  --color-lurevia-blue-500: #B86B43;
-  --color-lurevia-blue-600: #8F4B30;
-  --color-lurevia-blue-700: #60372A;
+  --color-lurevia-cyan: #0284C7;
+  --color-lurevia-blue-50: #F8FAFC;
+  --color-lurevia-blue-100: #EFF6FF;
+  --color-lurevia-blue-200: #DBEAFE;
+  --color-lurevia-blue-300: #BFDBFE;
+  --color-lurevia-blue-400: #60A5FA;
+  --color-lurevia-blue-500: #3B82F6;
+  --color-lurevia-blue-600: #2563EB;
+  --color-lurevia-blue-700: #1D4ED8;
+  --color-lurevia-dark: #10243E;
+  --color-lurevia-orange: #2563EB;
+  --color-lurevia-yellow: #0EA5E9;
 
-  --color-lurevia-dark: #29231F;
+  --color-orange-50: #EFF6FF;
+  --color-orange-100: #DBEAFE;
+  --color-orange-200: #BFDBFE;
+  --color-orange-300: #93C5FD;
+  --color-orange-400: #60A5FA;
+  --color-orange-500: #3B82F6;
+  --color-orange-600: #2563EB;
+  --color-orange-700: #1D4ED8;
+  --color-orange-800: #1E40AF;
+  --color-orange-900: #1E3A8A;
+  --color-orange-950: #172554;
 
-  --color-lurevia-orange: #CF642F;
-  --color-lurevia-yellow: #E8A34A;
+  --color-amber-50: #F0F9FF;
+  --color-amber-100: #E0F2FE;
+  --color-amber-200: #BAE6FD;
+  --color-amber-300: #7DD3FC;
+  --color-amber-400: #38BDF8;
+  --color-amber-500: #0EA5E9;
+  --color-amber-600: #0284C7;
+  --color-amber-700: #0369A1;
+  --color-amber-800: #075985;
+  --color-amber-900: #0C4A6E;
+  --color-amber-950: #082F49;
 
-  --shadow-glass-sm: 0 4px 24px -4px rgba(84, 51, 32, 0.1);
-  --shadow-glass-lg: 0 20px 60px -12px rgba(41, 35, 31, 0.24);
+  --shadow-glass-sm: 0 4px 24px -4px rgba(30, 64, 175, 0.08);
+  --shadow-glass-lg: 0 20px 60px -12px rgba(16, 36, 62, 0.18);
 
   --animate-micro-shake: micro-shake 3s ease-in-out infinite;
   --animate-marquee: marquee 20s linear infinite;
+}
+
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+@layer utilities {
+  [class*="rounded"] {
+    border-radius: 0 !important;
+  }
 }
 
 html,
@@ -42,12 +74,11 @@ body,
 }
 
 body {
-  background-color: #FBF8F5;
+  background-color: #F8FAFC;
   background-attachment: fixed;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Glass surfaces. */
 /* Surfaces flottantes sur fond clair. */
 .glass {
   background-color: rgba(255, 255, 255, 0.62);
@@ -68,7 +99,7 @@ body {
 
 /* Surfaces sombres pour le pied de page et les sections contrastées. */
 .glass-dark {
-  background-color: rgba(41, 35, 31, 0.55);
+  background-color: rgba(16, 36, 62, 0.55);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.08);

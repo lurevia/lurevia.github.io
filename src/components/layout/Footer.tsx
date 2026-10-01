@@ -60,7 +60,7 @@ export const Footer: FC = () => {
   }, []);
 
   return (
-    <footer className="mt-16 w-full shrink-0 border-t-4 border-orange-500 bg-stone-900 text-stone-100">
+    <footer className="mt-16 w-full shrink-0 border-t-4 border-blue-600 bg-slate-950 text-slate-100">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="text-left lg:col-span-1">
           <Link to="/" className="mb-4 flex items-center gap-3">

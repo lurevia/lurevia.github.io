@@ -39,7 +39,7 @@ export const CategorySection: FC = () => {
               variant="secondary"
               icon={ArrowRight}
               iconPosition="right"
-              className="px-6! py-3! rounded-full! font-bold text-xs shadow-none hover:shadow-xs"
+              className="px-6! py-3! font-bold text-xs shadow-none hover:shadow-xs"
             >
               Voir toutes les catégories
             </Button>

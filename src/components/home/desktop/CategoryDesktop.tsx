@@ -9,7 +9,7 @@ export const CategoryDesktop: FC = () => {
 
   return (
     <div className="hidden md:grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {categories.map((category, index) => (
+      {categories.slice(0, 5).map((category, index) => (
         <div
           key={category.id}
           className={index === 0 ? "h-96 lg:col-span-2 lg:row-span-2" : "h-44"}

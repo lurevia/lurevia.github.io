@@ -132,7 +132,7 @@ export const useCheckout = (): UseCheckoutReturn => {
       setSubmitError("Veuillez compléter les informations de paiement.");
       return;
     }
-    if (!user) {
+    if (!user || user.role === "ADMIN") {
       setSubmitError(
         "Votre session a expiré. Reconnectez-vous pour valider la commande.",
       );

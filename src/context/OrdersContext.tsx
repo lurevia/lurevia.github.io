@@ -22,7 +22,7 @@ export const OrdersProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async (): Promise<void> => {
-    if (!user) {
+    if (!user || user.role === "ADMIN") {
       setOrders([]);
       return;
     }

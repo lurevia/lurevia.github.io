@@ -15,12 +15,12 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
   const [byProduct, setByProduct] = useState<
     Record<string, ProductReviewsState>
   >({});
+  const isAuthenticated = user !== null && user.role !== "ADMIN";
   const { loadProduct, loadMyReviews, reload } = useReviewLoader(
     setByProduct,
-    user?.id,
+    isAuthenticated ? user?.id : undefined,
     isReady,
   );
-  const isAuthenticated = user !== null;
 
   const isProductLoading = useCallback(
     (productId: string): boolean => byProduct[productId]?.isLoading ?? false,

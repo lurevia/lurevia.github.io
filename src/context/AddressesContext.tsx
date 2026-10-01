@@ -25,7 +25,7 @@ export const AddressesProvider = ({ children }: { children: ReactNode }) => {
     [...list].sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
 
   const refresh = useCallback(async (): Promise<void> => {
-    if (!user) {
+    if (!user || user.role === "ADMIN") {
       setAddresses([]);
       return;
     }

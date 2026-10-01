@@ -128,11 +128,13 @@ export const ServiceFeedbackPage: FC = () => {
                 type="button"
                 onClick={() => setTab(t)}
                 disabled={t === "mine" && !isAuthenticated}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-40 ${
+                className={[
+                  "flex-1 py-2.5 text-xs font-bold uppercase tracking-wider",
+                  "transition-all disabled:opacity-40",
                   tab === t
                     ? "bg-white text-lurevia-dark shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
+                    : "text-slate-500 hover:text-slate-700",
+                ].join(" ")}
               >
                 {t === "all" ? "Tous les avis" : "Mes feedbacks"} ({count})
               </button>
@@ -149,7 +151,7 @@ export const ServiceFeedbackPage: FC = () => {
       ) : (
         <ServiceFeedbackList
           feedbacks={displayed}
-          currentUserId={user?.id}
+          currentUserId={isAuthenticated ? user?.id : undefined}
           onEdit={(fb: ServiceFeedback) => setEditing(fb)}
           onDelete={(fb: ServiceFeedback) => {
             if (window.confirm("Supprimer ce feedback ?")) void deleteFeedback(fb.id);

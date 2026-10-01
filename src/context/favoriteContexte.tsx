@@ -61,7 +61,7 @@ export const FavoriteProvider = ({ children }: { children: ReactNode }) => {
   const [favorites, setFavorites] = useState<Product[]>([]);
   const previousUserId = useRef<string | null>(null);
 
-  const isAuthenticated = user !== null;
+  const isAuthenticated = user !== null && user.role !== "ADMIN";
 
   useEffect(() => {
     if (!isReady) return;
@@ -70,9 +70,9 @@ export const FavoriteProvider = ({ children }: { children: ReactNode }) => {
 
     const sync = async () => {
       const previousId = previousUserId.current;
-      previousUserId.current = user?.id ?? null;
+      previousUserId.current = isAuthenticated && user ? user.id : null;
 
-      if (!user) {
+      if (!isAuthenticated || !user) {
         setFavorites(previousId ? [] : readGuestFavorites());
         return;
       }
@@ -105,7 +105,7 @@ export const FavoriteProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       cancelled = true;
     };
-  }, [user, isReady]);
+  }, [user, isAuthenticated, isReady]);
 
   useEffect(() => {
     if (isAuthenticated || !isReady) return;

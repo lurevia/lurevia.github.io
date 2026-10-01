@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isReady, setIsReady] = useState(false);
   const isMounted = useRef(true);
+  const isAdminSession = useRef(false);
 
   useEffect(() => {
     isMounted.current = true;
@@ -46,10 +47,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSessionHandlers({
       onRefreshed: (refreshedUser) => {
         if (!isMounted.current || !refreshedUser) return;
-        setUser(toUser(refreshedUser as UserDto));
+        const refreshedAccount = toUser(refreshedUser as UserDto);
+        isAdminSession.current = refreshedAccount.role === "ADMIN";
+        if (isAdminSession.current) tokenStore.clear();
+        setUser(refreshedAccount);
       },
       onExpired: () => {
         if (!isMounted.current) return;
+        isAdminSession.current = false;
         tokenStore.clear();
         setUser(null);
       },
@@ -75,6 +80,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // `onRefreshed` a déjà posé l'utilisateur ; on confirme auprès de
       // /auth/me pour disposer du profil à jour (avatar, rôle...).
       try {
+        if (isAdminSession.current) {
+          setIsReady(true);
+          return;
+        }
         const current = await authApi.me();
         if (!cancelled) setUser(current);
       } catch {
@@ -92,18 +101,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = useCallback(async (payload: LoginPayload): Promise<User> => {
     const loggedUser = await authApi.login(payload);
+    isAdminSession.current = loggedUser.role === "ADMIN";
+    if (isAdminSession.current) tokenStore.clear();
     setUser(loggedUser);
     return loggedUser;
   }, []);
 
   const register = useCallback(async (payload: RegisterPayload): Promise<User> => {
     const created = await authApi.register(payload);
+    isAdminSession.current = created.role === "ADMIN";
+    if (isAdminSession.current) tokenStore.clear();
     setUser(created);
     return created;
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
     await authApi.logout();
+    isAdminSession.current = false;
     setUser(null);
   }, []);
 
@@ -128,6 +142,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
       const current = await authApi.me();
+      isAdminSession.current = current.role === "ADMIN";
+      if (isAdminSession.current) tokenStore.clear();
       setUser(current);
     } catch (err) {
       console.error("Failed to refresh user:", err);
@@ -136,6 +152,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginWithOAuth = useCallback(async (token: string, provider: OAuthProvider) => {
     const result = await authApi.oauthCallback(token, provider);
+    isAdminSession.current = result.user.role === "ADMIN";
+    if (isAdminSession.current) tokenStore.clear();
     setUser(result.user);
     return result;
   }, []);
@@ -143,7 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = useMemo(
     () => ({
       user,
-      isAuthenticated: user !== null,
+      isAuthenticated: user !== null && user.role !== "ADMIN",
       isReady,
       login,
       register,

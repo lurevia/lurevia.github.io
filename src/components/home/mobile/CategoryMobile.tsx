@@ -56,7 +56,7 @@ export const CategoryMobile: FC = () => {
         className="w-full overflow-x-auto overflow-y-hidden scrollbar-none snap-x snap-mandatory scroll-smooth"
       >
         <div className="flex gap-2 pb-2 w-max px-1">
-          {categories.map((category) => {
+          {categories.slice(0, 5).map((category) => {
             const Icon = category.icon;
             const imageUrl = safeImageUrl(category.imageUrl);
 
@@ -70,7 +70,7 @@ export const CategoryMobile: FC = () => {
                   "active:ring-black/20",
                 ].join(" ")}
               >
-                <div className="absolute inset-0 bg-linear-to-br from-orange-200 via-orange-100 to-stone-200" />
+                <div className="absolute inset-0 bg-linear-to-br from-blue-200 via-blue-100 to-slate-200" />
                 {imageUrl && (
                   <img
                     src={imageUrl}

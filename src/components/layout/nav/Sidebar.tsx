@@ -28,7 +28,14 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({
       )}
 
       <div
-        className={`fixed top-16 md:top-20 left-0 w-[75%] min-w-70 max-w-xs h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-white/80 backdrop-blur-lg border-r border-slate-100 text-slate-800 shadow-2xl transition-transform duration-300 ease-in-out z-40 overflow-y-auto ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={[
+          "fixed left-0 top-16 z-40 h-[calc(100vh-64px)] w-[75%]",
+          "min-w-70 max-w-xs overflow-y-auto border-r border-slate-100",
+          "bg-white/80 text-slate-800 shadow-2xl backdrop-blur-lg",
+          "transition-transform duration-300 ease-in-out md:top-20",
+          "md:h-[calc(100vh-80px)]",
+          isMenuOpen ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
       >
         <div className="p-6">
           <div className="mb-6 px-2 flex flex-col items-center border-b border-slate-100 pb-4">
@@ -50,7 +57,12 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({
                   <li key={link.to} className="space-y-1">
                     <button
                       onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold tracking-wider uppercase text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark cursor-pointer transition-all"
+                      className={[
+                        "flex w-full cursor-pointer items-center justify-between",
+                        "px-4 py-3 text-xs font-bold uppercase tracking-wider",
+                        "text-slate-600 transition-all hover:bg-slate-50",
+                        "hover:text-lurevia-dark",
+                      ].join(" ")}
                     >
                       <div className="flex items-center gap-4">
                         <Icon
@@ -69,13 +81,22 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({
 
                     {isCategoriesOpen && (
                       <ul className="pl-8 space-y-1 animate-fadeIn">
+                        <li>
+                          <Link
+                            to="/categories"
+                            onClick={toggleMenu}
+                            className="block border-b border-blue-100 px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-blue-700"
+                          >
+                            Toutes les catégories
+                          </Link>
+                        </li>
                         {categories.map((cat) => (
                           <li key={cat.id}>
                             <Link
                               to={`/categories/${cat.slug}`}
                               onClick={toggleMenu}
                               className={`block px-4 py-2 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all ${
-                                location.pathname === `/categories/\${cat.slug}`
+                                location.pathname === `/categories/${cat.slug}`
                                   ? "text-lurevia-orange bg-orange-50/50"
                                   : "text-slate-500 hover:text-lurevia-dark hover:bg-slate-50"
                               }`}
@@ -95,11 +116,13 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({
                   <Link
                     to={link.to}
                     onClick={toggleMenu}
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 ${
+                    className={[
+                      "flex items-center gap-4 px-4 py-3 text-xs font-bold",
+                      "uppercase tracking-wider transition-all duration-200",
                       isActive
                         ? "bg-lurevia-orange text-white shadow-lg shadow-lurevia-orange/20"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark"
-                    }`}
+                        : "text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark",
+                    ].join(" ")}
                   >
                     {Icon && (
                       <Icon

@@ -43,11 +43,11 @@ export const CategoryCard: FC<CategoryCardProps> = ({
     <Link
       to={`/categories/${slug}`}
       className={[
-        "group relative block h-full w-full overflow-hidden rounded-md",
+        "group relative block h-full w-full overflow-hidden",
         "ring-1 ring-black/5 transition-all duration-500 hover:ring-black/20",
       ].join(" ")}
     >
-      <div className="absolute inset-0 bg-linear-to-br from-orange-200 via-orange-100 to-stone-200" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-200 via-blue-100 to-slate-200" />
       {safeImage && (
         <img
           src={safeImage}

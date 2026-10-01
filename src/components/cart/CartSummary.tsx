@@ -21,7 +21,7 @@ export const CartSummary: FC<CartSummaryProps> = ({ summary }) => {
   } = summary;
 
   const { user } = useAuth();
-  const isVerified = user?.isVerified ?? false;
+  const isVerified = user?.role !== "ADMIN" && user?.isVerified === true;
 
   const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
 

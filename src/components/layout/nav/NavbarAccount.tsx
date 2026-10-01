@@ -11,12 +11,17 @@ type NavbarAccountProps = {
 export const NavbarAccount: FC<NavbarAccountProps> = ({ className = "" }) => {
   const { user, isAuthenticated } = useAuth();
 
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !user || user.role === "ADMIN") {
     return (
       <Link
         to="/auth"
         aria-label="Se connecter"
-        className={`flex flex-col items-center justify-center gap-0.5 p-2 rounded-xl text-slate-600 hover:text-lurevia-dark hover:bg-slate-50 transition-colors ${className}`}
+        className={[
+          "flex flex-col items-center justify-center gap-0.5 p-2",
+          "text-slate-600 transition-colors hover:bg-slate-50",
+          "hover:text-lurevia-dark",
+          className,
+        ].join(" ")}
       >
         <User size={20} />
         {/* <span className="text-[10px] font-bold leading-none">Compte</span> */}
@@ -30,7 +35,11 @@ export const NavbarAccount: FC<NavbarAccountProps> = ({ className = "" }) => {
     <Link
       to="/compte"
       aria-label={`Mon compte : ${user.fullName}`}
-      className={`flex flex-col items-center justify-center gap-1 p-1 rounded-xl hover:bg-slate-50 transition-colors ${className}`}
+      className={[
+        "flex flex-col items-center justify-center gap-1 p-1",
+        "transition-colors hover:bg-slate-50",
+        className,
+      ].join(" ")}
     >
       <UserAvatar size={32} />
       <span className="text-[10px] font-bold text-slate-700 leading-none max-w-14 truncate">

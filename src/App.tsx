@@ -19,6 +19,11 @@ const ContactPage = lazy(() =>
 const ProductCatalog = lazy(() =>
   import("./views/Shop").then((module) => ({ default: module.ProductCatalog }))
 );
+const CategoriesPage = lazy(() =>
+  import("./views/CategoriesPage").then((module) => ({
+    default: module.CategoriesPage,
+  }))
+);
 const SearchPage = lazy(() =>
   import("./views/Search").then((module) => ({ default: module.SearchPage }))
 );
@@ -125,7 +130,7 @@ export default function App() {
               <Route path="cgv" element={<ContentPage slug="conditions-generales" />} />
               <Route path="confidentialite" element={<ContentPage slug="confidentialite" />} />
               <Route path="boutique" element={<ProductCatalog />} />
-              <Route path="categories" element={<ProductCatalog />} />
+              <Route path="categories" element={<CategoriesPage />} />
               <Route path="categories/:slug" element={<ProductCatalog />} />
               <Route path="search" element={<SearchPage />} />
               <Route path="vendeurs" element={<SellersPage />} />
@@ -137,7 +142,10 @@ export default function App() {
               <Route
                 path="checkout"
                 element={
-                  <ProtectedRoute reason="Connectez-vous pour finaliser votre commande.">
+                  <ProtectedRoute
+                    roles={["CUSTOMER", "SELLER"]}
+                    reason="Connectez-vous pour finaliser votre commande."
+                  >
                     <CheckoutPage />
                   </ProtectedRoute>
                 }
@@ -145,7 +153,10 @@ export default function App() {
               <Route
                 path="compte"
                 element={
-                  <ProtectedRoute reason="Connectez-vous pour accéder à votre espace.">
+                  <ProtectedRoute
+                    roles={["CUSTOMER", "SELLER"]}
+                    reason="Connectez-vous pour accéder à votre espace."
+                  >
                     <AccountLayout />
                   </ProtectedRoute>
                 }

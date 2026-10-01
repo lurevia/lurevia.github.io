@@ -37,7 +37,7 @@ export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
       setAllFeedbacks(publicList);
       setStats(publicStats);
 
-      if (user) {
+      if (user && user.role !== "ADMIN") {
         setMyFeedbacks(await feedbackApi.listMine());
       } else {
         setMyFeedbacks([]);

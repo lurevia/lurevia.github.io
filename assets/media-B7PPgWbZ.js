@@ -1,0 +1,2 @@
+import{t as e}from"./http-Ab6AhF_v.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
+//# sourceMappingURL=media-B7PPgWbZ.js.map

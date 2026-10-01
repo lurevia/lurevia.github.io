@@ -10,6 +10,12 @@ const Home = lazy(() => import("./views/Home").then((module) => ({ default: modu
 const ContentPage = lazy(() =>
   import("./views/ContentPage").then((module) => ({ default: module.ContentPage }))
 );
+const BlogPage = lazy(() =>
+  import("./views/BlogPage").then((module) => ({ default: module.BlogPage }))
+);
+const ContactPage = lazy(() =>
+  import("./views/ContactPage").then((module) => ({ default: module.ContactPage }))
+);
 const ProductCatalog = lazy(() =>
   import("./views/Shop").then((module) => ({ default: module.ProductCatalog }))
 );
@@ -107,6 +113,17 @@ export default function App() {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
               <Route path="pages/:slug" element={<ContentPage />} />
+              <Route path="blog" element={<BlogPage />} />
+              <Route path="a-propos" element={<ContentPage slug="a-propos" />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="faq" element={<ContentPage slug="faq" />} />
+              <Route path="livraison" element={<ContentPage slug="livraison" />} />
+              <Route path="retours" element={<ContentPage slug="retours" />} />
+              <Route path="paiement" element={<ContentPage slug="paiement" />} />
+              <Route path="politique-retour" element={<ContentPage slug="politique-retour" />} />
+              <Route path="mentions-legales" element={<ContentPage slug="mentions-legales" />} />
+              <Route path="cgv" element={<ContentPage slug="conditions-generales" />} />
+              <Route path="confidentialite" element={<ContentPage slug="confidentialite" />} />
               <Route path="boutique" element={<ProductCatalog />} />
               <Route path="categories" element={<ProductCatalog />} />
               <Route path="categories/:slug" element={<ProductCatalog />} />

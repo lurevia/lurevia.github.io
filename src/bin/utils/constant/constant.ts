@@ -1,4 +1,3 @@
-export { CATEGORIES } from "./categories";
 export { FEATURES } from "./features";
 export { FOOTER_LEGAL, FOOTER_NAVIGATION, FOOTER_SERVICES } from "./footer";
 export { NAV_LINKS } from "./navigation";

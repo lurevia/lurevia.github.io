@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import type { Category } from "../../bin/types/homeType";
-import { buildImageUrl } from "../../bin/utils/images";
+import { safeImageUrl } from "../../bin/utils/security";
 
 type CategoryCardProps = {
   category: Category;
@@ -16,6 +16,7 @@ export const CategoryCard: FC<CategoryCardProps> = ({
   size = "md",
 }) => {
   const { name, slug, imageUrl, icon: Icon } = category;
+  const safeImage = safeImageUrl(imageUrl);
 
   const config = {
     sm: {
@@ -41,14 +42,20 @@ export const CategoryCard: FC<CategoryCardProps> = ({
   return (
     <Link
       to={`/categories/${slug}`}
-      className="group relative block w-full h-full overflow-hidden rounded-md ring-1 ring-black/5 transition-all duration-500 hover:ring-black/20"
+      className={[
+        "group relative block h-full w-full overflow-hidden rounded-md",
+        "ring-1 ring-black/5 transition-all duration-500 hover:ring-black/20",
+      ].join(" ")}
     >
-      <img
-        src={buildImageUrl(imageUrl)}
-        alt={name}
-        loading="lazy"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-      />
+      <div className="absolute inset-0 bg-linear-to-br from-orange-200 via-orange-100 to-stone-200" />
+      {safeImage && (
+        <img
+          src={safeImage}
+          alt={name}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+      )}
 
       <div
         className={`absolute inset-0 transition-opacity duration-500 ${
@@ -66,7 +73,12 @@ export const CategoryCard: FC<CategoryCardProps> = ({
         <div className="flex items-start justify-between">
           {Icon ? (
             <div
-              className={`${config.iconBox} flex items-center justify-center rounded-full backdrop-blur-md bg-white/15 border border-white/25 transition-all duration-300 group-hover:bg-white/25 group-hover:scale-110`}
+              className={[
+                config.iconBox,
+                "flex items-center justify-center rounded-full border",
+                "border-white/25 bg-white/15 backdrop-blur-md transition-all",
+                "duration-300 group-hover:scale-110 group-hover:bg-white/25",
+              ].join(" ")}
             >
               <Icon
                 size={config.iconSize}

@@ -3,7 +3,13 @@ import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCategories } from "../../../hooks/useCategories";
-import { buildImageUrl } from "../../../bin/utils/images";
+import { safeImageUrl } from "../../../bin/utils/security";
+
+const carouselButtonClass = [
+  "flex h-8 w-8 items-center justify-center rounded-full border",
+  "border-stone-200 bg-white text-stone-600 shadow-xs transition-all",
+  "active:scale-90 active:bg-stone-100",
+].join(" ");
 
 export const CategoryMobile: FC = () => {
   const { categories } = useCategories();
@@ -24,23 +30,13 @@ export const CategoryMobile: FC = () => {
 
   return (
     <div className="block md:hidden w-full">
-      {/* ─── En-tête : titre + flèches ─── */}
-      <div className="flex items-center justify-between mb-4 px-1">
-        <div>
-          <h2 className="text-lg font-black tracking-tight text-lurevia-dark uppercase">
-            Catégories
-          </h2>
-          <p className="text-[11px] font-medium text-slate-500 mt-0.5">
-            Explorez nos univers
-          </p>
-        </div>
-
+      <div className="mb-4 flex items-center justify-end px-1">
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => scroll("left")}
             aria-label="Catégorie précédente"
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-600 active:scale-90 active:bg-slate-100 transition-all shadow-xs"
+            className={carouselButtonClass}
           >
             <ChevronLeft size={16} strokeWidth={2.5} />
           </button>
@@ -48,7 +44,7 @@ export const CategoryMobile: FC = () => {
             type="button"
             onClick={() => scroll("right")}
             aria-label="Catégorie suivante"
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-600 active:scale-90 active:bg-slate-100 transition-all shadow-xs"
+            className={carouselButtonClass}
           >
             <ChevronRight size={16} strokeWidth={2.5} />
           </button>
@@ -62,20 +58,27 @@ export const CategoryMobile: FC = () => {
         <div className="flex gap-2 pb-2 w-max px-1">
           {categories.map((category) => {
             const Icon = category.icon;
+            const imageUrl = safeImageUrl(category.imageUrl);
 
             return (
               <Link
                 key={category.id}
                 to={`/categories/${category.slug || category.id}`}
-                className="group relative snap-start shrink-0 w-40 h-52 overflow-hidden rounded-md ring-1 ring-black/5 active:ring-black/20 transition-all"
+                className={[
+                  "group relative h-52 w-40 shrink-0 snap-start overflow-hidden",
+                  "rounded-md ring-1 ring-black/5 transition-all",
+                  "active:ring-black/20",
+                ].join(" ")}
               >
-                <img
-                  src={buildImageUrl(category.imageUrl)}
-                  alt={category.name}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-active:scale-105"
-                />
-
+                <div className="absolute inset-0 bg-linear-to-br from-orange-200 via-orange-100 to-stone-200" />
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt={category.name}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-active:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
 
                 <div className="absolute inset-0 bg-lurevia-dark/0 group-active:bg-lurevia-dark/25 transition-colors duration-300" />
@@ -83,7 +86,13 @@ export const CategoryMobile: FC = () => {
                 <div className="relative z-10 h-full flex flex-col justify-between p-4">
                   <div className="flex items-start justify-between">
                     {Icon ? (
-                      <div className="w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md bg-white/15 border border-white/25 transition-transform group-active:scale-110">
+                      <div
+                        className={[
+                          "flex h-9 w-9 items-center justify-center rounded-full",
+                          "border border-white/25 bg-white/15 backdrop-blur-md",
+                          "transition-transform group-active:scale-110",
+                        ].join(" ")}
+                      >
                         <Icon
                           size={16}
                           className="text-white"

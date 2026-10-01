@@ -15,7 +15,7 @@ export const FOOTER_SERVICES: FooterLink[] = [
   { label: "Livraison", to: "/livraison" },
   { label: "Retours", to: "/retours" },
   { label: "Paiement", to: "/paiement" },
-  { label: "Suivi de commande", to: "/suivi" },
+  { label: "Suivi de commande", to: "/compte/commandes" },
   { label: "Donnez votre avis", to: "/feedback" },
 ];
 

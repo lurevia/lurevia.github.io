@@ -91,15 +91,15 @@ export const AuthPage: FC = () => {
 
   return (
     <AuthLayout>
-      <div className="bg-white border border-slate-200/70 rounded-2xl shadow-xl shadow-slate-900/5 overflow-hidden">
-        <div className="h-1 bg-linear-to-r from-lurevia-dark via-lurevia-blue-500 to-lurevia-cyan" />
+      <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-[0_24px_80px_-24px_rgba(68,43,27,0.22)]">
+        <div className="h-1.5 bg-linear-to-r from-orange-700 via-orange-500 to-amber-300" />
 
-        <div className="p-6 md:p-7 space-y-5">
+        <div className="space-y-5 p-6 md:p-8">
           <div className="space-y-1 text-center">
-            <h2 className="text-2xl font-black text-lurevia-dark">
+            <h2 className="text-2xl font-black text-stone-900">
               {isLogin ? "Bon retour" : "Créer un compte"}
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-stone-500">
               {isLogin
                 ? "Connectez-vous pour continuer."
                 : "Créez votre compte avec Facebook ou Google."}
@@ -107,13 +107,13 @@ export const AuthPage: FC = () => {
           </div>
 
           {reason && (
-            <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2">
-              <Info size={14} className="text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-xs font-medium text-amber-800">{reason}</p>
+            <div className="flex items-start gap-2 rounded-xl border border-orange-200 bg-orange-50 p-3">
+              <Info size={14} className="mt-0.5 shrink-0 text-orange-700" />
+              <p className="text-xs font-medium text-orange-950">{reason}</p>
             </div>
           )}
 
-          <div className="bg-slate-100 rounded-xl p-1 flex">
+          <div className="flex rounded-xl bg-stone-100 p-1">
             {(["login", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -121,8 +121,8 @@ export const AuthPage: FC = () => {
                 onClick={() => form.switchMode(m)}
                 className={`flex-1 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   form.mode === m
-                    ? "bg-white text-lurevia-dark shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-stone-900 shadow-sm"
+                    : "text-stone-500 hover:text-stone-800"
                 }`}
               >
                 {m === "login" ? "Connexion" : "Inscription"}
@@ -134,8 +134,8 @@ export const AuthPage: FC = () => {
             {isLogin && <AuthFormFields form={form} />}
 
             {form.error && (
-              <div className="p-2.5 bg-red-50 border border-red-100 rounded-lg">
-                <p className="text-[11px] font-medium text-red-600">
+              <div className="rounded-lg border border-red-100 bg-red-50 p-2.5">
+                <p className="text-[11px] font-medium text-red-700">
                   {form.error}
                 </p>
               </div>
@@ -175,8 +175,8 @@ export const AuthPage: FC = () => {
       </div>
 
       <p className="text-center text-[10px] text-slate-400 flex items-center justify-center gap-1.5 mt-4">
-        <ShieldCheck size={12} />
-        Vos données sont chiffrées et sécurisées.
+        <ShieldCheck size={12} className="text-lurevia-orange" />
+        Vos données sont protégées et sécurisées.
       </p>
 
       <ConsentModal

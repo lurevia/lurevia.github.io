@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-lurevia-cyan: #2F7BF6;
-  --color-lurevia-blue-50: #EFF5FF;
-  --color-lurevia-blue-100: #DCE9FF;
-  --color-lurevia-blue-200: #B7D3FF;
-  --color-lurevia-blue-300: #8AB4FF;
-  --color-lurevia-blue-400: #5A93F9;
-  --color-lurevia-blue-500: #2F7BF6;
-  --color-lurevia-blue-600: #1C5FE0;
-  --color-lurevia-blue-700: #1749B0;
+  --color-lurevia-cyan: #D97946;
+  --color-lurevia-blue-50: #FBF6F1;
+  --color-lurevia-blue-100: #F3E8DC;
+  --color-lurevia-blue-200: #E8D0B9;
+  --color-lurevia-blue-300: #D9B08E;
+  --color-lurevia-blue-400: #C98A61;
+  --color-lurevia-blue-500: #B86B43;
+  --color-lurevia-blue-600: #8F4B30;
+  --color-lurevia-blue-700: #60372A;
 
-  --color-lurevia-dark: #0A1B3D;
+  --color-lurevia-dark: #29231F;
 
-  --color-lurevia-orange: #E8703A;
-  --color-lurevia-yellow: #F2B33D;
+  --color-lurevia-orange: #CF642F;
+  --color-lurevia-yellow: #E8A34A;
 
-  --shadow-glass-sm: 0 4px 24px -4px rgba(20, 60, 140, 0.12);
-  --shadow-glass-lg: 0 20px 60px -12px rgba(10, 27, 61, 0.35);
+  --shadow-glass-sm: 0 4px 24px -4px rgba(84, 51, 32, 0.1);
+  --shadow-glass-lg: 0 20px 60px -12px rgba(41, 35, 31, 0.24);
 
   --animate-micro-shake: micro-shake 3s ease-in-out infinite;
   --animate-marquee: marquee 20s linear infinite;
@@ -42,18 +42,13 @@ body,
 }
 
 body {
-  /* background-color: #EFF5FF; */
-  /* background-image:
-    radial-gradient(48rem 30rem at 8% -10%, rgba(47, 123, 246, 0.22), transparent 60%),
-    radial-gradient(40rem 26rem at 108% 10%, rgba(90, 147, 249, 0.18), transparent 55%),
-    radial-gradient(50rem 34rem at 50% 120%, rgba(10, 27, 61, 0.10), transparent 60%),
-    linear-gradient(180deg, #F3F8FF 0%, #EAF2FF 100%); */
+  background-color: #FBF8F5;
   background-attachment: fixed;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ── Système Glassmorphism Lurevia ────────────────────────────────── */
-/* Verre standard : surfaces flottantes (cartes, panneaux) sur fond bleu */
+/* Glass surfaces. */
+/* Surfaces flottantes sur fond clair. */
 .glass {
   background-color: rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(18px) saturate(160%);
@@ -71,9 +66,9 @@ body {
   box-shadow: var(--shadow-glass-sm);
 }
 
-/* Verre sombre : surfaces sur fond bleu nuit (footer, sections contrastées) */
+/* Surfaces sombres pour le pied de page et les sections contrastées. */
 .glass-dark {
-  background-color: rgba(10, 27, 61, 0.55);
+  background-color: rgba(41, 35, 31, 0.55);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.08);

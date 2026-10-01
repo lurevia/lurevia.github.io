@@ -16,6 +16,8 @@ export type PublicPlatformSettings = {
   privacyPolicy: string;
   termsOfService: string;
   cookieMessage: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
 };
 
 export const settingsApi = {

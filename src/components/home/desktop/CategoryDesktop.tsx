@@ -5,31 +5,22 @@ import { useCategories } from "../../../hooks/useCategories";
 export const CategoryDesktop: FC = () => {
   const { categories } = useCategories();
 
-  const [featured, ...others] = categories;
-
-  if (!featured || others.length < 4) return null;
-
-  const [topLeft, topRight, bottomLeft, bottomRight] = others;
+  if (categories.length === 0) return null;
 
   return (
-    <div className="hidden md:grid grid-cols-12 grid-rows-2 gap-2 h-130">
-      <div className="col-span-5 row-span-2">
-        <CategoryCard category={featured} isFeatured size="lg" />
-      </div>
-
-      <div className="col-span-4 row-span-1">
-        <CategoryCard category={topLeft} size="md" />
-      </div>
-      <div className="col-span-3 row-span-1">
-        <CategoryCard category={topRight} size="sm" />
-      </div>
-
-      <div className="col-span-3 row-span-1">
-        <CategoryCard category={bottomLeft} size="sm" />
-      </div>
-      <div className="col-span-4 row-span-1">
-        <CategoryCard category={bottomRight} size="md" />
-      </div>
+    <div className="hidden md:grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {categories.map((category, index) => (
+        <div
+          key={category.id}
+          className={index === 0 ? "h-96 lg:col-span-2 lg:row-span-2" : "h-44"}
+        >
+          <CategoryCard
+            category={category}
+            isFeatured={index === 0}
+            size={index === 0 ? "lg" : "md"}
+          />
+        </div>
+      ))}
     </div>
   );
 };

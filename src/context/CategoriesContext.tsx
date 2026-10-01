@@ -13,8 +13,6 @@ import { CategoriesContext } from "./categoriesContextDefinition";
 import { categoriesApi } from "../api/categories";
 import { toErrorMessage } from "../api/http";
 import { safeImageUrl } from "../bin/utils/security";
-import { FALLBACK_IMAGE } from "../bin/utils/constant/assets";
-import { CATEGORIES as FALLBACK_CATEGORIES } from "../bin/utils/constant/constant";
 import type { Category } from "../bin/types/homeType";
 
 /**
@@ -49,15 +47,13 @@ export const CategoriesProvider = ({ children }: { children: ReactNode }) => {
           name: dto.name,
           slug: dto.slug,
           description: dto.description,
-          imageUrl: safeImageUrl(dto.imageUrl) ?? FALLBACK_IMAGE,
-          bannerUrl: safeImageUrl(dto.bannerUrl) ?? FALLBACK_IMAGE,
+          imageUrl: safeImageUrl(dto.imageUrl) ?? "",
+          bannerUrl: safeImageUrl(dto.bannerUrl) ?? "",
           icon: ICONS[dto.iconName] ?? ShoppingBag,
         }))
       );
     } catch (err) {
-      // Repli sur le référentiel statique : la navigation reste utilisable
-      // même si l'API de catalogue est momentanément indisponible.
-      setCategories(FALLBACK_CATEGORIES);
+      setCategories([]);
       setError(toErrorMessage(err, "Catégories indisponibles."));
     } finally {
       setIsLoading(false);

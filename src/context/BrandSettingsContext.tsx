@@ -6,9 +6,9 @@ const DEFAULTS: PublicPlatformSettings = {
   siteTagline: "Artisanat malgache authentique",
   logoUrl: null,
   faviconUrl: null,
-  primaryColor: "#2F7BF6",
-  secondaryColor: "#0A1B3D",
-  accentColor: "#E8703A",
+  primaryColor: "#CF642F",
+  secondaryColor: "#29231F",
+  accentColor: "#D97946",
   defaultCurrency: "MGA",
   freeShippingThreshold: 250000,
   defaultShippingCost: 8000,
@@ -17,6 +17,8 @@ const DEFAULTS: PublicPlatformSettings = {
   privacyPolicy: "",
   termsOfService: "",
   cookieMessage: "",
+  contactEmail: null,
+  contactPhone: null,
 };
 
 const BrandSettingsContext = createContext(DEFAULTS);
@@ -33,12 +35,6 @@ export const BrandSettingsProvider = ({ children }: { children: ReactNode }) => 
   }, []);
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty("--color-lurevia-cyan", settings.primaryColor);
-    root.style.setProperty("--color-lurevia-blue-500", settings.primaryColor);
-    root.style.setProperty("--color-lurevia-blue-600", settings.primaryColor);
-    root.style.setProperty("--color-lurevia-dark", settings.secondaryColor);
-    root.style.setProperty("--color-lurevia-orange", settings.accentColor);
     document.title = settings.siteName || "Lurevia";
   }, [settings]);
 

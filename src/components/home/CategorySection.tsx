@@ -4,16 +4,27 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
 import { CategoryDesktop } from "./desktop/CategoryDesktop";
 import { CategoryMobile } from "./mobile/CategoryMobile";
+import { useCategories } from "../../hooks/useCategories";
 
 export const CategorySection: FC = () => {
+  const { categories, isLoading, error } = useCategories();
+
+  if (isLoading || categories.length === 0) {
+    return error ? (
+      <section className="mx-auto max-w-7xl px-4 py-8" role="alert">
+        <p className="text-sm text-stone-600">{error}</p>
+      </section>
+    ) : null;
+  }
+
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12">
-      <div className="flex items-end justify-between mb-6 md:mb-8 pb-3 border-b border-slate-100">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-12">
+      <div className="mb-6 flex items-end justify-between border-b border-stone-200 pb-3 md:mb-8">
         <div className="space-y-0.5">
           <h2 className="text-lg md:text-2xl font-black tracking-tight text-lurevia-dark uppercase">
             Catégories
           </h2>
-          <p className="text-xs font-medium text-slate-500 tracking-wide hidden md:block">
+          <p className="hidden text-xs font-medium tracking-wide text-stone-500 md:block">
             Découvrez nos univers, pensés pour tous les goûts à Madagascar.
           </p>
         </div>

@@ -1,0 +1,2 @@
+import{t as e}from"./http-DKOKbdEN.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
+//# sourceMappingURL=media-CLbdf2tV.js.map

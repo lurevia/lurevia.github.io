@@ -1,0 +1,2 @@
+var e=[{test:e=>e.length>=8,message:`au moins 8 caractères`},{test:e=>/[a-z]/.test(e),message:`une minuscule`},{test:e=>/[A-Z]/.test(e),message:`une majuscule`},{test:e=>/[0-9]/.test(e),message:`un chiffre`}],t=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),n=e=>/^(\+261|0)[0-9]{9}$/.test(e.replace(/\s/g,``)),r=t=>{let n=e.filter(e=>!e.test(t));return n.length===0?null:`Le mot de passe doit contenir ${n.map(e=>e.message).join(`, `)}.`};export{n,r,t};
+//# sourceMappingURL=authValidation-DgG6H6i0.js.map

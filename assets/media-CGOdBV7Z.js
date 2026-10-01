@@ -1,2 +1,0 @@
-import{$ as e}from"./index-DkAlv22A.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
-//# sourceMappingURL=media-CGOdBV7Z.js.map

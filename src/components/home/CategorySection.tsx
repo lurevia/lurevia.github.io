@@ -11,7 +11,7 @@ export const CategorySection: FC = () => {
       <div className="flex items-end justify-between mb-6 md:mb-8 pb-3 border-b border-slate-100">
         <div className="space-y-0.5">
           <h2 className="text-lg md:text-2xl font-black tracking-tight text-lurevia-dark uppercase">
-            Categories
+            Catégories
           </h2>
           <p className="text-xs font-medium text-slate-500 tracking-wide hidden md:block">
             Découvrez nos univers, pensés pour tous les goûts à Madagascar.
@@ -20,7 +20,7 @@ export const CategorySection: FC = () => {
 
         <Link to="/categories" className="shrink-0 select-none">
           <span className="md:hidden text-xs font-bold text-lurevia-dark hover:text-lurevia-orange transition-colors">
-            View all
+            Voir tout
           </span>
 
           <div className="hidden md:block">

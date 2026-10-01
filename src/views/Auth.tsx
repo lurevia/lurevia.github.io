@@ -9,9 +9,10 @@ import { Button } from "../components/ui/Button";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { ConsentModal } from "../components/auth/ConsentModal";
 import { AuthFormFields } from "../components/auth/AuthFormFields";
+import { AuthProviderButtons } from "../components/auth/AuthProviderButtons";
 import { oauthHelper } from "../utils/oauth";
-import { FacebookIcon } from "../components/icons/SocialIcons";
 import { toErrorMessage } from "../api/http";
+import type { OAuthProvider } from "../api/auth";
 
 type LocationState = {
   from?: string;
@@ -24,6 +25,10 @@ export const AuthPage: FC = () => {
   const navigate = useNavigate();
   const form = useAuthForm();
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
+  const [isSocialSubmitting, setIsSocialSubmitting] = useState(false);
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(
+    null
+  );
 
   const state = location.state as LocationState | null;
   const from =
@@ -48,10 +53,11 @@ export const AuthPage: FC = () => {
 
   const isLogin = form.mode === "login";
 
-  const handleSocialLogin = async () => {
+  const handleSocialLogin = async (provider: OAuthProvider) => {
+    setIsSocialSubmitting(true);
     try {
-      const token = await oauthHelper.triggerLogin();
-      const result = await loginWithOAuth(token);
+      const token = await oauthHelper.triggerLogin(provider);
+      const result = await loginWithOAuth(token, provider);
       if (result.needsProfileCompletion) {
         navigate("/compte/complete-oauth", { replace: true });
       } else if (!result.user.isVerified) {
@@ -60,9 +66,26 @@ export const AuthPage: FC = () => {
         navigate(from, { replace: true });
       }
     } catch (err: unknown) {
+      const providerName = provider === "GOOGLE" ? "Google" : "Facebook";
       form.setError(
-        toErrorMessage(err, "Erreur lors de la connexion Facebook."),
+        toErrorMessage(err, `Erreur lors de la connexion ${providerName}.`)
       );
+    } finally {
+      setIsSocialSubmitting(false);
+    }
+  };
+
+  const requestSocialSignup = (provider: OAuthProvider) => {
+    form.setError(null);
+    setPendingProvider(provider);
+    setIsConsentModalOpen(true);
+  };
+
+  const acceptConsent = () => {
+    setIsConsentModalOpen(false);
+    if (pendingProvider) {
+      void handleSocialLogin(pendingProvider);
+      setPendingProvider(null);
     }
   };
 
@@ -79,7 +102,7 @@ export const AuthPage: FC = () => {
             <p className="text-xs text-slate-500">
               {isLogin
                 ? "Connectez-vous pour continuer."
-                : "Quelques informations et c'est parti."}
+                : "Créez votre compte avec Facebook ou Google."}
             </p>
           </div>
 
@@ -108,11 +131,7 @@ export const AuthPage: FC = () => {
           </div>
 
           <div className="space-y-3">
-            <AuthFormFields
-              form={form}
-              isLogin={isLogin}
-              onOpenConsent={() => setIsConsentModalOpen(true)}
-            />
+            {isLogin && <AuthFormFields form={form} />}
 
             {form.error && (
               <div className="p-2.5 bg-red-50 border border-red-100 rounded-lg">
@@ -122,44 +141,24 @@ export const AuthPage: FC = () => {
               </div>
             )}
 
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() =>
-                void (isLogin ? form.handleLogin() : form.handleRegister())
-              }
-              disabled={form.isSubmitting}
-              className="w-full! py-3! rounded-xl! font-black text-sm"
-            >
-              {form.isSubmitting
-                ? "Chargement…"
-                : isLogin
-                  ? "Se connecter"
-                  : "Créer mon compte"}
-            </Button>
-
-            <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-400">
-                  Ou continuer avec
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              <button
+            {isLogin && (
+              <Button
                 type="button"
-                onClick={() => void handleSocialLogin()}
-                disabled={form.isSubmitting}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                variant="primary"
+                onClick={() => void form.handleLogin()}
+                disabled={form.isSubmitting || isSocialSubmitting}
+                className="w-full! py-3! rounded-xl! font-black text-sm"
               >
-                <FacebookIcon size={18} />
-                <span>Facebook</span>
-              </button>
-            </div>
+                {form.isSubmitting ? "Chargement…" : "Se connecter"}
+              </Button>
+            )}
+
+            <AuthProviderButtons
+              isLogin={isLogin}
+              disabled={form.isSubmitting || isSocialSubmitting}
+              onLogin={(provider) => void handleSocialLogin(provider)}
+              onSignup={requestSocialSignup}
+            />
 
             <p className="text-center text-[11px] text-slate-500">
               {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"}{" "}
@@ -182,11 +181,11 @@ export const AuthPage: FC = () => {
 
       <ConsentModal
         isOpen={isConsentModalOpen}
-        onClose={() => setIsConsentModalOpen(false)}
-        onAccept={() => {
-          form.setHasAcceptedTerms(true);
+        onClose={() => {
           setIsConsentModalOpen(false);
+          setPendingProvider(null);
         }}
+        onAccept={acceptConsent}
       />
     </AuthLayout>
   );

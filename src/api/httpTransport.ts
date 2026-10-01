@@ -62,7 +62,6 @@ export const rawRequest = async <T>(
 
   const headers: Record<string, string> = {
     Accept: "application/json",
-    "X-Requested-With": "XMLHttpRequest",
   };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 

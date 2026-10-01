@@ -34,7 +34,7 @@ export const HeroMobile: React.FC<HeroMobileProps> = ({
                 variant="primary"
                 className="bg-slate-950! border-slate-950! text-white! text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform"
               >
-                Shop Now
+                Voir la boutique
               </Button>
             </Link>
           </div>

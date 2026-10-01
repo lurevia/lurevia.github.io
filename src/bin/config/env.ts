@@ -27,6 +27,7 @@ export const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 export const FACEBOOK_APP_ID = readString(import.meta.env.VITE_FACEBOOK_APP_ID, "");
+export const GOOGLE_CLIENT_ID = readString(import.meta.env.VITE_GOOGLE_CLIENT_ID, "");
 
 export const REQUEST_TIMEOUT_MS = readNumber(
   import.meta.env.VITE_API_TIMEOUT_MS,

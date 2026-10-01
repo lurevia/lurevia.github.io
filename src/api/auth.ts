@@ -3,6 +3,8 @@ import { toUser } from "./mappers";
 import type { AuthSessionDto, UserDto } from "./dto";
 import type { LoginPayload, RegisterPayload, User } from "../bin/types/authType";
 
+export type OAuthProvider = "FACEBOOK" | "GOOGLE";
+
 export const authApi = {
   async register(payload: RegisterPayload): Promise<User> {
     const data = await api.post<AuthSessionDto>(
@@ -47,10 +49,13 @@ export const authApi = {
     return toUser(data.user);
   },
 
-  async oauthCallback(token: string): Promise<{ user: User; needsProfileCompletion: boolean }> {
+  async oauthCallback(
+    token: string,
+    provider: OAuthProvider
+  ): Promise<{ user: User; needsProfileCompletion: boolean }> {
     const data = await api.post<AuthSessionDto>(
       "/auth/oauth/callback",
-      { provider: "FACEBOOK", token },
+      { provider, token },
       { auth: false }
     );
 

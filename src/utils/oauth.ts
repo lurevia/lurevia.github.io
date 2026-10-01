@@ -1,12 +1,23 @@
-import { FACEBOOK_APP_ID } from "../bin/config/env";
+import {
+  FACEBOOK_APP_ID,
+  GOOGLE_CLIENT_ID,
+} from "../bin/config/env";
 
 const OAUTH_STATE_KEY = "lurevia.oauth.state";
+const GOOGLE_NONCE_KEY = "lurevia.google.nonce";
+
+type OAuthProvider = "FACEBOOK" | "GOOGLE";
 
 const getTokenFromCallback = (): { token: string; state: string | null } => {
   const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
   const query = new URLSearchParams(window.location.search);
   return {
-    token: hash.get("id_token") ?? hash.get("access_token") ?? query.get("id_token") ?? query.get("access_token") ?? "",
+    token:
+      hash.get("id_token") ??
+      hash.get("access_token") ??
+      query.get("id_token") ??
+      query.get("access_token") ??
+      "",
     state: hash.get("state") ?? query.get("state"),
   };
 };
@@ -14,33 +25,86 @@ const getTokenFromCallback = (): { token: string; state: string | null } => {
 export const completeOAuthCallback = (): void => {
   const { token, state } = getTokenFromCallback();
   const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY);
-  if (!token || !expectedState || state !== expectedState) {
+  const googleNonce = sessionStorage.getItem(GOOGLE_NONCE_KEY);
+  const nonce = getIdTokenNonce(token);
+  const validState = state === expectedState;
+  const validNonce = googleNonce !== null && nonce === googleNonce;
+  if (
+    !token ||
+    !expectedState ||
+    !validState ||
+    (googleNonce !== null && !validNonce)
+  ) {
     window.opener?.postMessage({ type: "OAUTH_ERROR", message: "Réponse OAuth invalide." }, window.location.origin);
     return;
   }
   sessionStorage.removeItem(OAUTH_STATE_KEY);
+  sessionStorage.removeItem(GOOGLE_NONCE_KEY);
   window.opener?.postMessage({ type: "OAUTH_TOKEN", token }, window.location.origin);
 };
 
+const getIdTokenNonce = (token: string): string | null => {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="))) as {
+      nonce?: unknown;
+    };
+    return typeof decoded.nonce === "string" ? decoded.nonce : null;
+  } catch {
+    return null;
+  }
+};
+
 export const oauthHelper = {
-  async triggerLogin(): Promise<string> {
+  async triggerLogin(provider: OAuthProvider): Promise<string> {
     return new Promise((resolve, reject) => {
-      const clientId = FACEBOOK_APP_ID;
+      const clientId =
+        provider === "FACEBOOK" ? FACEBOOK_APP_ID : GOOGLE_CLIENT_ID;
       if (!clientId) {
-        reject(new Error("La connexion Facebook n'est pas configurée."));
+        reject(
+          new Error(
+            provider === "FACEBOOK"
+              ? "La connexion Facebook n'est pas configurée."
+              : "La connexion Google n'est pas configurée."
+          )
+        );
         return;
       }
       const state = crypto.randomUUID();
       sessionStorage.setItem(OAUTH_STATE_KEY, state);
       const redirectUri = `${window.location.origin}/auth/callback`;
-      const params = new URLSearchParams({
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        state,
-        response_type: "token",
-        scope: "email,public_profile",
-      });
-      const url = `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`;
+      const nonce = crypto.randomUUID();
+      if (provider === "GOOGLE") {
+        sessionStorage.setItem(GOOGLE_NONCE_KEY, nonce);
+      } else {
+        sessionStorage.removeItem(GOOGLE_NONCE_KEY);
+      }
+      const params = new URLSearchParams(
+        provider === "FACEBOOK"
+          ? {
+              client_id: clientId,
+              redirect_uri: redirectUri,
+              state,
+              response_type: "token",
+              scope: "email,public_profile",
+            }
+          : {
+              client_id: clientId,
+              redirect_uri: redirectUri,
+              state,
+              nonce,
+              response_type: "id_token",
+              scope: "openid email profile",
+              prompt: "select_account",
+            }
+      );
+      const providerUrl =
+        provider === "FACEBOOK"
+          ? "https://www.facebook.com/v18.0/dialog/oauth"
+          : "https://accounts.google.com/o/oauth2/v2/auth";
+      const url = `${providerUrl}?${params.toString()}`;
       const popup = window.open(url, "oauth-login", "width=500,height=600");
 
       if (!popup) {

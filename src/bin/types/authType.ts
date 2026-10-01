@@ -59,5 +59,8 @@ export interface AuthContextType {
   completeOAuthProfile: (data: CompleteOAuthProfilePayload) => Promise<void>;
   changePassword: (payload: ChangePasswordPayload) => Promise<void>;
   refreshUser: () => Promise<void>;
-  loginWithOAuth: (token: string) => Promise<{ user: User; needsProfileCompletion: boolean }>;
+  loginWithOAuth: (
+    token: string,
+    provider: "FACEBOOK" | "GOOGLE"
+  ) => Promise<{ user: User; needsProfileCompletion: boolean }>;
 }

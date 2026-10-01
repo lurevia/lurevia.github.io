@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { AuthContext } from "./authContextDefinition";
-import { authApi } from "../api/auth";
+import { authApi, type OAuthProvider } from "../api/auth";
 import { usersApi } from "../api/users";
 import { refreshSession, setSessionHandlers, tokenStore } from "../api/http";
 import { toUser } from "../api/mappers";
@@ -134,8 +134,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const loginWithOAuth = useCallback(async (token: string) => {
-    const result = await authApi.oauthCallback(token);
+  const loginWithOAuth = useCallback(async (token: string, provider: OAuthProvider) => {
+    const result = await authApi.oauthCallback(token, provider);
     setUser(result.user);
     return result;
   }, []);

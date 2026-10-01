@@ -1,35 +1,31 @@
 import { api } from "./http";
 
 export type VerificationStatus =
-  | "NONE"
+  | "NOT_SUBMITTED"
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "USED"
   | "EXPIRED";
 
 export interface VerificationStatusResponse {
+  isVerified: boolean;
   status: VerificationStatus;
-  requestedAt?: string;
-  expiresAt?: string;
+  pendingRequest: { id: string; submittedAt: string } | null;
+  latestRequest: {
+    status: VerificationStatus;
+    submittedAt: string;
+    rejectionReason: string | null;
+  } | null;
 }
 
-export interface RequestVerificationResponse {
-  alreadyPending: boolean;
-  requestId: string;
+export interface IdentityVerificationInput {
+  cinNumber: string;
 }
-
 
 export const verificationApi = {
-  async request(): Promise<RequestVerificationResponse> {
-    return api.post<RequestVerificationResponse>("/auth/verification/request");
-  },
+  status: () => api.get<VerificationStatusResponse>("/identity-verifications/status"),
 
-  async confirm(token: string): Promise<{ success: true }> {
-    return api.post<{ success: true }>("/auth/verification/confirm", { token });
-  },
-
-  async status(): Promise<VerificationStatusResponse> {
-    return api.get<VerificationStatusResponse>("/auth/verification/status");
+  submit: async (cinNumber: string): Promise<void> => {
+    await api.post("/identity-verifications", { cinNumber });
   },
 };

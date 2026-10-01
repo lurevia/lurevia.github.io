@@ -3,62 +3,48 @@ import { toErrorMessage } from "../api/http";
 import {
   verificationApi,
   type VerificationStatus,
+  type VerificationStatusResponse,
 } from "../api/verification";
 
 export const useVerification = () => {
-  const [status, setStatus] = useState<VerificationStatus>("NONE");
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<VerificationStatus>("NOT_SUBMITTED");
+  const [latestRequest, setLatestRequest] =
+    useState<VerificationStatusResponse["latestRequest"]>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    try {
-      const res = await verificationApi.status();
-      setStatus(res.status);
-    } catch {
-      setStatus("NONE");
-    }
-  }, []);
-
-  const request = useCallback(async () => {
-    setIsLoading(true);
     setError(null);
     try {
-      await verificationApi.request();
-      setStatus("PENDING");
+      const response = await verificationApi.status();
+      setStatus(response.status);
+      setLatestRequest(response.latestRequest);
     } catch (err) {
-      setError(toErrorMessage(err, "Impossible d'envoyer la demande."));
-      throw err;
+      setError(toErrorMessage(err, "Impossible de charger le statut de vérification."));
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const confirm = useCallback(async (token: string) => {
+  const submit = useCallback(async (cinNumber: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     try {
-      await verificationApi.confirm(token);
-      setStatus("USED");
+      await verificationApi.submit(cinNumber);
+      await refresh();
+      return true;
     } catch (err) {
-      setError(toErrorMessage(err, "Lien de vérification invalide ou expiré."));
-      throw err;
+      const message = toErrorMessage(err, "Impossible d'envoyer la demande.");
+      setError(message);
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [refresh]);
 
-  // Charge le statut au montage
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  return {
-    status,
-    isLoading,
-    error,
-    request,
-    confirm,
-    refresh,
-    setError,
-  };
+  return { status, latestRequest, isLoading, error, submit, refresh };
 };

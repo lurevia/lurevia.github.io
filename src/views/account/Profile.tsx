@@ -58,7 +58,7 @@ export const ProfilePage: FC = () => {
   if (!user) return null;
 
   const initials = initialsOf(user.fullName);
-  const isVerified = user.isVerified || verificationStatus === "APPROVED" || verificationStatus === "USED";
+  const isVerified = user.isVerified || verificationStatus === "APPROVED";
 
   const handleBecomeSeller = async (event: FormEvent) => {
     event.preventDefault();
@@ -197,7 +197,7 @@ export const ProfilePage: FC = () => {
         <div className="flex-1 min-w-0">
           <p className="text-xs font-black text-lurevia-dark">Vérification du compte</p>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            {user.isVerified || verificationStatus === "APPROVED" ? "Compte vérifié" : verificationStatus === "PENDING" ? "Demande en attente d’approbation" : "Renforcer la sécurité de votre compte"}
+            {user.isVerified || verificationStatus === "APPROVED" ? "Compte vérifié" : verificationStatus === "PENDING" ? "Demande CIN en attente d’examen manuel" : "Soumettre mon numéro CIN"}
           </p>
         </div>
         <ChevronRight size={16} className="text-slate-400 shrink-0" />

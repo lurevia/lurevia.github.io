@@ -14,6 +14,9 @@ const DEFAULTS: PublicPlatformSettings = {
   defaultShippingCost: 8000,
   maintenanceMode: false,
   maintenanceMessage: "",
+  privacyPolicy: "",
+  termsOfService: "",
+  cookieMessage: "",
 };
 
 const BrandSettingsContext = createContext(DEFAULTS);

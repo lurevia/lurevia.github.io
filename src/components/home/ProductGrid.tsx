@@ -38,15 +38,6 @@ export const ProductGrid: FC<ProductGridProps> = ({
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12">
       <div className="flex items-center justify-between mb-6 md:mb-8 pb-3 border-b border-slate-100 gap-4">
-        <div className="space-y-0.5 flex-1">
-          <h2 className="text-lg md:text-2xl font-black tracking-tight text-lurevia-dark uppercase">
-            Popular Products
-          </h2>
-          <p className="text-xs font-medium text-slate-500 tracking-wide hidden md:block">
-            Nos meilleures ventes, sélectionnées avec soin pour Madagascar.
-          </p>
-        </div>
-
         <div className="flex items-center gap-4 shrink-0 select-none">
           <Link to="/boutique" className="flex items-center">
             <span className="md:hidden text-xs font-bold text-lurevia-dark hover:text-lurevia-orange transition-colors">

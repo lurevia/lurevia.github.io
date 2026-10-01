@@ -13,8 +13,11 @@ export type PublicPlatformSettings = {
   defaultShippingCost: number;
   maintenanceMode: boolean;
   maintenanceMessage: string;
+  privacyPolicy: string;
+  termsOfService: string;
+  cookieMessage: string;
 };
 
 export const settingsApi = {
-  getPublic: () => api.get<PublicPlatformSettings>("/public/settings", { auth: false }),
+  getPublic: () => api.get<PublicPlatformSettings>("/settings/public", { auth: false }),
 };

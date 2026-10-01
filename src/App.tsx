@@ -7,6 +7,9 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { MainLayout } from "./components/layout/MainLayout";
 
 const Home = lazy(() => import("./views/Home").then((module) => ({ default: module.Home })));
+const ContentPage = lazy(() =>
+  import("./views/ContentPage").then((module) => ({ default: module.ContentPage }))
+);
 const ProductCatalog = lazy(() =>
   import("./views/Shop").then((module) => ({ default: module.ProductCatalog }))
 );
@@ -103,6 +106,7 @@ export default function App() {
 
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
+              <Route path="pages/:slug" element={<ContentPage />} />
               <Route path="boutique" element={<ProductCatalog />} />
               <Route path="categories" element={<ProductCatalog />} />
               <Route path="categories/:slug" element={<ProductCatalog />} />

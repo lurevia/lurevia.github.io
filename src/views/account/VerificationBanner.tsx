@@ -8,7 +8,8 @@ import { useVerification } from "../../hooks/useVerification";
 
 export const VerificationBanner: FC = () => {
   const { user, refreshUser } = useAuth();
-  const { status, latestRequest, isLoading, error, refresh } = useVerification();
+  const { status, latestRequest, isLoading, error, refresh } =
+    useVerification();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
@@ -31,11 +32,14 @@ export const VerificationBanner: FC = () => {
   if (!user || user.isVerified || dismissed) return null;
 
   const isPending = status === "PENDING";
-  const title = isPending ? "Vérification en attente" : "Vérifiez votre identité";
+  const title = isPending
+    ? "Vérification en attente"
+    : "Vérifiez votre identité";
   const message = isPending
     ? "Votre CIN a été envoyé pour examen manuel par l'administration."
     : status === "REJECTED"
-      ? latestRequest?.rejectionReason || "Votre demande a été refusée. Vous pouvez la soumettre à nouveau."
+      ? latestRequest?.rejectionReason ||
+        "Votre demande a été refusée. Vous pouvez la soumettre à nouveau."
       : "La vérification du CIN est nécessaire pour accéder à la vente.";
   const Icon = isPending ? Clock : ShieldAlert;
 
@@ -52,9 +56,7 @@ export const VerificationBanner: FC = () => {
             {message}
           </p>
           {error && (
-            <p className="text-[11px] text-red-600 mt-1 font-medium">
-              {error}
-            </p>
+            <p className="text-[11px] text-red-600 mt-1 font-medium">{error}</p>
           )}
         </div>
 

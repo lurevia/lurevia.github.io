@@ -36,7 +36,9 @@ export const AddressCard: FC<AddressCardProps> = ({
         <p className="text-xs font-black text-slate-800 uppercase tracking-wider">
           {address.label}
         </p>
-        <p className="text-sm font-bold text-slate-800 mt-1">{address.fullName}</p>
+        <p className="text-sm font-bold text-slate-800 mt-1">
+          {address.fullName}
+        </p>
         <p className="text-xs text-slate-500 mt-0.5">{address.phone}</p>
         <p className="text-xs text-slate-600 mt-2 leading-relaxed">
           {address.address}

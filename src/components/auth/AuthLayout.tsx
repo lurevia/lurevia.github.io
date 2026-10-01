@@ -68,7 +68,7 @@ export const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
           </div>
 
           <p className="text-[10px] text-white/50 tracking-wider uppercase font-bold">
-            © 2026 Lurevia — Made in Madagascar 🇲🇬
+            © 2026 Lurevia — Made in Madagascar
           </p>
         </div>
       </aside>

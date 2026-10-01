@@ -6,59 +6,14 @@ import { cartApi } from "../api/cart";
 import { toErrorMessage } from "../api/http";
 import { useAuth } from "../hooks/useAuth";
 import type { CartItem, Product } from "../bin/types/homeType";
+import {
+  clearGuestCart,
+  readGuestCart,
+  writeGuestCart,
+} from "./guestCartStorage";
 
-const GUEST_STORAGE_KEY = "lurevia_guest_cart";
 const MAX_GUEST_ITEMS = 50;
 const MAX_QUANTITY = 99;
-
-/**
- * Panier hybride.
- *
- * - **Connecté** : le panier serveur fait autorité (stock, prix, quantités
- *   plafonnées). Le client n'envoie que des identifiants et des quantités,
- *   jamais de prix — impossible donc de « négocier » un montant.
- * - **Invité** : panier local, uniquement pour le confort de navigation.
- *   Il est fusionné dans le panier serveur à la connexion, puis effacé.
- */
-
-const isGuestItem = (value: unknown): value is CartItem => {
-  if (typeof value !== "object" || value === null) return false;
-  const item = value as { product?: { id?: unknown; price?: unknown }; quantity?: unknown };
-  return (
-    typeof item.product?.id === "string" &&
-    typeof item.product?.price === "number" &&
-    typeof item.quantity === "number" &&
-    item.quantity > 0
-  );
-};
-
-const readGuestCart = (): CartItem[] => {
-  try {
-    const raw = localStorage.getItem(GUEST_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isGuestItem).slice(0, MAX_GUEST_ITEMS);
-  } catch {
-    return [];
-  }
-};
-
-const writeGuestCart = (items: CartItem[]): void => {
-  try {
-    localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(items.slice(0, MAX_GUEST_ITEMS)));
-  } catch {
-    // Quota dépassé ou stockage désactivé : le panier reste en mémoire.
-  }
-};
-
-const clearGuestCart = (): void => {
-  try {
-    localStorage.removeItem(GUEST_STORAGE_KEY);
-  } catch {
-    /* ignoré */
-  }
-};
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { user, isReady } = useAuth();
@@ -68,8 +23,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const previousUserId = useRef<string | null>(null);
 
   const isAuthenticated = user !== null;
-
-  // ─── Synchronisation panier invité ↔ panier serveur ───
   useEffect(() => {
     if (!isReady) return;
 
@@ -80,7 +33,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       previousUserId.current = user?.id ?? null;
 
       if (!user) {
-        // Déconnexion : on ne conserve jamais le panier d'un autre compte.
         if (previousId) setCart([]);
         else setCart(readGuestCart());
         return;
@@ -89,11 +41,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setIsSyncing(true);
       try {
         const pending = readGuestCart();
-
-        // Fusion du panier invité dans le panier serveur (une seule fois).
         for (const item of pending) {
           try {
-            await cartApi.addItem(item.product.id, Math.min(item.quantity, MAX_QUANTITY));
+            await cartApi.addItem(
+              item.product.id,
+              Math.min(item.quantity, MAX_QUANTITY),
+            );
           } catch {
             // Produit supprimé ou en rupture : on ignore cette ligne.
           }
@@ -115,7 +68,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [user, isReady]);
 
-  // ─── Persistance locale du panier invité ───
   useEffect(() => {
     if (isAuthenticated || !isReady) return;
     writeGuestCart(cart);
@@ -134,7 +86,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setIsSyncing(false);
       }
     },
-    []
+    [],
   );
 
   const addToCart = useCallback(
@@ -154,7 +106,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           return prev.map((item) =>
             item.product.id === product.id
               ? { ...item, quantity: Math.min(item.quantity + qty, maxStock) }
-              : item
+              : item,
           );
         }
 
@@ -162,7 +114,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return [...prev, { product, quantity: Math.min(qty, maxStock) }];
       });
     },
-    [isAuthenticated, runServerAction]
+    [isAuthenticated, runServerAction],
   );
 
   const removeFromCart = useCallback(
@@ -173,7 +125,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       setCart((prev) => prev.filter((item) => item.product.id !== productId));
     },
-    [isAuthenticated, runServerAction]
+    [isAuthenticated, runServerAction],
   );
 
   const setQuantity = useCallback(
@@ -190,12 +142,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           ? prev.filter((item) => item.product.id !== productId)
           : prev.map((item) =>
               item.product.id === productId
-                ? { ...item, quantity: Math.min(qty, item.product.stock ?? MAX_QUANTITY) }
-                : item
-            )
+                ? {
+                    ...item,
+                    quantity: Math.min(qty, item.product.stock ?? MAX_QUANTITY),
+                  }
+                : item,
+            ),
       );
     },
-    [isAuthenticated, runServerAction]
+    [isAuthenticated, runServerAction],
   );
 
   const clearCart = useCallback(async (): Promise<void> => {
@@ -207,14 +162,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     clearGuestCart();
   }, [isAuthenticated, runServerAction]);
 
-  const totalItems = useMemo(
-    () => cart.reduce((total, item) => total + item.quantity, 0),
-    [cart]
-  );
-
-  const totalPrice = useMemo(
-    () => cart.reduce((total, item) => total + item.product.price * item.quantity, 0),
-    [cart]
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = cart.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0,
   );
 
   const contextValue = useMemo(
@@ -229,8 +180,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setQuantity,
       clearCart,
     }),
-    [cart, totalItems, totalPrice, isSyncing, error, addToCart, removeFromCart, setQuantity, clearCart]
+    [
+      cart,
+      totalItems,
+      totalPrice,
+      isSyncing,
+      error,
+      addToCart,
+      removeFromCart,
+      setQuantity,
+      clearCart,
+    ],
   );
 
-  return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
+  );
 };

@@ -10,12 +10,11 @@ type SortDropdownProps = {
 };
 
 export const SortDropdown: FC<SortDropdownProps> = ({ value, onChange }) => {
-  const activeLabel = SORT_OPTIONS.find((opt) => opt.value === value)?.label || "Plus récents";
+  const activeLabel =
+    SORT_OPTIONS.find((opt) => opt.value === value)?.label || "Plus récents";
 
   return (
-
     <div className="relative flex items-center bg-white border border-slate-200 rounded-full h-10 md:h-11 px-4 gap-1.5 shadow-xs hover:border-slate-300 transition-colors">
-
       <span className="text-xs font-black text-lurevia-dark font-sans select-none shrink-0">
         Trier par :
       </span>
@@ -35,8 +34,10 @@ export const SortDropdown: FC<SortDropdownProps> = ({ value, onChange }) => {
       <span className="text-xs font-semibold text-slate-500 truncate pointer-events-none">
         {activeLabel}
       </span>
-      <ChevronDown size={14} className="text-slate-500 shrink-0 pointer-events-none stroke-[2.5]" />
-
+      <ChevronDown
+        size={14}
+        className="text-slate-500 shrink-0 pointer-events-none stroke-[2.5]"
+      />
     </div>
   );
 };

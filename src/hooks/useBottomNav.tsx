@@ -55,7 +55,7 @@ export const useBottomNav = (): UseBottomNavReturn => {
         ]
       : [];
 
-    /** 🎯 Item "Compte" qui s'adapte à l'état de connexion */
+    /** Élément du compte adapté à l'état de connexion. */
     const accountItem: BottomNavItem =
       isAuthenticated && user
         ? {

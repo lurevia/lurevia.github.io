@@ -4,7 +4,6 @@ import { User } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { UserAvatar } from "../../account/UserAvatar";
 
-
 type NavbarAccountProps = {
   className?: string;
 };

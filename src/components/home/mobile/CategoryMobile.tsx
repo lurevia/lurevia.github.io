@@ -9,7 +9,7 @@ export const CategoryMobile: FC = () => {
   const { categories } = useCategories();
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  /** 🎯 Largeur d'une carte + gap (en px) */
+  /** Largeur d'une carte et de son espacement, en pixels. */
   const CARD_WIDTH = 168; // 160px + 8px de gap
 
   const scroll = (direction: "left" | "right") => {

@@ -4,19 +4,22 @@ import { Button } from "../../ui/Button";
 import { SLIDES } from "../../../bin/utils/constant/constant";
 import { buildImageUrl } from "../../../bin/utils/images";
 
-
 type HeroMobileProps = {
   currentSlide: number;
   setCurrentSlide: (index: number) => void;
 };
 
-export const HeroMobile: React.FC<HeroMobileProps> = ({ currentSlide, setCurrentSlide }) => {
+export const HeroMobile: React.FC<HeroMobileProps> = ({
+  currentSlide,
+  setCurrentSlide,
+}) => {
   const activeSlide = SLIDES[currentSlide];
 
   return (
     <section className="block md:hidden w-full px-2 pt-8 relative overflow-visible">
-      <div className={`relative w-full h-56 rounded-2xl transition-colors duration-750 ease-in-out ${activeSlide.bgClass}`}>
-        
+      <div
+        className={`relative w-full h-56 rounded-2xl transition-colors duration-750 ease-in-out ${activeSlide.bgClass}`}
+      >
         <div className="flex h-full w-full items-center justify-between px-5 relative">
           <div className="flex flex-col items-start w-[52%] space-y-1 shrink-0 z-20">
             <h1 className="text-xl font-extrabold tracking-tight text-slate-900 leading-snug">
@@ -25,7 +28,7 @@ export const HeroMobile: React.FC<HeroMobileProps> = ({ currentSlide, setCurrent
             <p className="text-xs font-bold text-lurevia-orange tracking-wide">
               {activeSlide.discount}
             </p>
-            
+
             <Link to="/boutique" className="pt-2 block">
               <Button
                 variant="primary"
@@ -53,7 +56,9 @@ export const HeroMobile: React.FC<HeroMobileProps> = ({ currentSlide, setCurrent
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                currentSlide === index ? "w-4 bg-slate-900" : "w-1.5 bg-slate-400/40"
+                currentSlide === index
+                  ? "w-4 bg-slate-900"
+                  : "w-1.5 bg-slate-400/40"
               }`}
               aria-label={`Slide ${index + 1}`}
             />

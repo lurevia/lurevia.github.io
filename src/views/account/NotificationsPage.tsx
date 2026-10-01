@@ -7,16 +7,12 @@ import {
   Inbox,
   Package,
   Star,
-  Truck,
-  CheckCircle2,
-  Tag,
   ShieldAlert,
   ArrowLeft,
 } from "lucide-react";
 import { useNotifications } from "../../hooks/useNotifications";
 import { NotificationItem } from "../../components/notifications/NotificationItem";
 import { Button } from "../../components/ui/Button";
-import type { NotificationType } from "../../bin/types/notificationType";
 
 type Filter = "all" | "unread" | "review_pending" | "orders" | "verification";
 
@@ -43,14 +39,11 @@ export const NotificationsPage: FC = () => {
 
       case "orders":
         return notifications.filter(
-          (n) =>
-            n.type === "order_shipped" || n.type === "order_delivered"
+          (n) => n.type === "order_shipped" || n.type === "order_delivered",
         );
 
       case "verification":
-        return notifications.filter(
-          (n) => n.type === "account_verification"
-        );
+        return notifications.filter((n) => n.type === "account_verification");
 
       case "all":
       default:
@@ -62,18 +55,16 @@ export const NotificationsPage: FC = () => {
     () => ({
       all: notifications.length,
       unread: unreadCount,
-      review_pending: notifications.filter(
-        (n) => n.type === "review_pending"
-      ).length,
+      review_pending: notifications.filter((n) => n.type === "review_pending")
+        .length,
       orders: notifications.filter(
-        (n) =>
-          n.type === "order_shipped" || n.type === "order_delivered"
+        (n) => n.type === "order_shipped" || n.type === "order_delivered",
       ).length,
       verification: notifications.filter(
-        (n) => n.type === "account_verification"
+        (n) => n.type === "account_verification",
       ).length,
     }),
-    [notifications, unreadCount]
+    [notifications, unreadCount],
   );
 
   return (
@@ -95,12 +86,12 @@ export const NotificationsPage: FC = () => {
             {notifications.length === 0
               ? "Aucune notification pour le moment"
               : unreadCount > 0
-              ? `${unreadCount} non lue${unreadCount > 1 ? "s" : ""} sur ${
-                  notifications.length
-                }`
-              : `${notifications.length} notification${
-                  notifications.length > 1 ? "s" : ""
-                }`}
+                ? `${unreadCount} non lue${unreadCount > 1 ? "s" : ""} sur ${
+                    notifications.length
+                  }`
+                : `${notifications.length} notification${
+                    notifications.length > 1 ? "s" : ""
+                  }`}
           </p>
         </div>
 
@@ -141,9 +132,7 @@ export const NotificationsPage: FC = () => {
                 {t.label}
                 {count > 0 && (
                   <span
-                    className={`ml-0.5 ${
-                      active ? "opacity-70" : "opacity-60"
-                    }`}
+                    className={`ml-0.5 ${active ? "opacity-70" : "opacity-60"}`}
                   >
                     {count}
                   </span>
@@ -194,11 +183,3 @@ const EmptyNotifications: FC = () => (
     </Link>
   </div>
 );
-
-export const NOTIFICATION_ICONS = {
-  order_shipped: Truck,
-  order_delivered: CheckCircle2,
-  review_pending: Star,
-  promo: Tag,
-  account_verification: ShieldAlert,
-} as const satisfies Record<NotificationType, typeof Bell>;

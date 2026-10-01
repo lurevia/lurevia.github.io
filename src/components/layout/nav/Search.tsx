@@ -38,8 +38,7 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -47,14 +46,10 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((prev) =>
-        prev < suggestions.length - 1 ? prev + 1 : 0
-      );
+      setActiveIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((prev) =>
-        prev > 0 ? prev - 1 : suggestions.length - 1
-      );
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
     } else if (e.key === "Escape") {
       setIsOpen(false);
       setActiveIndex(-1);

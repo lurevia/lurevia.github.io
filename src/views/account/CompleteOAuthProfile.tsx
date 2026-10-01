@@ -42,18 +42,51 @@ export function CompleteOAuthProfile() {
 
   return (
     <main className="mx-auto max-w-lg px-4 py-12">
-      <form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <form
+        onSubmit={submit}
+        className="space-y-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
+      >
         <div>
-          <h1 className="text-xl font-black text-lurevia-dark">Complétez votre compte</h1>
+          <h1 className="text-xl font-black text-lurevia-dark">
+            Complétez votre compte
+          </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Ajoutez le téléphone manquant et définissez un mot de passe. Vous utiliserez ensuite votre email et ce mot de passe pour vous connecter.
+            Ajoutez le téléphone manquant et définissez un mot de passe. Vous
+            utiliserez ensuite votre email et ce mot de passe pour vous
+            connecter.
           </p>
         </div>
-        {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        <Input label="Téléphone" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="0341234567" required />
-        <Input label="Mot de passe" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required />
-        <Input label="Confirmer le mot de passe" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" required />
-        <Button type="submit" disabled={saving}>{saving ? "Enregistrement…" : "Continuer"}</Button>
+        {error && (
+          <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">
+            {error}
+          </p>
+        )}
+        <Input
+          label="Téléphone"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          placeholder="0341234567"
+          required
+        />
+        <Input
+          label="Mot de passe"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          autoComplete="new-password"
+          required
+        />
+        <Input
+          label="Confirmer le mot de passe"
+          type="password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          autoComplete="new-password"
+          required
+        />
+        <Button type="submit" disabled={saving}>
+          {saving ? "Enregistrement…" : "Continuer"}
+        </Button>
       </form>
     </main>
   );

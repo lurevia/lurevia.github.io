@@ -2,38 +2,13 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import { toErrorMessage } from "../api/http";
+import {
+  isValidEmail,
+  isValidMalagasyPhone,
+  validatePasswordStrength,
+} from "./authValidation";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// VALIDATEURS
-// ─────────────────────────────────────────────────────────────────────────────
-
-const isValidEmail = (email: string): boolean =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const isValidMalagasyPhone = (phone: string): boolean =>
-  /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
-
-/**
- * Politique de mot de passe alignée sur celle appliquée par l'API
- * (8 caractères minimum, au moins une minuscule, une majuscule et un
- * chiffre). La validation côté client n'est qu'un confort : le serveur
- * reste l'autorité et refusera un mot de passe trop faible.
- */
-const PASSWORD_RULES = [
-  { test: (v: string) => v.length >= 8, message: "au moins 8 caractères" },
-  { test: (v: string) => /[a-z]/.test(v), message: "une minuscule" },
-  { test: (v: string) => /[A-Z]/.test(v), message: "une majuscule" },
-  { test: (v: string) => /[0-9]/.test(v), message: "un chiffre" },
-];
-
-export const validatePasswordStrength = (password: string): string | null => {
-  const missing = PASSWORD_RULES.filter((rule) => !rule.test(password)).map(
-    (r) => r.message
-  );
-  return missing.length === 0
-    ? null
-    : `Le mot de passe doit contenir ${missing.join(", ")}.`;
-};
+export { validatePasswordStrength } from "./authValidation";
 
 export type AuthMode = "login" | "register";
 
@@ -111,7 +86,9 @@ export const useAuthForm = () => {
         password: loginPassword,
       });
       setLoginPassword("");
-      navigate(user.isVerified ? redirectTarget() : "/compte/verification", { replace: true });
+      navigate(user.isVerified ? redirectTarget() : "/compte/verification", {
+        replace: true,
+      });
     } catch (err) {
       setError(toErrorMessage(err, "Email ou mot de passe incorrect."));
     } finally {
@@ -150,7 +127,7 @@ export const useAuthForm = () => {
 
     if (!hasAcceptedTerms) {
       setError(
-        "Veuillez lire et accepter les CGU et la politique des cookies pour continuer."
+        "Veuillez lire et accepter les CGU et la politique des cookies pour continuer.",
       );
       return;
     }

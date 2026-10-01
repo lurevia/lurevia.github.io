@@ -7,9 +7,9 @@ type TabId = "description" | "reviews" | "shipping";
 
 type ProductTabsProps = {
   product: Product;
-  /** 🎯 Onglet à afficher par défaut */
+  /** Onglet affiché par défaut. */
   initialTab?: TabId;
-  /** 🆕 Ouvre automatiquement le formulaire d'avis */
+  /** Ouvre automatiquement le formulaire d'avis. */
   autoOpenReviewForm?: boolean;
 };
 
@@ -20,7 +20,7 @@ export const ProductTabs: FC<ProductTabsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
-  /** 🎯 Si initialTab change (arrivée avec #reviews), on synchronise */
+  /** Synchronise l'onglet actif lors d'une arrivée avec #reviews. */
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);

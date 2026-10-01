@@ -33,7 +33,6 @@ export const GoogleIcon: FC<IconProps> = ({ size = 18, className = "" }) => (
   </svg>
 );
 
-
 export const FacebookIcon: FC<IconProps> = ({ size = 18, className = "" }) => (
   <svg
     width={size}

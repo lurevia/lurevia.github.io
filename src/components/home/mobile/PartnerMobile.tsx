@@ -7,7 +7,6 @@ import { buildImageUrl } from "../../../bin/utils/images";
 export const PartnerMobile: FC = () => {
   return (
     <div className="block md:hidden relative w-full rounded-3xl overflow-hidden bg-lurevia-dark shadow-xl min-h-105">
-      
       <img
         src={buildImageUrl("/images/baobab-sunset.jpg")}
         alt="Baobabs au coucher de soleil à Madagascar"
@@ -18,7 +17,6 @@ export const PartnerMobile: FC = () => {
       <div className="absolute inset-0 bg-linear-to-b from-lurevia-dark/95 via-lurevia-dark/75 to-slate-950/95 z-10" />
 
       <div className="relative z-20 w-full h-full flex flex-col items-center justify-between text-center px-5 py-8 space-y-5">
-        
         <div className="inline-flex p-2.5 bg-lurevia-cyan/20 text-lurevia-cyan rounded-full shadow-xs">
           <Handshake size={20} strokeWidth={1.5} />
         </div>
@@ -29,7 +27,9 @@ export const PartnerMobile: FC = () => {
         </h2>
 
         <p className="text-[11px] text-emerald-100/90 font-medium leading-relaxed max-w-xs">
-          Vous créez, fabriquez ou distribuez des produits intéressants à Madagascar ? Lurevia recherche actuellement des partenaires pour enrichir sa sélection.
+          Vous créez, fabriquez ou distribuez des produits intéressants à
+          Madagascar ? Lurevia recherche actuellement des partenaires pour
+          enrichir sa sélection.
         </p>
 
         <p className="text-white text-xs font-bold uppercase tracking-wider leading-snug">
@@ -51,9 +51,7 @@ export const PartnerMobile: FC = () => {
             </Button>
           </Link>
         </div>
-
       </div>
-
     </div>
   );
 };

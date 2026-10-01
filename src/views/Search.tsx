@@ -21,7 +21,9 @@ export const SearchPage: FC = () => {
   const [results, setResults] = useState<Product[]>([]);
   const [sellers, setSellers] = useState<PublicSeller[]>([]);
   const [totalSellers, setTotalSellers] = useState(0);
-  const [activeType, setActiveType] = useState<"products" | "sellers">("products");
+  const [activeType, setActiveType] = useState<"products" | "sellers">(
+    "products",
+  );
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,10 @@ export const SearchPage: FC = () => {
     const load = async () => {
       try {
         const [page, sellerPage] = await Promise.all([
-          productsApi.list({ search: query, page: 1, limit: PRODUCTS_PER_PAGE }, controller.signal),
+          productsApi.list(
+            { search: query, page: 1, limit: PRODUCTS_PER_PAGE },
+            controller.signal,
+          ),
           sellerApi.publicProfiles(query, 1, 24, controller.signal),
         ]);
         if (controller.signal.aborted) return;
@@ -77,7 +82,8 @@ export const SearchPage: FC = () => {
         <h1 className="text-2xl md:text-3xl font-black text-lurevia-dark">
           {query ? (
             <>
-              Résultats pour <span className="text-lurevia-orange">“{query}”</span>
+              Résultats pour{" "}
+              <span className="text-lurevia-orange">“{query}”</span>
             </>
           ) : (
             "Recherche"
@@ -124,7 +130,9 @@ export const SearchPage: FC = () => {
           </div>
           {activeType === "products" && results.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
-              {results.map((product) => <ProductCard key={product.id} product={product} />)}
+              {results.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           ) : activeType === "sellers" && sellers.length > 0 ? (
             <div className="space-y-5">
@@ -137,24 +145,36 @@ export const SearchPage: FC = () => {
                   >
                     <SellerLogo seller={seller} />
                     <div className="min-w-0">
-                      <h2 className="truncate font-black text-lurevia-dark">{seller.storeName}</h2>
-                      <p className="mt-1 line-clamp-3 text-xs text-slate-500">{seller.description}</p>
+                      <h2 className="truncate font-black text-lurevia-dark">
+                        {seller.storeName}
+                      </h2>
+                      <p className="mt-1 line-clamp-3 text-xs text-slate-500">
+                        {seller.description}
+                      </p>
                       <p className="mt-2 text-xs font-bold text-lurevia-orange">
-                        {seller.productCount} produit{seller.productCount === 1 ? "" : "s"}
+                        {seller.productCount} produit
+                        {seller.productCount === 1 ? "" : "s"}
                       </p>
                     </div>
                   </Link>
                 ))}
               </div>
-              <Link to={`/vendeurs?search=${encodeURIComponent(query)}`} className="text-sm font-bold text-lurevia-orange hover:underline">
+              <Link
+                to={`/vendeurs?search=${encodeURIComponent(query)}`}
+                className="text-sm font-bold text-lurevia-orange hover:underline"
+              >
                 Voir toutes les boutiques correspondant à cette recherche
               </Link>
             </div>
           ) : (
-        <EmptyMessage
-          title={activeType === "products" ? "Aucun produit trouvé" : "Aucune boutique trouvée"}
-          description="Essayez un autre mot-clé ou découvrez toutes les boutiques."
-        />
+            <EmptyMessage
+              title={
+                activeType === "products"
+                  ? "Aucun produit trouvé"
+                  : "Aucune boutique trouvée"
+              }
+              description="Essayez un autre mot-clé ou découvrez toutes les boutiques."
+            />
           )}
         </>
       )}

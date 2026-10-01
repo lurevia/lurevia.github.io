@@ -135,10 +135,11 @@ export const ProductGallery: FC<ProductGalleryProps> = ({
                 type="button"
                 onClick={() => onSelectImage(img)}
                 aria-label={`Voir l’image ${i + 1}`}
-                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isCurrentActive
-                  ? "border-lurevia-orange scale-105 ring-2 ring-orange-100"
-                  : "border-slate-100 opacity-80 hover:opacity-100"
-                  }`}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                  isCurrentActive
+                    ? "border-lurevia-orange scale-105 ring-2 ring-orange-100"
+                    : "border-slate-100 opacity-80 hover:opacity-100"
+                }`}
               >
                 <ProductImage
                   src={buildImageUrl(img)}

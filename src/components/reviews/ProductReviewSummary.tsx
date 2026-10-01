@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { Star } from "lucide-react";
 import { StarRating } from "./StarRating";
 
 type ProductReviewSummaryProps = {
@@ -30,7 +31,10 @@ export const ProductReviewSummary: FC<ProductReviewSummaryProps> = ({
         return (
           <div key={star} className="flex items-center gap-2 text-xs">
             <span className="font-bold text-slate-600 w-4">{star}</span>
-            <span className="text-lurevia-yellow">★</span>
+            <Star
+              size={12}
+              className="fill-lurevia-yellow text-lurevia-yellow"
+            />
             <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-lurevia-yellow transition-all"

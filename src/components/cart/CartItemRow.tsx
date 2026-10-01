@@ -53,7 +53,7 @@ export const CartItemRow: FC<CartItemRowProps> = ({
               </p>
             </div>
 
-            {/* 🎯 Supprimer en haut à droite */}
+            {/* Supprimer le produit du panier. */}
             <button
               type="button"
               onClick={() => onRemove(product.id)}

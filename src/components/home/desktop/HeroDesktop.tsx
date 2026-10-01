@@ -8,17 +8,14 @@ import { buildImageUrl } from "../../../bin/utils/images";
 export const HeroDesktop: React.FC = () => {
   return (
     <section className="hidden md:flex relative w-full h-145 overflow-hidden items-center select-none bg-white">
-
       <div className="absolute right-0 top-0 w-1/2 h-full z-0 overflow-hidden pointer-events-none">
-
         <div
           className="absolute inset-0"
           style={{
             background:
-"linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(30, 161, 225, 0.35) 15%, rgba(30, 161, 225, 0.55) 35%, rgba(30, 161, 225, 0.85) 55%, rgba(30, 161, 225, 1) 100%)"
+              "linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(30, 161, 225, 0.35) 15%, rgba(30, 161, 225, 0.55) 35%, rgba(30, 161, 225, 0.85) 55%, rgba(30, 161, 225, 1) 100%)",
           }}
         />
-
 
         <div
           className="absolute inset-0"

@@ -9,7 +9,10 @@ type NavbarSidebarProps = {
   toggleMenu: () => void;
 };
 
-export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggleMenu }) => {
+export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({
+  isMenuOpen,
+  toggleMenu,
+}) => {
   const location = useLocation();
   const { categories } = useCategories();
 
@@ -18,14 +21,23 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggle
   return (
     <>
       {isMenuOpen && (
-        <div className="fixed inset-0 top-16 md:top-20 bg-slate-950/20 backdrop-blur-xs z-30" onClick={toggleMenu} />
+        <div
+          className="fixed inset-0 top-16 md:top-20 bg-slate-950/20 backdrop-blur-xs z-30"
+          onClick={toggleMenu}
+        />
       )}
 
-      <div className={`fixed top-16 md:top-20 left-0 w-[75%] min-w-70 max-w-xs h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-white/80 backdrop-blur-lg border-r border-slate-100 text-slate-800 shadow-2xl transition-transform duration-300 ease-in-out z-40 overflow-y-auto ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div
+        className={`fixed top-16 md:top-20 left-0 w-[75%] min-w-70 max-w-xs h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-white/80 backdrop-blur-lg border-r border-slate-100 text-slate-800 shadow-2xl transition-transform duration-300 ease-in-out z-40 overflow-y-auto ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="p-6">
           <div className="mb-6 px-2 flex flex-col items-center border-b border-slate-100 pb-4">
-            <h4 className="text-[11px] font-black tracking-[0.2em] text-lurevia-dark uppercase">Lurevia</h4>
-            <p className="text-[9px] font-bold tracking-widest text-lurevia-orange uppercase mt-0.5">Be Authentic</p>
+            <h4 className="text-[11px] font-black tracking-[0.2em] text-lurevia-dark uppercase">
+              Lurevia
+            </h4>
+            <p className="text-[9px] font-bold tracking-widest text-lurevia-orange uppercase mt-0.5">
+              Be Authentic
+            </p>
           </div>
 
           <ul className="space-y-1.5">
@@ -41,10 +53,18 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggle
                       className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold tracking-wider uppercase text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark cursor-pointer transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <Icon size={16} className="text-lurevia-cyan" strokeWidth={2.5} />
+                        <Icon
+                          size={16}
+                          className="text-lurevia-cyan"
+                          strokeWidth={2.5}
+                        />
                         <span>{link.label}</span>
                       </div>
-                      {isCategoriesOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      {isCategoriesOpen ? (
+                        <ChevronUp size={14} />
+                      ) : (
+                        <ChevronDown size={14} />
+                      )}
                     </button>
 
                     {isCategoriesOpen && (
@@ -76,10 +96,20 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggle
                     to={link.to}
                     onClick={toggleMenu}
                     className={`flex items-center gap-4 px-4 py-3 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 ${
-                      isActive ? "bg-lurevia-orange text-white shadow-lg shadow-lurevia-orange/20" : "text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark"
+                      isActive
+                        ? "bg-lurevia-orange text-white shadow-lg shadow-lurevia-orange/20"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-lurevia-dark"
                     }`}
                   >
-                    {Icon && <Icon size={16} className={isActive ? "text-white" : "text-lurevia-cyan"} strokeWidth={2.5} />}
+                    {Icon && (
+                      <Icon
+                        size={16}
+                        className={
+                          isActive ? "text-white" : "text-lurevia-cyan"
+                        }
+                        strokeWidth={2.5}
+                      />
+                    )}
                     <span>{link.label}</span>
                   </Link>
                 </li>
@@ -89,7 +119,9 @@ export const NavbarSidebar: React.FC<NavbarSidebarProps> = ({ isMenuOpen, toggle
         </div>
 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-center">
-          <p className="text-[9px] tracking-widest text-slate-400 font-bold uppercase">Lurevia Horizon — 2026</p>
+          <p className="text-[9px] tracking-widest text-slate-400 font-bold uppercase">
+            Lurevia Horizon — 2026
+          </p>
         </div>
       </div>
     </>

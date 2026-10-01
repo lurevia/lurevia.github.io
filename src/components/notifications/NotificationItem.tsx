@@ -5,7 +5,7 @@ import {
   Truck,
   CheckCircle2,
   Tag,
-  ShieldAlert,    // 🆕
+  ShieldAlert,
 } from "lucide-react";
 import type { AppNotification } from "../../bin/types/notificationType";
 import { ProductImage } from "../common/ProductImage";

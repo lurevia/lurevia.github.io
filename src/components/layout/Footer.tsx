@@ -81,7 +81,9 @@ export const Footer: FC = () => {
                 >
                   <svg
                     className={`w-4.5 h-4.5 ${
-                      link.isStroke ? "stroke-current fill-none" : "fill-current"
+                      link.isStroke
+                        ? "stroke-current fill-none"
+                        : "fill-current"
                     }`}
                     viewBox={link.viewBox}
                     strokeWidth={link.isStroke ? "1.5" : undefined}
@@ -105,8 +107,8 @@ export const Footer: FC = () => {
               Restez informé
             </h3>
             <p className="text-xs font-medium text-blue-100/80 leading-relaxed mb-4 max-w-xs">
-              Nouveautés, artisans et offres exclusives — une fois par mois,
-              pas plus.
+              Nouveautés, artisans et offres exclusives — une fois par mois, pas
+              plus.
             </p>
             <NewsletterForm />
           </div>
@@ -115,7 +117,6 @@ export const Footer: FC = () => {
         <div className="border-t border-white/15 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-blue-100/70">
           <p>© 2026 Lurevia. Tous droits réservés.</p>
           <p className="flex items-center gap-2 tracking-wide uppercase text-[10px] font-bold text-blue-100">
-            <span>🇲🇬</span>
             <span>Made in Madagascar</span>
           </p>
         </div>

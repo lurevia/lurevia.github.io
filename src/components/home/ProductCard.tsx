@@ -23,7 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
     const { rating } = useProductRating(
       product.id,
       product.rating ?? 0,
-      product.reviewCount ?? 0
+      product.reviewCount ?? 0,
     );
 
     const isFav = isFavorite(id);
@@ -34,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
         e.stopPropagation();
         void toggleFavorite(product);
       },
-      [product, toggleFavorite]
+      [product, toggleFavorite],
     );
 
     const handleAddToCart = React.useCallback(
@@ -43,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
         e.stopPropagation();
         void addToCart(product);
       },
-      [addToCart, product]
+      [addToCart, product],
     );
 
     const displayCategory =
@@ -121,5 +121,5 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
         </article>
       </Link>
     );
-  }
+  },
 );

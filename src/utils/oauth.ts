@@ -5,6 +5,24 @@ import {
 
 const OAUTH_STATE_KEY = "lurevia.oauth.state";
 const GOOGLE_NONCE_KEY = "lurevia.google.nonce";
+const OAUTH_CHANNEL = "lurevia-oauth";
+
+type OAuthMessage = { type?: string; token?: string; message?: string };
+
+/**
+ * Envoie le résultat à la fenêtre d'origine. Google coupe parfois le lien
+ * `window.opener` (en-tête COOP) : le BroadcastChannel sert alors de secours.
+ */
+const notifyOpener = (data: OAuthMessage): void => {
+  window.opener?.postMessage(data, window.location.origin);
+  try {
+    const channel = new BroadcastChannel(OAUTH_CHANNEL);
+    channel.postMessage(data);
+    channel.close();
+  } catch {
+    /* BroadcastChannel indisponible */
+  }
+};
 
 type OAuthProvider = "FACEBOOK" | "GOOGLE";
 
@@ -35,12 +53,14 @@ export const completeOAuthCallback = (): void => {
     !validState ||
     (googleNonce !== null && !validNonce)
   ) {
-    window.opener?.postMessage({ type: "OAUTH_ERROR", message: "Réponse OAuth invalide." }, window.location.origin);
+    notifyOpener({ type: "OAUTH_ERROR", message: "Réponse OAuth invalide." });
     return;
   }
   sessionStorage.removeItem(OAUTH_STATE_KEY);
   sessionStorage.removeItem(GOOGLE_NONCE_KEY);
-  window.opener?.postMessage({ type: "OAUTH_TOKEN", token }, window.location.origin);
+  notifyOpener({ type: "OAUTH_TOKEN", token });
+  window.history.replaceState(null, "", window.location.pathname);
+  window.setTimeout(() => window.close(), 300);
 };
 
 const getIdTokenNonce = (token: string): string | null => {
@@ -112,30 +132,56 @@ export const oauthHelper = {
         return;
       }
 
-      const timeout = window.setTimeout(() => {
+      let channel: BroadcastChannel | null = null;
+      let checkInterval = 0;
+      let timeout = 0;
+
+      const cleanup = () => {
+        window.clearTimeout(timeout);
+        window.clearInterval(checkInterval);
         window.removeEventListener("message", onMessage);
-        popup?.close();
+        channel?.close();
+      };
+      const handle = (data: OAuthMessage | undefined) => {
+        if (data?.type === "OAUTH_ERROR") {
+          cleanup();
+          reject(new Error(data.message ?? "La connexion sociale a échoué."));
+        } else if (data?.type === "OAUTH_TOKEN" && data.token) {
+          cleanup();
+          resolve(data.token);
+          popup.close();
+        }
+      };
+      const onMessage = (event: MessageEvent<OAuthMessage>) => {
+        if (event.origin !== window.location.origin) return;
+        handle(event.data);
+      };
+
+      window.addEventListener("message", onMessage);
+      try {
+        channel = new BroadcastChannel(OAUTH_CHANNEL);
+        channel.onmessage = (event: MessageEvent<OAuthMessage>) => handle(event.data);
+      } catch {
+        channel = null;
+      }
+
+      timeout = window.setTimeout(() => {
+        cleanup();
+        popup.close();
         reject(new Error("La connexion sociale a expiré."));
       }, 120_000);
-      const onMessage = (event: MessageEvent<{ type?: string; token?: string; message?: string }>) => {
-        if (event.origin !== window.location.origin) return;
-        if (event.data?.type === "OAUTH_ERROR") {
-          window.clearTimeout(timeout);
-          reject(new Error(event.data.message ?? "La connexion sociale a échoué."));
+
+      // `popup.closed` peut valoir true à tort quand Google coupe le lien opener (COOP) :
+      // on laisse donc un délai de grâce avant de conclure à une fermeture volontaire.
+      let closedSince = 0;
+      checkInterval = window.setInterval(() => {
+        if (!popup.closed) {
+          closedSince = 0;
+          return;
         }
-        if (event.data?.type === "OAUTH_TOKEN" && event.data.token) {
-          window.clearTimeout(timeout);
-          resolve(event.data.token);
-          popup?.close();
-        }
-        window.removeEventListener("message", onMessage);
-      };
-      window.addEventListener("message", onMessage);
-      const checkInterval = window.setInterval(() => {
-        if (popup?.closed) {
-          window.clearInterval(checkInterval);
-          window.clearTimeout(timeout);
-          window.removeEventListener("message", onMessage);
+        closedSince = closedSince || Date.now();
+        if (Date.now() - closedSince > 3000) {
+          cleanup();
           reject(new Error("La fenêtre de connexion a été fermée."));
         }
       }, 1000);

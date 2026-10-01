@@ -106,12 +106,12 @@ export const useAuthForm = () => {
 
     setIsSubmitting(true);
     try {
-      await login({
+      const user = await login({
         email: loginEmail.trim().toLowerCase(),
         password: loginPassword,
       });
       setLoginPassword("");
-      navigate(redirectTarget(), { replace: true });
+      navigate(user.isVerified ? redirectTarget() : "/compte/verification", { replace: true });
     } catch (err) {
       setError(toErrorMessage(err, "Email ou mot de passe incorrect."));
     } finally {
@@ -165,7 +165,7 @@ export const useAuthForm = () => {
       });
       setRegisterPassword("");
       setConfirmPassword("");
-      navigate(redirectTarget(), { replace: true });
+      navigate("/compte/verification", { replace: true });
     } catch (err) {
       setError(toErrorMessage(err, "Inscription impossible."));
     } finally {

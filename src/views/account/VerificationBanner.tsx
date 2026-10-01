@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldAlert, X, Clock } from "lucide-react";
@@ -6,10 +7,26 @@ import { useAuth } from "../../hooks/useAuth";
 import { useVerification } from "../../hooks/useVerification";
 
 export const VerificationBanner: FC = () => {
-  const { user } = useAuth();
-  const { status, latestRequest, isLoading, error } = useVerification();
+  const { user, refreshUser } = useAuth();
+  const { status, latestRequest, isLoading, error, refresh } = useVerification();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (status !== "PENDING") return;
+    const intervalId = window.setInterval(() => void refresh(), 5000);
+    return () => window.clearInterval(intervalId);
+  }, [status, refresh]);
+
+  useEffect(() => {
+    if (status !== "APPROVED" || !user || user.isVerified) return;
+    void refreshUser();
+  }, [status, user?.isVerified, refreshUser]);
+
+  useEffect(() => {
+    if (status !== "APPROVED" || !user?.isVerified) return;
+    navigate("/compte", { replace: true });
+  }, [status, user?.isVerified, navigate]);
 
   if (!user || user.isVerified || dismissed) return null;
 

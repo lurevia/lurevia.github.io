@@ -4,9 +4,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { productsApi } from "../api/products";
+import { sellerApi, type PublicSeller } from "../api/seller";
 import { toErrorMessage } from "../api/http";
 import { PRODUCTS_PER_PAGE } from "../bin/config/env";
 import { ProductCard } from "../components/home/ProductCard";
+import { SellerLogo } from "./Sellers";
 import type { Product } from "../bin/types/homeType";
 
 const MAX_QUERY_LENGTH = 150;
@@ -17,6 +19,9 @@ export const SearchPage: FC = () => {
   const query = (searchParams.get("q") ?? "").trim().slice(0, MAX_QUERY_LENGTH);
 
   const [results, setResults] = useState<Product[]>([]);
+  const [sellers, setSellers] = useState<PublicSeller[]>([]);
+  const [totalSellers, setTotalSellers] = useState(0);
+  const [activeType, setActiveType] = useState<"products" | "sellers">("products");
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +29,9 @@ export const SearchPage: FC = () => {
   useEffect(() => {
     if (!query) {
       setResults([]);
+      setSellers([]);
       setTotalItems(0);
+      setTotalSellers(0);
       return;
     }
 
@@ -34,13 +41,15 @@ export const SearchPage: FC = () => {
 
     const load = async () => {
       try {
-        const page = await productsApi.list(
-          { search: query, page: 1, limit: PRODUCTS_PER_PAGE },
-          controller.signal
-        );
+        const [page, sellerPage] = await Promise.all([
+          productsApi.list({ search: query, page: 1, limit: PRODUCTS_PER_PAGE }, controller.signal),
+          sellerApi.publicProfiles(query, 1, 24, controller.signal),
+        ]);
         if (controller.signal.aborted) return;
         setResults(page.products);
         setTotalItems(page.totalItems);
+        setSellers(sellerPage.sellers);
+        setTotalSellers(sellerPage.totalItems);
       } catch (err) {
         if (controller.signal.aborted) return;
         setError(toErrorMessage(err, "La recherche a échoué."));
@@ -95,17 +104,59 @@ export const SearchPage: FC = () => {
         </div>
       ) : error ? (
         <EmptyMessage title="Recherche indisponible" description={error} />
-      ) : results.length === 0 ? (
-        <EmptyMessage
-          title="Aucun produit trouvé"
-          description="Essayez un autre mot-clé."
-        />
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          {results.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="flex gap-2 border-b border-slate-100">
+            <button
+              type="button"
+              onClick={() => setActiveType("products")}
+              className={`border-b-2 px-4 py-3 text-sm font-bold ${activeType === "products" ? "border-lurevia-orange text-lurevia-dark" : "border-transparent text-slate-500"}`}
+            >
+              Produits ({totalItems})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveType("sellers")}
+              className={`border-b-2 px-4 py-3 text-sm font-bold ${activeType === "sellers" ? "border-lurevia-orange text-lurevia-dark" : "border-transparent text-slate-500"}`}
+            >
+              Boutiques ({totalSellers})
+            </button>
+          </div>
+          {activeType === "products" && results.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
+              {results.map((product) => <ProductCard key={product.id} product={product} />)}
+            </div>
+          ) : activeType === "sellers" && sellers.length > 0 ? (
+            <div className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {sellers.map((seller) => (
+                  <Link
+                    key={seller.id}
+                    to={`/vendeurs/${seller.id}`}
+                    className="flex gap-4 rounded-2xl border border-slate-100 bg-white p-5 hover:shadow-md"
+                  >
+                    <SellerLogo seller={seller} />
+                    <div className="min-w-0">
+                      <h2 className="truncate font-black text-lurevia-dark">{seller.storeName}</h2>
+                      <p className="mt-1 line-clamp-3 text-xs text-slate-500">{seller.description}</p>
+                      <p className="mt-2 text-xs font-bold text-lurevia-orange">
+                        {seller.productCount} produit{seller.productCount === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <Link to={`/vendeurs?search=${encodeURIComponent(query)}`} className="text-sm font-bold text-lurevia-orange hover:underline">
+                Voir toutes les boutiques correspondant à cette recherche
+              </Link>
+            </div>
+          ) : (
+        <EmptyMessage
+          title={activeType === "products" ? "Aucun produit trouvé" : "Aucune boutique trouvée"}
+          description="Essayez un autre mot-clé ou découvrez toutes les boutiques."
+        />
+          )}
+        </>
       )}
     </div>
   );

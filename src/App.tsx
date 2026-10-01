@@ -13,6 +13,12 @@ const ProductCatalog = lazy(() =>
 const SearchPage = lazy(() =>
   import("./views/Search").then((module) => ({ default: module.SearchPage }))
 );
+const SellersPage = lazy(() =>
+  import("./views/Sellers").then((module) => ({ default: module.SellersPage }))
+);
+const SellerProfilePage = lazy(() =>
+  import("./views/SellerProfile").then((module) => ({ default: module.SellerProfilePage }))
+);
 const ProductDetail = lazy(() =>
   import("./views/Product").then((module) => ({ default: module.ProductDetail }))
 );
@@ -101,6 +107,8 @@ export default function App() {
               <Route path="categories" element={<ProductCatalog />} />
               <Route path="categories/:slug" element={<ProductCatalog />} />
               <Route path="search" element={<SearchPage />} />
+              <Route path="vendeurs" element={<SellersPage />} />
+              <Route path="vendeurs/:id" element={<SellerProfilePage />} />
               <Route path="produit/:id" element={<ProductDetail />} />
               <Route path="panier" element={<CartPage />} />
               <Route path="favoris" element={<FavoritesPage />} />

@@ -47,14 +47,17 @@ export const authApi = {
     return toUser(data.user);
   },
 
-  async oauthCallback(provider: string, token: string): Promise<User> {
+  async oauthCallback(token: string): Promise<{ user: User; needsProfileCompletion: boolean }> {
     const data = await api.post<AuthSessionDto>(
       "/auth/oauth/callback",
-      { provider, token },
+      { provider: "FACEBOOK", token },
       { auth: false }
     );
 
     tokenStore.set(data.accessToken);
-    return toUser(data.user);
+    return {
+      user: toUser(data.user),
+      needsProfileCompletion: Boolean(data.needsProfileCompletion),
+    };
   },
 };

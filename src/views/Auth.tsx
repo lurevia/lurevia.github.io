@@ -18,7 +18,8 @@ import { Button } from "../components/ui/Button";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { ConsentModal } from "../components/auth/ConsentModal";
 import { oauthHelper } from "../utils/oauth";
-import { GoogleIcon, FacebookIcon } from "../components/icons/SocialIcons";
+import { FacebookIcon } from "../components/icons/SocialIcons";
+import { toErrorMessage } from "../api/http";
 
 type LocationState = {
   from?: string;
@@ -33,23 +34,36 @@ export const AuthPage: FC = () => {
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
 
   const state = location.state as LocationState | null;
-  const from = state?.from ?? "/compte";
+  const from = typeof state?.from === "string" && state.from.startsWith("/") && !state.from.startsWith("//")
+    ? state.from
+    : "/compte";
   const reason = state?.reason;
 
   useEffect(() => {
     if (isReady && isAuthenticated) {
-      navigate(user?.phone ? from : "/compte/complete-oauth", { replace: true });
+      if (!user?.phone || !user.hasPassword) {
+        navigate("/compte/complete-oauth", { replace: true });
+      } else {
+        navigate(user.isVerified ? from : "/compte/verification", { replace: true });
+      }
     }
   }, [isReady, isAuthenticated, user, from, navigate]);
 
   const isLogin = form.mode === "login";
 
-  const handleSocialLogin = async (provider: "GOOGLE" | "FACEBOOK") => {
+  const handleSocialLogin = async () => {
     try {
-      const token = await oauthHelper.triggerLogin(provider);
-      await loginWithOAuth(provider, token);
-    } catch (err: any) {
-      form.setError(err.message || "Erreur lors de la connexion sociale.");
+      const token = await oauthHelper.triggerLogin();
+      const result = await loginWithOAuth(token);
+      if (result.needsProfileCompletion) {
+        navigate("/compte/complete-oauth", { replace: true });
+      } else if (!result.user.isVerified) {
+        navigate("/compte/verification", { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
+    } catch (err: unknown) {
+      form.setError(toErrorMessage(err, "Erreur lors de la connexion Facebook."));
     }
   };
 
@@ -239,28 +253,15 @@ export const AuthPage: FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
-                onClick={() => void handleSocialLogin("GOOGLE")}
+                onClick={() => void handleSocialLogin()}
                 disabled={form.isSubmitting}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <GoogleIcon size={18} />
-                <span>Google</span>
-              </button>
-
-              <button
-                type="button"
-                disabled
-                title="Bientôt disponible"
-                className="relative flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-400 opacity-60 grayscale cursor-not-allowed"
-              >
                 <FacebookIcon size={18} />
                 <span>Facebook</span>
-                <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-wide">
-                  Bientôt
-                </span>
               </button>
             </div>
 

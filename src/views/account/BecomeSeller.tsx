@@ -3,6 +3,7 @@ import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { Store, ShieldCheck, Percent, Wallet } from "lucide-react";
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { sellerApi } from "../../api/seller";
 import { toErrorMessage } from "../../api/http";
@@ -24,6 +25,9 @@ export const BecomeSellerPage: FC = () => {
   const navigate = useNavigate();
   const [type, setType] = useState<ContractType>("PERCENTAGE");
   const [value, setValue] = useState(10);
+  const [storeName, setStoreName] = useState("");
+  const [storeDescription, setStoreDescription] = useState("");
+  const [storeLogoUrl, setStoreLogoUrl] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +76,13 @@ export const BecomeSellerPage: FC = () => {
     setSubmitting(true);
     setError(null);
     try {
-      await sellerApi.apply({ type, value });
+      await sellerApi.apply({
+        type,
+        value,
+        storeName: storeName.trim(),
+        storeDescription: storeDescription.trim(),
+        ...(storeLogoUrl.trim() ? { storeLogoUrl: storeLogoUrl.trim() } : {}),
+      });
       await refreshUser();
       navigate("/vendeur", { replace: true });
     } catch (err) {
@@ -95,6 +105,23 @@ export const BecomeSellerPage: FC = () => {
       {error && <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</div>}
 
       <div className="rounded-2xl bg-white border border-slate-100 p-5 space-y-5">
+        <div className="space-y-3">
+          <Input label="Nom public de la boutique" value={storeName} onChange={(event) => setStoreName(event.target.value)} minLength={2} maxLength={100} required />
+          <label className="block text-xs font-bold text-slate-500">
+            Présentation de la boutique
+            <textarea
+              value={storeDescription}
+              onChange={(event) => setStoreDescription(event.target.value)}
+              minLength={20}
+              maxLength={1000}
+              rows={4}
+              required
+              className="mt-1 w-full rounded-lg border border-slate-200 p-3 text-sm"
+              placeholder="Présentez votre activité et votre savoir-faire."
+            />
+          </label>
+          <Input label="Logo public (URL, facultatif)" type="url" value={storeLogoUrl} onChange={(event) => setStoreLogoUrl(event.target.value)} />
+        </div>
         <div>
           <p className="text-xs font-bold text-slate-500 mb-2">Type de contrat</p>
           <div className="grid grid-cols-2 gap-3">

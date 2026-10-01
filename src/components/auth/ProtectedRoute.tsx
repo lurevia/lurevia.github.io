@@ -44,5 +44,12 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
         return <Navigate to="/" replace />;
     }
 
+    const canAccessBeforeVerification =
+        location.pathname.endsWith("/verification") ||
+        location.pathname.endsWith("/complete-oauth");
+    if (user && user.role !== "ADMIN" && !user.isVerified && !canAccessBeforeVerification) {
+        return <Navigate to="/compte/verification" replace />;
+    }
+
     return <>{children}</>;
 };

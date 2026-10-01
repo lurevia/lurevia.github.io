@@ -52,6 +52,9 @@ export const ProfilePage: FC = () => {
   const [showSellerForm, setShowSellerForm] = useState(false);
   const [sellerContractType, setSellerContractType] = useState<"PERCENTAGE" | "MONTHLY_FIXED">("PERCENTAGE");
   const [sellerContractValue, setSellerContractValue] = useState("10");
+  const [sellerStoreName, setSellerStoreName] = useState("");
+  const [sellerStoreDescription, setSellerStoreDescription] = useState("");
+  const [sellerStoreLogoUrl, setSellerStoreLogoUrl] = useState("");
   const [sellerError, setSellerError] = useState<string | null>(null);
   const [isApplyingSeller, setIsApplyingSeller] = useState(false);
 
@@ -73,7 +76,13 @@ export const ProfilePage: FC = () => {
 
     setIsApplyingSeller(true);
     try {
-      await sellerApi.apply({ type: sellerContractType, value });
+      await sellerApi.apply({
+        type: sellerContractType,
+        value,
+        storeName: sellerStoreName.trim(),
+        storeDescription: sellerStoreDescription.trim(),
+        ...(sellerStoreLogoUrl.trim() ? { storeLogoUrl: sellerStoreLogoUrl.trim() } : {}),
+      });
       await refreshUser();
       navigate("/vendeur");
     } catch (error) {
@@ -243,6 +252,33 @@ export const ProfilePage: FC = () => {
             </Button>
           ) : (
             <form onSubmit={handleBecomeSeller} className="space-y-3 border-t border-slate-100 pt-4">
+              <Input
+                label="Nom public de la boutique"
+                value={sellerStoreName}
+                onChange={(event) => setSellerStoreName(event.target.value)}
+                minLength={2}
+                maxLength={100}
+                required
+              />
+              <label className="block text-xs font-bold text-slate-700">
+                Présentation de la boutique
+                <textarea
+                  value={sellerStoreDescription}
+                  onChange={(event) => setSellerStoreDescription(event.target.value)}
+                  minLength={20}
+                  maxLength={1000}
+                  rows={4}
+                  required
+                  className="mt-1 w-full rounded-lg border border-slate-200 p-3 text-sm"
+                  placeholder="Présentez votre activité et votre savoir-faire."
+                />
+              </label>
+              <Input
+                label="Logo public (URL, facultatif)"
+                type="url"
+                value={sellerStoreLogoUrl}
+                onChange={(event) => setSellerStoreLogoUrl(event.target.value)}
+              />
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Type de contrat</label>
                 <Select value={sellerContractType} onChange={(event) => setSellerContractType(event.target.value as "PERCENTAGE" | "MONTHLY_FIXED")}>

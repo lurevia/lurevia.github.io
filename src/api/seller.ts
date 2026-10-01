@@ -34,8 +34,25 @@ export type SellerProductInput = {
 export type SellerContractInput = {
   type: "PERCENTAGE" | "MONTHLY_FIXED";
   value: number;
+  storeName: string;
+  storeDescription: string;
+  storeLogoUrl?: string;
 };
 
+export type SellerProfile = {
+  id: string;
+  storeName: string;
+  description: string;
+  logoUrl: string | null;
+};
+
+export type PublicSeller = SellerProfile & { productCount: number };
+export type PublicSellerDetails = SellerProfile & { products: Product[] };
+type PublicSellerProfileDto = Omit<SellerProfile, "description" | "logoUrl"> & {
+  description: string | null;
+  logoUrl: string | null;
+  products: ProductDto[];
+};
 type SellerPage<T> = { items: T[]; pagination?: { totalItems: number; totalPages: number; page: number } };
 
 const unwrapPage = <T,>(value: SellerPage<T> | { products?: SellerPage<T>; orders?: SellerPage<T> }): SellerPage<T> => {
@@ -69,6 +86,43 @@ const sellerOrderDto = (value: OrderDto & Record<string, unknown>): OrderDto => 
 export const sellerApi = {
   async apply(input: SellerContractInput): Promise<void> {
     await api.post("/seller/apply", input);
+  },
+  async profile(signal?: AbortSignal): Promise<SellerProfile> {
+    const data = await api.get<{ profile: SellerProfile }>("/seller/profile", { signal });
+    return data.profile;
+  },
+  async updateProfile(input: Omit<SellerProfile, "id">): Promise<SellerProfile> {
+    const data = await api.patch<{ profile: SellerProfile }>("/seller/profile", {
+      storeName: input.storeName,
+      storeDescription: input.description,
+      storeLogoUrl: input.logoUrl,
+    });
+    return data.profile;
+  },
+  async publicProfiles(search = "", page = 1, limit = 12, signal?: AbortSignal) {
+    const data = await api.get<SellerPage<PublicSeller>>("/seller/public", {
+      auth: false,
+      signal,
+      query: { search: search || undefined, page, limit },
+    });
+    return {
+      sellers: data.items ?? [],
+      totalItems: data.pagination?.totalItems ?? 0,
+      totalPages: data.pagination?.totalPages ?? 1,
+      page: data.pagination?.page ?? 1,
+    };
+  },
+  async publicProfile(id: string, signal?: AbortSignal): Promise<PublicSellerDetails> {
+    const data = await api.get<PublicSellerProfileDto>(`/seller/public/${encodeURIComponent(id)}`, {
+      auth: false,
+      signal,
+    });
+    return {
+      ...data,
+      description: data.description ?? "",
+      logoUrl: data.logoUrl ?? null,
+      products: (data.products ?? []).map(toProduct),
+    };
   },
   async stats(signal?: AbortSignal): Promise<SellerStats> {
     const data = await api.get<{ stats: SellerStats }>("/seller/stats", { signal });

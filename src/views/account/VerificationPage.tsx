@@ -1,16 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FC, FormEvent } from "react";
 import { ArrowLeft, CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useVerification } from "../../hooks/useVerification";
+import { useAuth } from "../../hooks/useAuth";
 
 export const VerificationPage: FC = () => {
-  const { status, latestRequest, isLoading, error, submit } = useVerification();
+  const { status, latestRequest, isLoading, error, submit, refresh } = useVerification();
+  const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [cinNumber, setCinNumber] = useState("");
 
   const verified = status === "APPROVED";
+
+  useEffect(() => {
+    if (status !== "PENDING") return;
+    const intervalId = window.setInterval(() => void refresh(), 5000);
+    return () => window.clearInterval(intervalId);
+  }, [status, refresh]);
+
+  useEffect(() => {
+    if (!verified || user?.isVerified) return;
+    void refreshUser();
+  }, [verified, user?.isVerified, refreshUser]);
+
+  useEffect(() => {
+    if (!verified || !user?.isVerified) return;
+    navigate("/compte", { replace: true });
+  }, [verified, user?.isVerified, navigate]);
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (await submit(cinNumber.trim())) setCinNumber("");
@@ -18,8 +38,8 @@ export const VerificationPage: FC = () => {
 
   return (
     <>
-      <Link to="/compte" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-lurevia-dark uppercase tracking-wider">
-        <ArrowLeft size={14} /> Retour au compte
+      <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-lurevia-dark uppercase tracking-wider">
+        <ArrowLeft size={14} /> Retour à l’accueil
       </Link>
       <div className="bg-white border border-slate-100 rounded-2xl p-6 md:p-8 space-y-6">
         <div className="flex items-start gap-4">

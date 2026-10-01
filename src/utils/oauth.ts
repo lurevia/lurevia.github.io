@@ -1,6 +1,5 @@
-import { FACEBOOK_APP_ID, GOOGLE_CLIENT_ID } from "../bin/config/env";
+import { FACEBOOK_APP_ID } from "../bin/config/env";
 
-type OAuthProvider = "GOOGLE" | "FACEBOOK";
 const OAUTH_STATE_KEY = "lurevia.oauth.state";
 
 const getTokenFromCallback = (): { token: string; state: string | null } => {
@@ -24,28 +23,24 @@ export const completeOAuthCallback = (): void => {
 };
 
 export const oauthHelper = {
-  async triggerLogin(provider: OAuthProvider): Promise<string> {
+  async triggerLogin(): Promise<string> {
     return new Promise((resolve, reject) => {
-      const clientId = provider === "GOOGLE" ? GOOGLE_CLIENT_ID : FACEBOOK_APP_ID;
+      const clientId = FACEBOOK_APP_ID;
       if (!clientId) {
-        reject(new Error(`La connexion ${provider === "GOOGLE" ? "Google" : "Facebook"} n'est pas configurée.`));
+        reject(new Error("La connexion Facebook n'est pas configurée."));
         return;
       }
       const state = crypto.randomUUID();
-      const nonce = crypto.randomUUID();
       sessionStorage.setItem(OAUTH_STATE_KEY, state);
       const redirectUri = `${window.location.origin}/auth/callback`;
       const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
         state,
-        ...(provider === "GOOGLE" ? { nonce } : {}),
-        response_type: provider === "GOOGLE" ? "id_token" : "token",
-        scope: provider === "GOOGLE" ? "openid email profile" : "email,public_profile",
+        response_type: "token",
+        scope: "email,public_profile",
       });
-      const url = provider === "GOOGLE"
-        ? `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
-        : `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`;
+      const url = `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`;
       const popup = window.open(url, "oauth-login", "width=500,height=600");
 
       if (!popup) {

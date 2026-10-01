@@ -3,12 +3,16 @@ import { Navbar } from "./Navbar";
 import { BottomNav } from "./nav/BottomNav";
 import { Footer } from "./Footer"; 
 import { Outlet } from "react-router-dom";
+import { VerificationBanner } from "../../views/account/VerificationBanner";
+import { useAuth } from "../../hooks/useAuth";
 
 export const MainLayout: React.FC = () => {
+    const { isAuthenticated } = useAuth();
     return (
         <div className="h-svh w-screen flex flex-col overflow-hidden">
 
             <Navbar />
+            {isAuthenticated && <VerificationBanner />}
             
 
             <main className="flex-1 overflow-y-auto overflow-x-hidden w-full flex flex-col justify-between">

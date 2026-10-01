@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Headphones,
   MessageSquareHeart,
+  Store,
 } from "lucide-react";
 import type {
   Category,
@@ -139,6 +140,7 @@ export const FEATURES: Feature[] = [
 export const FOOTER_NAVIGATION: FooterLink[] = [
   { label: "Accueil", to: "/" },
   { label: "Boutique", to: "/boutique" },
+  { label: "Vendeurs", to: "/vendeurs" },
   { label: "Catégories", to: "/categories" },
   { label: "À propos", to: "/a-propos" },
   { label: "Blog", to: "/blog" },
@@ -232,6 +234,7 @@ export const SLIDES = [
 export const NAV_LINKS = [
   { to: "/", label: "Accueil", icon: Home },
   { to: "/boutique", label: "Boutique", icon: ShoppingBag },
+  { to: "/vendeurs", label: "Vendeurs", icon: Store },
   { to: "/categories", label: "Catégories", icon: Layers },
   { to: "/a-propos", label: "À Propos", icon: Info },
   { to: "/feedback", label: "Avis", icon: MessageSquareHeart },

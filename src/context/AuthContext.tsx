@@ -90,14 +90,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const login = useCallback(async (payload: LoginPayload): Promise<void> => {
+  const login = useCallback(async (payload: LoginPayload): Promise<User> => {
     const loggedUser = await authApi.login(payload);
     setUser(loggedUser);
+    return loggedUser;
   }, []);
 
-  const register = useCallback(async (payload: RegisterPayload): Promise<void> => {
+  const register = useCallback(async (payload: RegisterPayload): Promise<User> => {
     const created = await authApi.register(payload);
     setUser(created);
+    return created;
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
@@ -132,9 +134,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const loginWithOAuth = useCallback(async (provider: "GOOGLE" | "FACEBOOK", token: string): Promise<void> => {
-    const loggedUser = await authApi.oauthCallback(provider, token);
-    setUser(loggedUser);
+  const loginWithOAuth = useCallback(async (token: string) => {
+    const result = await authApi.oauthCallback(token);
+    setUser(result.user);
+    return result;
   }, []);
 
   const contextValue = useMemo(

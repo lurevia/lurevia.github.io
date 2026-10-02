@@ -2,14 +2,23 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { sellerApi, type SellerProfile } from "../../api/seller";
 import { toErrorMessage } from "../../api/http";
+import { useCategories } from "../../hooks/useCategories";
+import { ImageDropzone } from "../../components/common/ImageDropzone";
 
 const emptyProfile: Omit<SellerProfile, "id"> = {
   storeName: "",
   description: "",
   logoUrl: null,
+  storeCategoryId: null,
+  storeCategory: null,
 };
 
-export function SellerProfileSettings() {
+type SellerProfileSettingsProps = {
+  onUpdated: (profile: SellerProfile) => void;
+};
+
+export function SellerProfileSettings({ onUpdated }: SellerProfileSettingsProps) {
+  const { categories, isLoading: categoriesLoading } = useCategories();
   const [profile, setProfile] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,9 +29,7 @@ export function SellerProfileSettings() {
     const controller = new AbortController();
     void sellerApi
       .profile(controller.signal)
-      .then(({ storeName, description, logoUrl }) =>
-        setProfile({ storeName, description, logoUrl }),
-      )
+      .then(({ id: _id, ...nextProfile }) => setProfile(nextProfile))
       .catch((requestError: unknown) => {
         if (!controller.signal.aborted) setError(toErrorMessage(requestError));
       })
@@ -39,11 +46,9 @@ export function SellerProfileSettings() {
     setSaved(false);
     try {
       const updated = await sellerApi.updateProfile(profile);
-      setProfile({
-        storeName: updated.storeName,
-        description: updated.description,
-        logoUrl: updated.logoUrl,
-      });
+      const { id: _id, ...nextProfile } = updated;
+      setProfile(nextProfile);
+      onUpdated(updated);
       setSaved(true);
     } catch (requestError) {
       setError(
@@ -117,20 +122,39 @@ export function SellerProfileSettings() {
           />
         </label>
         <label className="block text-xs font-bold text-slate-600">
-          Logo de la boutique (URL)
-          <input
-            type="url"
-            value={profile.logoUrl ?? ""}
+          Catégorie de la boutique
+          <select
+            value={profile.storeCategoryId ?? ""}
             onChange={(event) =>
-              setProfile({ ...profile, logoUrl: event.target.value || null })
+              setProfile({ ...profile, storeCategoryId: event.target.value || null })
             }
-            className="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm"
-          />
+            required
+            disabled={categoriesLoading || Boolean(profile.productCount)}
+            className="mt-1 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm"
+          >
+            <option value="">Choisir une catégorie</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>{category.name}</option>
+            ))}
+          </select>
+          {Boolean(profile.productCount) && (
+            <span className="mt-1 block font-normal text-slate-500">
+              La catégorie est verrouillée après la publication d’un produit.
+            </span>
+          )}
         </label>
+        <ImageDropzone
+          images={profile.logoUrl ? [profile.logoUrl] : []}
+          onChange={(images) =>
+            setProfile({ ...profile, logoUrl: images[0] ?? null })
+          }
+          label="Logo de la boutique"
+          circular
+        />
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !profile.storeCategoryId}
             className="rounded-xl bg-lurevia-orange px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
           >
             {saving ? "Enregistrement…" : "Enregistrer"}

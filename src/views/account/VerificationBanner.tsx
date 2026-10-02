@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ShieldAlert, X, Clock } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useVerification } from "../../hooks/useVerification";
@@ -10,6 +10,7 @@ export const VerificationBanner: FC = () => {
   const { user, refreshUser } = useAuth();
   const { status, latestRequest, isLoading, error, refresh } =
     useVerification();
+  const location = useLocation();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
@@ -25,9 +26,13 @@ export const VerificationBanner: FC = () => {
   }, [status, user?.isVerified, refreshUser]);
 
   useEffect(() => {
-    if (status !== "APPROVED" || !user?.isVerified) return;
+    if (
+      status !== "APPROVED" ||
+      !user?.isVerified ||
+      location.pathname !== "/compte/verification"
+    ) return;
     navigate("/compte", { replace: true });
-  }, [status, user?.isVerified, navigate]);
+  }, [status, user?.isVerified, location.pathname, navigate]);
 
   if (!user || user.isVerified || dismissed) return null;
 

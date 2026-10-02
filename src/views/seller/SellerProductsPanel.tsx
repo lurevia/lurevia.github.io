@@ -15,7 +15,7 @@ type SellerProductsPanelProps = {
   onSave: (event: FormEvent) => void;
   onEdit: (product: Product) => void;
   onRemove: (productId: string) => void;
-  onError: (message: string) => void;
+  storeCategoryName: string;
 };
 
 export const SellerProductsPanel = ({
@@ -27,7 +27,7 @@ export const SellerProductsPanel = ({
   onSave,
   onEdit,
   onRemove,
-  onError,
+  storeCategoryName,
 }: SellerProductsPanelProps) => (
   <>
     <div className="flex justify-end mb-4">
@@ -50,7 +50,7 @@ export const SellerProductsPanel = ({
         onChange={(value) => onFormChange(value)}
         onSubmit={onSave}
         onCancel={() => onFormChange(null)}
-        onError={onError}
+        storeCategoryName={storeCategoryName}
       />
     )}
     <SellerProductList

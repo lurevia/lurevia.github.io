@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import type { SellerProductInput } from "../../api/seller";
+import { ImageDropzone } from "../../components/common/ImageDropzone";
 
 type SellerProductFormProps = {
   value: SellerProductInput;
@@ -7,7 +8,7 @@ type SellerProductFormProps = {
   onChange: (value: SellerProductInput) => void;
   onSubmit: (event: FormEvent) => void;
   onCancel: () => void;
-  onError: (message: string) => void;
+  storeCategoryName: string;
 };
 
 export const SellerProductForm = ({
@@ -16,7 +17,7 @@ export const SellerProductForm = ({
   onChange,
   onSubmit,
   onCancel,
-  onError,
+  storeCategoryName,
 }: SellerProductFormProps) => {
   const updateTextField = (field: "title" | "sku", fieldValue: string) => {
     onChange({ ...value, [field]: fieldValue });
@@ -24,16 +25,6 @@ export const SellerProductForm = ({
 
   const updateNumberField = (field: "price" | "stock", fieldValue: string) => {
     onChange({ ...value, [field]: Number(fieldValue) });
-  };
-
-  const handleImageFiles = async (files: FileList | null) => {
-    if (!files) return;
-    try {
-      const images = await Promise.all(Array.from(files).map(readImage));
-      onChange({ ...value, images: [...value.images, ...images] });
-    } catch {
-      onError("Lecture de l'image impossible.");
-    }
   };
 
   return (
@@ -77,43 +68,17 @@ export const SellerProductForm = ({
           className="mt-1 w-full rounded-lg border border-slate-200 p-2.5 text-sm"
         />
       </label>
-      <label className="text-xs font-bold text-slate-500 md:col-span-2">
-        Images (URL, séparées par des virgules)
-        <input
-          required
-          value={value.images.join(",")}
-          onChange={(event) =>
-            onChange({
-              ...value,
-              images: event.target.value.split(",").map((url) => url.trim()),
-            })
-          }
-          className="mt-1 w-full rounded-lg border border-slate-200 p-2.5 text-sm"
+      <div className="md:col-span-2">
+        <ImageDropzone
+          images={value.images}
+          onChange={(images) => onChange({ ...value, images })}
+          label="Images du produit"
+          maxImages={8}
         />
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          multiple
-          className="mt-2 block w-full text-xs"
-          onChange={(event) => void handleImageFiles(event.target.files)}
-        />
-      </label>
-      <label className="text-xs font-bold text-slate-500 md:col-span-2">
-        Catégories (IDs, séparés par des virgules)
-        <input
-          required
-          value={value.categoryIds.join(",")}
-          onChange={(event) =>
-            onChange({
-              ...value,
-              categoryIds: event.target.value
-                .split(",")
-                .map((categoryId) => categoryId.trim()),
-            })
-          }
-          className="mt-1 w-full rounded-lg border border-slate-200 p-2.5 text-sm"
-        />
-      </label>
+      </div>
+      <p className="md:col-span-2 text-xs font-semibold text-slate-500">
+        Catégorie de la boutique : {storeCategoryName}
+      </p>
       <div className="md:col-span-2 flex gap-2">
         <button className="rounded-xl bg-lurevia-orange px-4 py-2 text-sm font-bold text-white">
           {isEditing ? "Enregistrer" : "Créer"}
@@ -130,10 +95,3 @@ export const SellerProductForm = ({
   );
 };
 
-const readImage = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error("Lecture de l'image impossible."));
-    reader.readAsDataURL(file);
-  });

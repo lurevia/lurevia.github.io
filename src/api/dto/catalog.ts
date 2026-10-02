@@ -54,6 +54,7 @@ export type CategoryDto = {
 
 export type SearchSuggestionDto = {
   id: string;
+  slug: string;
   title: string;
   price: number;
   imageUrl: string | null;

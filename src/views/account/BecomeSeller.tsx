@@ -6,6 +6,8 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { sellerApi } from "../../api/seller";
+import { useCategories } from "../../hooks/useCategories";
+import { ImageDropzone } from "../../components/common/ImageDropzone";
 import { toErrorMessage } from "../../api/http";
 import {
   SellerContractSelector,
@@ -24,12 +26,14 @@ import {
  */
 export const BecomeSellerPage: FC = () => {
   const { user, refreshUser } = useAuth();
+  const { categories, isLoading: categoriesLoading } = useCategories();
   const navigate = useNavigate();
   const [type, setType] = useState<SellerContractType>("PERCENTAGE");
   const [value, setValue] = useState(10);
   const [storeName, setStoreName] = useState("");
   const [storeDescription, setStoreDescription] = useState("");
   const [storeLogoUrl, setStoreLogoUrl] = useState("");
+  const [storeCategoryId, setStoreCategoryId] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +94,7 @@ export const BecomeSellerPage: FC = () => {
         value,
         storeName: storeName.trim(),
         storeDescription: storeDescription.trim(),
+        storeCategoryId,
         ...(storeLogoUrl.trim() ? { storeLogoUrl: storeLogoUrl.trim() } : {}),
       });
       await refreshUser();
@@ -143,11 +148,26 @@ export const BecomeSellerPage: FC = () => {
               placeholder="Présentez votre activité et votre savoir-faire."
             />
           </label>
-          <Input
-            label="Logo public (URL, facultatif)"
-            type="url"
-            value={storeLogoUrl}
-            onChange={(event) => setStoreLogoUrl(event.target.value)}
+          <label className="block text-xs font-bold text-slate-600">
+            Catégorie principale de la boutique
+            <select
+              value={storeCategoryId}
+              onChange={(event) => setStoreCategoryId(event.target.value)}
+              required
+              disabled={categoriesLoading}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm"
+            >
+              <option value="">Choisir une catégorie</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>{category.name}</option>
+              ))}
+            </select>
+          </label>
+          <ImageDropzone
+            images={storeLogoUrl ? [storeLogoUrl] : []}
+            onChange={(images) => setStoreLogoUrl(images[0] ?? "")}
+            label="Logo public de la boutique (facultatif)"
+            circular
           />
         </div>
         <SellerContractSelector

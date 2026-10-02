@@ -50,7 +50,10 @@ export const useProductDetail = (): UseProductDetailReturn => {
             setNotFound(false);
 
             try {
-                const found = await productsApi.getById(id, controller.signal);
+                const isProductId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+                const found = isProductId
+                    ? await productsApi.getById(id, controller.signal)
+                    : await productsApi.getBySlug(id, controller.signal);
                 if (controller.signal.aborted) return;
 
                 setProduct(found);

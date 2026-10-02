@@ -59,6 +59,14 @@ export const productsApi = {
     return toProduct(data.product);
   },
 
+  async getBySlug(slug: string, signal?: AbortSignal): Promise<Product> {
+    const data = await api.get<{ product: ProductDto }>(`/products/slug/${encodeURIComponent(slug)}`, {
+      auth: false,
+      signal,
+    });
+    return toProduct(data.product);
+  },
+
   async getRelated(id: string, limit = 4, signal?: AbortSignal): Promise<Product[]> {
     const data = await api.get<{ products: ProductDto[] }>(
       `/products/${encodeURIComponent(id)}/related`,

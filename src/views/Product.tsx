@@ -6,6 +6,7 @@ import { ChevronRight, Truck, ShieldCheck, RefreshCw } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { useFavorite } from "../hooks/useFavorite";
 import { useProductDetail } from "../hooks/useProductDetail";
+import { useSeoMetadata } from "../hooks/useSeoMetadata";
 
 import { ProductActions } from "../components/product/detail/ProductActions";
 import { ProductGallery } from "../components/product/detail/ProductGallery";
@@ -39,6 +40,32 @@ export const ProductDetail: FC = () => {
 
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorite();
+
+  useSeoMetadata({
+    title: product ? `${product.title} | Lurevia` : "Boutique Lurevia — Créations malgaches",
+    description: product?.longDescription ?? product?.description ?? "Découvrez une création authentique de Madagascar sur Lurevia.",
+    canonicalPath: product ? `/produit/${encodeURIComponent(product.slug ?? product.id)}` : "/boutique",
+    image: product?.images?.[0] ?? product?.imageUrl,
+    openGraphType: "product",
+    structuredData: product ? {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.title,
+      description: product.longDescription ?? product.description,
+      image: product.images?.length ? product.images : [product.imageUrl],
+      sku: product.sku,
+      brand: { "@type": "Brand", name: "Lurevia" },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "MGA",
+        price: product.price,
+        availability: product.outOfStock
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
+        url: `${window.location.origin}/produit/${encodeURIComponent(product.slug ?? product.id)}`,
+      },
+    } : undefined,
+  });
 
   useEffect(() => {
     const hashWantsReviews = location.hash === "#reviews";
@@ -85,7 +112,7 @@ export const ProductDetail: FC = () => {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/produit/${encodeURIComponent(product.id)}`;
+    const url = `${window.location.origin}/produit/${encodeURIComponent(product.slug ?? product.id)}`;
     if (navigator.share) {
       await navigator.share({ title: product.title, text: `Découvrez ${product.title} sur Lurevia`, url });
       return;

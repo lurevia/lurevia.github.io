@@ -7,11 +7,36 @@ import { toErrorMessage } from "../api/http";
 import { ProductCard } from "../components/home/ProductCard";
 import { SellerLogo } from "./Sellers";
 import { sanitizeText } from "../bin/utils/security";
+import { useSeoMetadata } from "../hooks/useSeoMetadata";
 
 export const SellerProfilePage: FC = () => {
   const { id = "" } = useParams();
   const [seller, setSeller] = useState<PublicSellerDetails | null>(null);
   const [error, setError] = useState("");
+
+  useSeoMetadata({
+    title: seller ? `${seller.storeName} | Boutiques Lurevia` : "Boutiques Lurevia",
+    description: seller?.description ?? "Découvrez les boutiques et les créations locales sur Lurevia.",
+    canonicalPath: seller ? `/vendeurs/${encodeURIComponent(seller.id)}` : "/vendeurs",
+    image: seller?.logoUrl ?? undefined,
+    structuredData: seller ? {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      name: seller.storeName,
+      description: seller.description,
+      image: seller.logoUrl ?? undefined,
+      url: `${window.location.origin}/vendeurs/${encodeURIComponent(seller.id)}`,
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: `Produits de ${seller.storeName}`,
+        itemListElement: seller.products.map((product) => ({
+          "@type": "Offer",
+          url: `${window.location.origin}/produit/${encodeURIComponent(product.id)}`,
+          itemOffered: { "@type": "Product", name: product.title },
+        })),
+      },
+    } : undefined,
+  });
 
   useEffect(() => {
     const controller = new AbortController();

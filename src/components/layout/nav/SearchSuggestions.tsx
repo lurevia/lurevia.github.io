@@ -39,7 +39,7 @@ export const SearchSuggestions: FC<SearchSuggestionsProps> = ({
             {suggestions.map((product, index) => (
               <li key={product.id}>
                 <Link
-                  to={`/produit/${product.id}`}
+                  to={`/produit/${encodeURIComponent(product.slug || product.id)}`}
                   onClick={onSelect}
                   role="option"
                   aria-selected={index === activeIndex}

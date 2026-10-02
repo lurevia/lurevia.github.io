@@ -9,6 +9,9 @@ export type SellerStats = {
   products: number;
   sales: number;
   revenue: number;
+  pendingOrders: number;
+  daily: { date: string; sales: number; revenue: number }[];
+  topProducts: { id: string; title: string; unitsSold: number; imageUrl: string | null }[];
   feedbackCount: number;
   feedbackAverage: number;
   reviewCount: number;
@@ -37,13 +40,19 @@ export type SellerContractInput = {
   storeName: string;
   storeDescription: string;
   storeLogoUrl?: string;
+  storeCategoryId: string;
 };
+
+export type SellerStoreCategory = { id: string; name: string; slug: string };
 
 export type SellerProfile = {
   id: string;
   storeName: string;
   description: string;
   logoUrl: string | null;
+  storeCategoryId: string | null;
+  storeCategory: SellerStoreCategory | null;
+  productCount?: number;
 };
 
 export type PublicSeller = SellerProfile & { productCount: number };
@@ -91,11 +100,12 @@ export const sellerApi = {
     const data = await api.get<{ profile: SellerProfile }>("/seller/profile", { signal });
     return data.profile;
   },
-  async updateProfile(input: Omit<SellerProfile, "id">): Promise<SellerProfile> {
+  async updateProfile(input: Omit<SellerProfile, "id" | "productCount">): Promise<SellerProfile> {
     const data = await api.patch<{ profile: SellerProfile }>("/seller/profile", {
       storeName: input.storeName,
       storeDescription: input.description,
       storeLogoUrl: input.logoUrl,
+      storeCategoryId: input.storeCategoryId,
     });
     return data.profile;
   },

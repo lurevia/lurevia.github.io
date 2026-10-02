@@ -57,7 +57,7 @@ export const NavbarSearch: FC<NavbarSearchProps> = ({
       e.preventDefault();
       const selected = suggestions[activeIndex];
       if (selected) {
-        navigate(`/produit/${selected.id}`);
+        navigate(`/produit/${encodeURIComponent(selected.slug || selected.id)}`);
         handleClose();
       }
     }

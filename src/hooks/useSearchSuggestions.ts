@@ -9,6 +9,7 @@ const DEBOUNCE_MS = 250;
 
 export type SearchSuggestion = {
   id: string;
+  slug: string;
   title: string;
   price: number;
   imageUrl: string;
@@ -52,6 +53,7 @@ export const useSearchSuggestions = (rawQuery: string): SearchSuggestionsReturn 
         setSuggestions(
           results.map((item) => ({
             id: item.id,
+            slug: item.slug,
             title: sanitizeText(item.title, 200),
             price: item.price,
             imageUrl: safeImageUrl(item.imageUrl) ?? FALLBACK_IMAGE,

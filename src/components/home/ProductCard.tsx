@@ -53,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
 
     return (
       <Link
-        to={`/produit/${id}`}
+        to={`/produit/${encodeURIComponent(product.slug ?? id)}`}
         className="block h-full group"
         aria-label={`Voir ${title}`}
       >

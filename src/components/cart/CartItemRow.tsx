@@ -27,7 +27,7 @@ export const CartItemRow: FC<CartItemRowProps> = ({
     <article className="py-4 md:py-5 border-b border-slate-100 last:border-0">
       <div className="flex gap-3 md:gap-4">
         <Link
-          to={`/produit/${product.id}`}
+          to={`/produit/${encodeURIComponent(product.slug ?? product.id)}`}
           className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-slate-50"
         >
           <ProductImage
@@ -43,7 +43,7 @@ export const CartItemRow: FC<CartItemRowProps> = ({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <Link
-                to={`/produit/${product.id}`}
+                to={`/produit/${encodeURIComponent(product.slug ?? product.id)}`}
                 className="text-sm md:text-base font-bold text-slate-800 hover:text-lurevia-orange transition-colors line-clamp-2 leading-tight"
               >
                 {product.title}

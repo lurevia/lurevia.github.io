@@ -95,7 +95,6 @@ export const ProfilePage: FC = () => {
         initials={initialsOf(user.fullName)}
         isSaving={isSaving}
         onSave={saveProfile}
-        onError={setProfileError}
       />
       <ProfilePersonalInfo
         user={user}

@@ -12,10 +12,15 @@ export type AddressDto = {
   label: string;
   fullName: string;
   phone: string;
-  email: string;
+  email: string | null;
+  province: string;
+  region: string;
   address: string;
   city: string;
-  region: string;
+  neighborhood: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  accuracyMeters: number | null;
   notes: string | null;
   isDefault: boolean;
   createdAt: string;
@@ -47,6 +52,8 @@ export type OrderDto = {
     fullName: string;
     phone: string;
     email: string;
+    province: string;
+    neighborhood?: string;
     address: string;
     city: string;
     region: string;

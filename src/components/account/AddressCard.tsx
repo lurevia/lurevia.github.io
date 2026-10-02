@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { MapPin, Trash2, Star, Pencil } from "lucide-react";
 import type { Address } from "../../bin/types/addressType";
+import { PROVINCE_LABELS, REGION_LABELS } from "../../bin/config/geography";
 import { Button } from "../ui/Button";
 
 type AddressCardProps = {
@@ -43,8 +44,15 @@ export const AddressCard: FC<AddressCardProps> = ({
         <p className="text-xs text-slate-600 mt-2 leading-relaxed">
           {address.address}
           <br />
-          {address.city}, {address.region}
+          {address.neighborhood && `${address.neighborhood}, `}
+          {address.city}, {REGION_LABELS[address.region]} · {PROVINCE_LABELS[address.province]}
         </p>
+        {address.latitude !== undefined && address.longitude !== undefined && (
+          <p className="mt-1 text-[10px] text-slate-400">
+            Position enregistrée
+            {address.accuracyMeters !== undefined && ` · précision ±${Math.round(address.accuracyMeters)} m`}
+          </p>
+        )}
       </div>
     </div>
 

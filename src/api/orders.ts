@@ -23,7 +23,14 @@ export const ordersApi = {
    * influencer le prix facturé.
    */
   async checkout(payload: CheckoutPayload): Promise<Order> {
-    const body: Record<string, unknown> = { paymentMethod: payload.paymentMethod };
+    const body: Record<string, unknown> = {
+      paymentMethod: payload.paymentMethod,
+      deliveryMode: payload.deliveryMode,
+      ...(payload.deliveryLatitude !== undefined ? { deliveryLatitude: payload.deliveryLatitude } : {}),
+      ...(payload.deliveryLongitude !== undefined ? { deliveryLongitude: payload.deliveryLongitude } : {}),
+      ...(payload.deliveryAccuracy !== undefined ? { deliveryAccuracy: payload.deliveryAccuracy } : {}),
+      ...(payload.pickupPointId ? { pickupPointId: payload.pickupPointId } : {}),
+    };
 
     if (payload.addressId) body.addressId = payload.addressId;
     else if (payload.shipping) body.shipping = payload.shipping;

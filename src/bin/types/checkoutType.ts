@@ -1,3 +1,5 @@
+import type { ProvinceCode, RegionCode } from "../config/geography";
+
 export type PaymentMethod = "mobile-money" | "card" | "cash";
 
 export interface ShippingAddress {
@@ -5,10 +7,13 @@ export interface ShippingAddress {
   phone: string;
   email: string;
   address: string;
+  province: ProvinceCode;
   city: string;
-  region: string;
+  neighborhood?: string;
+  region: RegionCode;
   latitude?: number;
   longitude?: number;
+  accuracyMeters?: number;
   notes?: string;
 }
 

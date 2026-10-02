@@ -58,7 +58,7 @@ export const useCheckout = (): UseCheckoutReturn => {
 
   const updateShipping = (
     field: keyof ShippingAddress,
-    value: string,
+    value: ShippingAddress[keyof ShippingAddress],
   ): void => {
     setState((prev) => ({
       ...prev,
@@ -97,8 +97,13 @@ export const useCheckout = (): UseCheckoutReturn => {
         phone: address.phone,
         email: address.email,
         address: address.address,
+        province: address.province,
         city: address.city,
+        neighborhood: address.neighborhood,
         region: address.region,
+        latitude: address.latitude,
+        longitude: address.longitude,
+        accuracyMeters: address.accuracyMeters,
         notes: address.notes ?? "",
       },
     }));
@@ -148,6 +153,10 @@ export const useCheckout = (): UseCheckoutReturn => {
       const order = await checkout({
         addressId: state.addressId ?? undefined,
         shipping: state.addressId ? undefined : state.shipping,
+        deliveryMode: "HOME_DELIVERY",
+        deliveryLatitude: state.shipping.latitude,
+        deliveryLongitude: state.shipping.longitude,
+        deliveryAccuracy: state.shipping.accuracyMeters,
         paymentMethod: state.paymentMethod,
         mobileMoney:
           state.paymentMethod === "mobile-money"

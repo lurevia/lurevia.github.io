@@ -10,8 +10,13 @@ const toBody = (input: Partial<AddressInput>): Record<string, unknown> => {
   if (input.phone !== undefined) body.phone = input.phone;
   if (input.email !== undefined) body.email = input.email;
   if (input.address !== undefined) body.address = input.address;
+  if (input.province !== undefined) body.province = input.province;
   if (input.city !== undefined) body.city = input.city;
+  if (input.neighborhood !== undefined) body.neighborhood = input.neighborhood;
   if (input.region !== undefined) body.region = input.region;
+  if (input.latitude !== undefined) body.latitude = input.latitude;
+  if (input.longitude !== undefined) body.longitude = input.longitude;
+  if (input.accuracyMeters !== undefined) body.accuracyMeters = input.accuracyMeters;
   if (input.notes !== undefined && input.notes !== "") body.notes = input.notes;
   if (input.isDefault !== undefined) body.isDefault = input.isDefault;
   return body;

@@ -33,6 +33,7 @@ export const BecomeSellerPage: FC = () => {
   const [storeName, setStoreName] = useState("");
   const [storeDescription, setStoreDescription] = useState("");
   const [storeLogoUrl, setStoreLogoUrl] = useState("");
+  const [storeCoverUrl, setStoreCoverUrl] = useState("");
   const [storeCategoryId, setStoreCategoryId] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -96,6 +97,7 @@ export const BecomeSellerPage: FC = () => {
         storeDescription: storeDescription.trim(),
         storeCategoryId,
         ...(storeLogoUrl.trim() ? { storeLogoUrl: storeLogoUrl.trim() } : {}),
+        ...(storeCoverUrl.trim() ? { storeCoverUrl: storeCoverUrl.trim() } : {}),
       });
       await refreshUser();
       navigate("/vendeur", { replace: true });
@@ -168,6 +170,11 @@ export const BecomeSellerPage: FC = () => {
             onChange={(images) => setStoreLogoUrl(images[0] ?? "")}
             label="Logo public de la boutique (facultatif)"
             circular
+          />
+          <ImageDropzone
+            images={storeCoverUrl ? [storeCoverUrl] : []}
+            onChange={(images) => setStoreCoverUrl(images[0] ?? "")}
+            label="Photo de couverture (facultatif)"
           />
         </div>
         <SellerContractSelector

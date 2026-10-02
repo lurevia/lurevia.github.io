@@ -3,6 +3,7 @@ import type {
   PaymentMethod,
   ShippingAddress,
 } from "../bin/types/checkoutType";
+import { PROVINCE_LABELS, REGIONS_BY_PROVINCE } from "../bin/config/geography";
 
 export const isValidMalagasyPhone = (phone: string): boolean =>
   /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
@@ -26,6 +27,9 @@ export const validateShippingAddress = (
   if (address.trim().length < 3) errors.address = "Adresse requise";
   if (!city.trim()) errors.city = "Ville requise";
   if (!region.trim()) errors.region = "Région requise";
+  if (!(REGIONS_BY_PROVINCE[shipping.province] as readonly string[]).includes(region)) {
+    errors.region = `Choisissez une région de ${PROVINCE_LABELS[shipping.province]}`;
+  }
 
   return errors;
 };
@@ -43,8 +47,9 @@ export const INITIAL_SHIPPING: ShippingAddress = {
   phone: "",
   email: "",
   address: "",
+  province: "ANTANANARIVO",
   city: "",
-  region: "",
+  region: "ANALAMANGA",
   notes: "",
 };
 

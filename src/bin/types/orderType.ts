@@ -55,6 +55,11 @@ export interface Order {
 export interface CheckoutPayload {
   addressId?: string;
   shipping?: ShippingAddress;
+  deliveryMode: "HOME_DELIVERY" | "PICKUP_POINT";
+  deliveryLatitude?: number;
+  deliveryLongitude?: number;
+  deliveryAccuracy?: number;
+  pickupPointId?: string;
   paymentMethod: PaymentMethod;
   mobileMoney?: MobileMoneyDetails;
   paymentToken?: string;

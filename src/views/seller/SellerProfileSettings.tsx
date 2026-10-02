@@ -9,6 +9,7 @@ const emptyProfile: Omit<SellerProfile, "id"> = {
   storeName: "",
   description: "",
   logoUrl: null,
+  coverUrl: null,
   storeCategoryId: null,
   storeCategory: null,
 };
@@ -150,6 +151,13 @@ export function SellerProfileSettings({ onUpdated }: SellerProfileSettingsProps)
           }
           label="Logo de la boutique"
           circular
+        />
+        <ImageDropzone
+          images={profile.coverUrl ? [profile.coverUrl] : []}
+          onChange={(images) =>
+            setProfile({ ...profile, coverUrl: images[0] ?? null })
+          }
+          label="Photo de couverture de la boutique"
         />
         <div className="flex flex-wrap items-center gap-3">
           <button

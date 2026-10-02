@@ -40,6 +40,7 @@ export type SellerContractInput = {
   storeName: string;
   storeDescription: string;
   storeLogoUrl?: string;
+  storeCoverUrl?: string;
   storeCategoryId: string;
 };
 
@@ -50,6 +51,7 @@ export type SellerProfile = {
   storeName: string;
   description: string;
   logoUrl: string | null;
+  coverUrl: string | null;
   storeCategoryId: string | null;
   storeCategory: SellerStoreCategory | null;
   productCount?: number;
@@ -105,6 +107,7 @@ export const sellerApi = {
       storeName: input.storeName,
       storeDescription: input.description,
       storeLogoUrl: input.logoUrl,
+      storeCoverUrl: input.coverUrl,
       storeCategoryId: input.storeCategoryId,
     });
     return data.profile;

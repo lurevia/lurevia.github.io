@@ -3,33 +3,23 @@ import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { Select } from "../ui/Select";
 import { Textarea } from "../ui/Textarea";
 import type { ShippingAddress } from "../../bin/types/checkoutType";
 import type { Address } from "../../bin/types/addressType";
 import { SavedAddressSelector } from "./SavedAddressSelector";
+import { GeographicAddressFields } from "../account/GeographicAddressFields";
+import { AddressMapPicker } from "../account/AddressMapPicker";
 
 type ShippingFormProps = {
     value: ShippingAddress;
     errors: Partial<Record<keyof ShippingAddress, string>>;
-    onChange: (field: keyof ShippingAddress, value: string) => void;
+    onChange: (field: keyof ShippingAddress, value: ShippingAddress[keyof ShippingAddress]) => void;
     onClearSaved?: () => void;
     /** Adresses enregistrées sur le compte de l'utilisateur connecté */
     savedAddresses?: Address[];
     /** Auto-complète instantanément le formulaire avec l'adresse choisie */
     onUseSavedAddress?: (address: Address) => void;
 };
-
-const REGIONS = [
-    "Antananarivo",
-    "Antsirabe",
-    "Toamasina",
-    "Mahajanga",
-    "Fianarantsoa",
-    "Toliara",
-    "Antsiranana",
-    "Autre",
-];
 
 /**
  * ShippingForm
@@ -139,30 +129,37 @@ export const ShippingForm: FC<ShippingFormProps> = ({
                 autoComplete="street-address"
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                    label="Ville"
-                    value={value.city}
-                    error={errors.city}
-                    onChange={(e) => onChange("city", e.target.value)}
-                    placeholder="Antananarivo"
-                    autoComplete="address-level2"
-                />
+            <GeographicAddressFields
+                province={value.province}
+                region={value.region}
+                city={value.city}
+                neighborhood={value.neighborhood}
+                errors={errors}
+                onProvinceChange={(province) => {
+                    const defaultRegion = {
+                        ANTANANARIVO: "ANALAMANGA",
+                        ANTSIRANANA: "DIANA",
+                        MAHAJANGA: "SOFIA",
+                        TOAMASINA: "ATSINANANA",
+                        FIANARANTSOA: "HAUTE_MATSIATRA",
+                        TOLIARA: "ATSIMO_ANDREFANA",
+                    }[province] as ShippingAddress["region"];
+                    onChange("province", province);
+                    onChange("region", defaultRegion);
+                }}
+                onRegionChange={(region) => onChange("region", region)}
+                onCityChange={(city) => onChange("city", city)}
+                onNeighborhoodChange={(neighborhood) => onChange("neighborhood", neighborhood)}
+            />
 
-                <Select
-                    label="Région"
-                    value={value.region}
-                    error={errors.region}
-                    onChange={(e) => onChange("region", e.target.value)}
-                >
-                    <option value="">Choisir…</option>
-                    {REGIONS.map((r) => (
-                        <option key={r} value={r}>
-                            {r}
-                        </option>
-                    ))}
-                </Select>
-            </div>
+            <AddressMapPicker
+                value={{ latitude: value.latitude, longitude: value.longitude, accuracyMeters: value.accuracyMeters }}
+                onChange={(position) => {
+                    onChange("latitude", position.latitude);
+                    onChange("longitude", position.longitude);
+                    onChange("accuracyMeters", position.accuracyMeters);
+                }}
+            />
 
             <Textarea
                 label="Instructions (optionnel)"

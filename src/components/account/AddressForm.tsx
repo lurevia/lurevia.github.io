@@ -1,14 +1,16 @@
 import { useState } from "react";
 import type { FC, FormEvent } from "react";
 import { Input } from "../ui/Input";
-import { Select } from "../ui/Select";
 import { Button } from "../ui/Button";
-import type { Address } from "../../bin/types/addressType";
+import type { Address, AddressInput } from "../../bin/types/addressType";
+import { GeographicAddressFields } from "./GeographicAddressFields";
+import { AddressMapPicker } from "./AddressMapPicker";
+import { REGIONS_BY_PROVINCE, type ProvinceCode, type RegionCode } from "../../bin/config/geography";
 
 type AddressFormProps = {
     initial?: Address;
     isSubmitting?: boolean;
-    onSubmit: (data: Omit<Address, "id" | "userId" | "createdAt">) => void;
+    onSubmit: (data: AddressInput) => void;
     onCancel: () => void;
 };
 
@@ -17,17 +19,6 @@ const isValidEmail = (email: string): boolean =>
 
 const isValidMalagasyPhone = (phone: string): boolean =>
     /^(\+261|0)[0-9]{9}$/.test(phone.replace(/\s/g, ""));
-
-const REGIONS = [
-    "Antananarivo",
-    "Antsirabe",
-    "Toamasina",
-    "Mahajanga",
-    "Fianarantsoa",
-    "Toliara",
-    "Antsiranana",
-    "Autre",
-];
 
 export const AddressForm: FC<AddressFormProps> = ({
     initial,
@@ -41,7 +32,12 @@ export const AddressForm: FC<AddressFormProps> = ({
     const [email, setEmail] = useState(initial?.email ?? "");
     const [address, setAddress] = useState(initial?.address ?? "");
     const [city, setCity] = useState(initial?.city ?? "");
-    const [region, setRegion] = useState(initial?.region ?? "");
+    const [province, setProvince] = useState<ProvinceCode>(initial?.province ?? "ANTANANARIVO");
+    const [region, setRegion] = useState<RegionCode>(initial?.region ?? "ANALAMANGA");
+    const [neighborhood, setNeighborhood] = useState(initial?.neighborhood ?? "");
+    const [latitude, setLatitude] = useState<number | undefined>(initial?.latitude);
+    const [longitude, setLongitude] = useState<number | undefined>(initial?.longitude);
+    const [accuracyMeters, setAccuracyMeters] = useState<number | undefined>(initial?.accuracyMeters);
     const [isDefault, setIsDefault] = useState(initial?.isDefault ?? false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,7 +51,9 @@ export const AddressForm: FC<AddressFormProps> = ({
         else if (!isValidEmail(email)) next.email = "Email invalide";
         if (!address.trim()) next.address = "Requis";
         if (!city.trim()) next.city = "Requis";
-        if (!region.trim()) next.region = "Requis";
+        if (!(REGIONS_BY_PROVINCE[province] as readonly string[]).includes(region)) {
+            next.region = "Choisissez une région de la province sélectionnée";
+        }
         setErrors(next);
         if (Object.keys(next).length > 0) return;
 
@@ -66,7 +64,12 @@ export const AddressForm: FC<AddressFormProps> = ({
             email: email.trim().toLowerCase(),
             address,
             city,
+            province,
+            neighborhood: neighborhood.trim() || undefined,
             region,
+            latitude,
+            longitude,
+            accuracyMeters,
             notes: initial?.notes ?? "",
             isDefault,
         });
@@ -131,28 +134,29 @@ export const AddressForm: FC<AddressFormProps> = ({
                 placeholder="Lot II M 45 Bis, Ankadifotsy"
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                    label="Ville"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    error={errors.city}
-                    placeholder="Antananarivo"
-                />
-                <Select
-                    label="Région"
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    error={errors.region}
-                >
-                    <option value="">Choisir…</option>
-                    {REGIONS.map((r) => (
-                        <option key={r} value={r}>
-                            {r}
-                        </option>
-                    ))}
-                </Select>
-            </div>
+            <GeographicAddressFields
+                province={province}
+                region={region}
+                city={city}
+                neighborhood={neighborhood}
+                errors={errors}
+                onProvinceChange={(nextProvince) => {
+                    setProvince(nextProvince);
+                    setRegion(REGIONS_BY_PROVINCE[nextProvince][0]);
+                }}
+                onRegionChange={setRegion}
+                onCityChange={setCity}
+                onNeighborhoodChange={setNeighborhood}
+            />
+
+            <AddressMapPicker
+                value={{ latitude, longitude, accuracyMeters }}
+                onChange={(position) => {
+                    setLatitude(position.latitude);
+                    setLongitude(position.longitude);
+                    setAccuracyMeters(position.accuracyMeters);
+                }}
+            />
 
             <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
                 <input

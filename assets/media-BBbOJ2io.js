@@ -1,2 +1,0 @@
-import{t as e}from"./http-B2gR5Wbo.js";var t={uploadDataUrl(t){return e.post(`/media/upload`,{dataUrl:t}).then(e=>e.media)},importUrl(t){return e.post(`/media/import`,{url:t.trim()}).then(e=>e.media)}};export{t};
-//# sourceMappingURL=media-BBbOJ2io.js.map

@@ -39,29 +39,27 @@ export const ProductGrid: FC<ProductGridProps> = ({
     <section className="mx-auto max-w-7xl px-3 py-8 sm:px-6 md:py-12">
       <div
         className={[
-          "relative overflow-hidden bg-[#10243e]",
-          "px-4 py-7 shadow-[0_28px_80px_-36px_rgba(16,36,62,0.8)]",
+          "relative overflow-hidden rounded-2xl border border-slate-100 bg-white",
+          "px-4 py-7",
           "sm:px-7 md:px-9 md:py-9",
         ].join(" ")}
       >
-        <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 bg-blue-600/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-36 left-1/3 h-72 w-72 bg-sky-500/10 blur-3xl" />
-        <div className="relative z-10 mb-6 flex items-end justify-between gap-4 border-b border-white/10 pb-5 md:mb-8">
+        <div className="relative z-10 mb-6 flex items-end justify-between gap-4 border-b border-slate-100 pb-5 md:mb-8">
           <div className="space-y-2">
-            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-300">
+            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-lurevia-orange">
               <Sparkles size={14} />
               Sélection Lurevia
             </p>
-            <h2 className="text-xl font-black uppercase tracking-tight text-white md:text-3xl">
+            <h2 className="text-xl font-black uppercase tracking-tight text-lurevia-dark md:text-3xl">
               Produits populaires
             </h2>
-            <p className="hidden max-w-xl text-sm text-stone-300 md:block">
+            <p className="hidden max-w-xl text-sm text-slate-500 md:block">
               Nos découvertes et créations préférées, sélectionnées pour vous.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Link to="/boutique" className="flex items-center">
-              <span className="mr-2 text-xs font-bold text-orange-200 transition hover:text-white md:hidden">
+              <span className="mr-2 text-xs font-bold text-lurevia-dark transition hover:text-lurevia-orange md:hidden">
                 Voir tout
               </span>
               <span className="hidden md:block">
@@ -69,7 +67,7 @@ export const ProductGrid: FC<ProductGridProps> = ({
                   variant="secondary"
                   icon={ArrowRight}
                   iconPosition="right"
-                  className="rounded-full! border-orange-400/40! bg-white/10! px-5! py-3! text-white! hover:bg-white/20!"
+                  className="rounded-full! border-slate-200! bg-white! px-5! py-3! text-lurevia-dark! hover:bg-slate-50!"
                 >
                   Toute la boutique
                 </Button>
@@ -78,21 +76,21 @@ export const ProductGrid: FC<ProductGridProps> = ({
             <div className="hidden items-center gap-2 sm:flex">
               <Button
                 type="button"
-                variant="primary"
+                variant="ghost"
                 size="icon"
                 icon={ChevronLeft}
                 onClick={() => scroll("left")}
                 aria-label="Produits précédents"
-                className="h-10! w-10! rounded-full! border border-white/20! bg-white/10! text-white! hover:bg-orange-600!"
+                className="h-10! w-10! rounded-full! border border-slate-200! bg-white! text-slate-600! hover:bg-slate-50!"
               />
               <Button
                 type="button"
-                variant="primary"
+                variant="ghost"
                 size="icon"
                 icon={ChevronRight}
                 onClick={() => scroll("right")}
                 aria-label="Produits suivants"
-                className="h-10! w-10! rounded-full! border border-white/20! bg-white/10! text-white! hover:bg-orange-600!"
+                className="h-10! w-10! rounded-full! border border-slate-200! bg-white! text-slate-600! hover:bg-slate-50!"
               />
             </div>
           </div>
@@ -101,11 +99,11 @@ export const ProductGrid: FC<ProductGridProps> = ({
         <div className="relative z-10">
           {isLoading ? (
             <div className="flex justify-center py-16" role="status">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-600 border-t-orange-400" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-lurevia-orange" />
               <span className="sr-only">Chargement des produits</span>
             </div>
           ) : topProducts.length === 0 ? (
-            <p className="py-12 text-center text-sm text-stone-300">
+            <p className="py-12 text-center text-sm text-slate-500">
               Aucun produit disponible pour le moment.
             </p>
           ) : (

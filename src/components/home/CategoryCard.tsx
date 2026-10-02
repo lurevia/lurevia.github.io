@@ -43,7 +43,7 @@ export const CategoryCard: FC<CategoryCardProps> = ({
     <Link
       to={`/categories/${slug}`}
       className={[
-        "group relative block h-full w-full overflow-hidden",
+        "group relative block h-full w-full overflow-hidden rounded-2xl",
         "ring-1 ring-black/5 transition-all duration-500 hover:ring-black/20",
       ].join(" ")}
     >

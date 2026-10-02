@@ -66,7 +66,7 @@ export const CategoryMobile: FC = () => {
                 to={`/categories/${category.slug || category.id}`}
                 className={[
                   "group relative h-52 w-40 shrink-0 snap-start overflow-hidden",
-                  "rounded-md ring-1 ring-black/5 transition-all",
+                  "rounded-2xl ring-1 ring-black/5 transition-all",
                   "active:ring-black/20",
                 ].join(" ")}
               >

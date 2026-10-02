@@ -45,16 +45,6 @@
   --animate-marquee: marquee 20s linear infinite;
 }
 
-*, *::before, *::after {
-  border-radius: 0 !important;
-}
-
-@layer utilities {
-  [class*="rounded"] {
-    border-radius: 0 !important;
-  }
-}
-
 html,
 body, 
 #root {

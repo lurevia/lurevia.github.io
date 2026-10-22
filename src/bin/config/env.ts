@@ -7,7 +7,7 @@ const readNumber = (value: unknown, fallback: number): number => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-const PRODUCTION_API_URL = "https://lurevia-ecommerce.onrender.com/api/v1";
+const PRODUCTION_API_URL = readString(import.meta.env.PRODUCTION_API_URL, "/api/v1");
 
 const isLocalhostUrl = (value: string): boolean => {
   try {

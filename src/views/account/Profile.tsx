@@ -29,7 +29,7 @@ export const ProfilePage: FC = () => {
   const { unreadCount } = useNotifications();
   const { status: verificationStatus } = useVerification();
   const [fullName, setFullName] = useState(user?.fullName ?? "");
-  const [age, setAge] = useState<number | undefined>(user?.age);
+  const [age, setAge] = useState<number | undefined>(user?.age ?? undefined);
   const [gender, setGender] = useState<User["gender"]>(user?.gender ?? "OTHER");
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);

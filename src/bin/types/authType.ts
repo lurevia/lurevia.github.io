@@ -13,8 +13,13 @@ export interface User {
   primaryProvider: "LOCAL" | "FACEBOOK" | "GOOGLE";
   createdAt: string;
   lastLoginAt?: string;
-  age?: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  age?: number | null;
+  gender?: "MALE" | "FEMALE" | "OTHER" | null;
+  identityVerificationStatus?: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED" | string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  isMinor?: boolean;
+  isPrimaryAdmin?: boolean;
 }
 
 export interface RegisterPayload {
@@ -32,8 +37,8 @@ export interface LoginPayload {
 export interface ProfileUpdatePayload {
   fullName?: string;
   avatarUrl?: string | null;
-  age?: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  age?: number | null;
+  gender?: "MALE" | "FEMALE" | "OTHER" | null;
 }
 
 export interface CompleteOAuthProfilePayload {

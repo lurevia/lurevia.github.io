@@ -33,12 +33,6 @@ export const AuthPage: FC = () => {
   );
 
   const state = location.state as LocationState | null;
-  const from =
-    typeof state?.from === "string" &&
-    state.from.startsWith("/") &&
-    !state.from.startsWith("//")
-      ? state.from
-      : "/compte";
   const reason = state?.reason;
 
   useEffect(() => {
@@ -46,14 +40,21 @@ export const AuthPage: FC = () => {
       if (!user?.phone || !user.hasPassword) {
         navigate("/compte/complete-oauth", { replace: true });
       } else {
-        navigate(user.isVerified ? from : "/compte/verification", {
+        navigate("/onboarding", {
           replace: true,
         });
       }
     }
-  }, [isReady, isAuthenticated, user, from, navigate]);
+  }, [isReady, isAuthenticated, user, navigate]);
 
   const isLogin = form.mode === "login";
+
+  const handleFillDemo = () => {
+    form.switchMode("login");
+    form.setLoginEmail("razafimanantsoaamarah@gmail.com");
+    form.setLoginPassword("Mahery123456789.");
+    form.setError(null);
+  };
 
   const handleSocialLogin = async (provider: OAuthProvider) => {
     setIsSocialSubmitting(true);
@@ -62,10 +63,8 @@ export const AuthPage: FC = () => {
       const result = await loginWithOAuth(token, provider);
       if (result.needsProfileCompletion) {
         navigate("/compte/complete-oauth", { replace: true });
-      } else if (!result.user.isVerified) {
-        navigate("/compte/verification", { replace: true });
       } else {
-        navigate(from, { replace: true });
+        navigate("/onboarding", { replace: true });
       }
     } catch (err: unknown) {
       const providerName = provider === "GOOGLE" ? "Google" : "Facebook";
@@ -113,52 +112,71 @@ export const AuthPage: FC = () => {
 
   return (
     <AuthLayout>
-      <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-[0_24px_80px_-24px_rgba(68,43,27,0.22)]">
-        <div className="h-1.5 bg-linear-to-r from-orange-700 via-orange-500 to-amber-300" />
+      <div className="overflow-hidden rounded-3xl border border-stone-800/80 bg-stone-900/95 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-xl text-stone-100">
+        <div className="h-1.5 bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-400" />
 
         <div className="space-y-5 p-6 md:p-8">
           <div className="space-y-1 text-center">
-            <h2 className="text-2xl font-black text-stone-900">
-              {isLogin ? "Bon retour" : "Créer un compte"}
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              {isLogin ? "S'identifier sur Lurevia" : "Rejoindre l'expérience"}
             </h2>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-stone-400">
               {isLogin
-                ? "Connectez-vous pour continuer."
-                : "Créez votre compte avec Facebook ou Google."}
+                ? "Connectez-vous pour accéder à vos sélections et vos créations."
+                : "Créez votre compte en quelques instants."}
             </p>
           </div>
 
+          {/* Badge démo rapide */}
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 flex items-center justify-between gap-3">
+            <div>
+              <p className="font-bold text-amber-300">Compte Test Disponible</p>
+              <p className="text-[11px] text-stone-300 truncate max-w-[210px] sm:max-w-xs">
+                razafimanantsoaamarah@gmail.com
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleFillDemo}
+              className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-500 text-black font-extrabold text-[11px] hover:bg-amber-400 transition cursor-pointer shadow-sm"
+            >
+              Remplir
+            </button>
+          </div>
+
           {reason && (
-            <div className="flex items-start gap-2 rounded-xl border border-orange-200 bg-orange-50 p-3">
-              <Info size={14} className="mt-0.5 shrink-0 text-orange-700" />
-              <p className="text-xs font-medium text-orange-950">{reason}</p>
+            <div className="flex items-start gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 p-3">
+              <Info size={14} className="mt-0.5 shrink-0 text-orange-400" />
+              <p className="text-xs font-medium text-orange-200">{reason}</p>
             </div>
           )}
 
           <AuthModeSwitch mode={form.mode} onSwitch={form.switchMode} />
 
-          <div className="space-y-3">
-            {isLogin && <AuthFormFields form={form} />}
+          <div className="space-y-4">
+            <AuthFormFields form={form} />
 
             {form.error && (
-              <div className="rounded-lg border border-red-100 bg-red-50 p-2.5">
-                <p className="text-[11px] font-medium text-red-700">
+              <div className="rounded-xl border border-red-500/40 bg-red-950/60 p-3">
+                <p className="text-xs font-medium text-red-200">
                   {form.error}
                 </p>
               </div>
             )}
 
-            {isLogin && (
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => void form.handleLogin()}
-                disabled={form.isSubmitting || isSocialSubmitting}
-                className="w-full! py-3! rounded-xl! font-black text-sm"
-              >
-                {form.isSubmitting ? "Chargement…" : "Se connecter"}
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => void (isLogin ? form.handleLogin() : form.handleRegister())}
+              disabled={form.isSubmitting || isSocialSubmitting}
+              className="w-full! py-3.5! rounded-xl! font-black text-xs uppercase tracking-wider bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-500 text-white shadow-xl shadow-orange-600/30 hover:brightness-110 active:scale-[0.99] transition cursor-pointer"
+            >
+              {form.isSubmitting
+                ? "Traitement en cours…"
+                : isLogin
+                ? "S'identifier"
+                : "Créer mon compte Lurevia"}
+            </Button>
 
             <AuthProviderButtons
               isLogin={isLogin}
@@ -167,14 +185,14 @@ export const AuthPage: FC = () => {
               onSignup={requestSocialSignup}
             />
 
-            <p className="text-center text-[11px] text-slate-500">
-              {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"}{" "}
+            <p className="text-center text-xs text-stone-400 pt-1">
+              {isLogin ? "Première visite sur Lurevia ?" : "Déjà membre ?"}{" "}
               <button
                 type="button"
                 onClick={() => form.switchMode(isLogin ? "register" : "login")}
-                className="font-bold text-lurevia-orange hover:underline cursor-pointer"
+                className="font-bold text-orange-400 hover:text-orange-300 hover:underline cursor-pointer"
               >
-                {isLogin ? "S'inscrire" : "Se connecter"}
+                {isLogin ? "S'inscrire maintenant" : "Se connecter"}
               </button>
             </p>
           </div>

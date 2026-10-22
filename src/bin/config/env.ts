@@ -18,7 +18,7 @@ const isLocalhostUrl = (value: string): boolean => {
   }
 };
 
-const configuredApiUrl = readString(import.meta.env.VITE_API_URL, PRODUCTION_API_URL);
+const configuredApiUrl = readString(import.meta.env.VITE_API_URL, "/api/v1");
 
 export const API_BASE_URL = (
   import.meta.env.PROD && isLocalhostUrl(configuredApiUrl)

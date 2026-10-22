@@ -4,18 +4,17 @@ type AuthModeSwitchProps = {
 };
 
 export const AuthModeSwitch = ({ mode, onSwitch }: AuthModeSwitchProps) => (
-  <div className="flex bg-slate-100 p-1">
+  <div className="flex rounded-xl bg-stone-800/90 p-1 border border-stone-700/60">
     {(["login", "register"] as const).map((option) => (
       <button
         key={option}
         type="button"
         onClick={() => onSwitch(option)}
         className={[
-          "flex-1 py-2 text-[11px] font-bold uppercase tracking-wider",
-          "transition-colors",
+          "flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer",
           mode === option
-            ? "bg-white text-slate-950 shadow-sm"
-            : "text-slate-500 hover:text-slate-800",
+            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20"
+            : "text-stone-400 hover:text-white",
         ].join(" ")}
       >
         {option === "login" ? "Connexion" : "Inscription"}

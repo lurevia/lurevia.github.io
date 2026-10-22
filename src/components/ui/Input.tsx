@@ -31,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider"
+            className="block text-xs font-bold text-slate-700 dark:text-stone-300 mb-2 uppercase tracking-wider"
           >
             {label}
           </label>
@@ -47,10 +47,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
-            className={`w-full px-4 py-3 rounded-xl border bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-lurevia-orange focus:border-transparent transition-colors ${
+            className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-stone-900/90 text-sm text-slate-800 dark:text-stone-100 placeholder-slate-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
               hasError
-                ? "border-red-300 focus:ring-red-300"
-                : "border-slate-200"
+                ? "border-red-400 focus:ring-red-400"
+                : "border-slate-200 dark:border-stone-700/80"
             } ${icon ? "pl-10" : ""} ${className}`}
             aria-invalid={hasError}
             aria-describedby={error ? `${inputId}-error` : undefined}

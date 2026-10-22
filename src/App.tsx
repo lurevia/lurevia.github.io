@@ -93,6 +93,9 @@ const BecomeSellerPage = lazy(() =>
   import("./views/account/BecomeSeller").then((module) => ({ default: module.BecomeSellerPage }))
 );
 const SellerSpace = lazy(() => import("./views/seller/SellerSpace").then((module) => ({ default: module.SellerSpace })));
+const OnboardingPage = lazy(() =>
+  import("./views/Onboarding").then((module) => ({ default: module.OnboardingPage }))
+);
 
 function RouteFallback() {
   return (
@@ -111,6 +114,17 @@ export default function App() {
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute
+                  roles={["CUSTOMER", "SELLER"]}
+                  reason="Configurez votre profil et vos préférences."
+                >
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/vendeur" element={<MainLayout />}>
               <Route index element={<ProtectedRoute roles={["SELLER"]}><SellerSpace /></ProtectedRoute>} />
             </Route>

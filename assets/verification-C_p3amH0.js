@@ -1,0 +1,2 @@
+import{t as e}from"./http-CHV6Qw5_.js";var t={status:()=>e.get(`/identity-verifications/status`),submit:async t=>{await e.post(`/identity-verifications`,{cinNumber:t})}};export{t};
+//# sourceMappingURL=verification-C_p3amH0.js.map

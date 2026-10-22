@@ -1,0 +1,2 @@
+var e=(e,t)=>typeof e==`string`&&e.trim()!==``?e.trim():t,t=(e,t)=>{let n=Number(e);return Number.isFinite(n)&&n>0?n:t},n=e(void 0,`/api/v1`),r=e=>{try{let t=new URL(e).hostname;return t===`localhost`||t===`127.0.0.1`||t===`::1`}catch{return!1}},i=e(`https://lurevia-ecommerce.onrender.com/api/v1`,`/api/v1`),a=(r(i)?n:i).replace(/\/+$/,``),o=e(void 0,``),s=e(void 0,``),c=t(void 0,15e3),l=t(void 0,5),u=t(void 0,8e3),d=t(void 0,25e4);export{c as a,s as i,o as n,l as o,d as r,u as s,a as t};
+//# sourceMappingURL=env-BUXK81-b.js.map

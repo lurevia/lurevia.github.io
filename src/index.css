@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-lurevia-cyan: #0284C7;
+  --clr-lurevia-cyan: #0284C7;
   --color-lurevia-blue-50: #F8FAFC;
   --color-lurevia-blue-100: #EFF6FF;
   --color-lurevia-blue-200: #DBEAFE;

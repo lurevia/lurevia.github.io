@@ -49,12 +49,6 @@ export const AuthPage: FC = () => {
 
   const isLogin = form.mode === "login";
 
-  const handleFillDemo = () => {
-    form.switchMode("login");
-    form.setLoginEmail("razafimanantsoaamarah@gmail.com");
-    form.setLoginPassword("Mahery123456789.");
-    form.setError(null);
-  };
 
   const handleSocialLogin = async (provider: OAuthProvider) => {
     setIsSocialSubmitting(true);
@@ -125,23 +119,6 @@ export const AuthPage: FC = () => {
                 ? "Connectez-vous pour accéder à vos sélections et vos créations."
                 : "Créez votre compte en quelques instants."}
             </p>
-          </div>
-
-          {/* Badge démo rapide */}
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 flex items-center justify-between gap-3">
-            <div>
-              <p className="font-bold text-amber-300">Compte Test Disponible</p>
-              <p className="text-[11px] text-stone-300 truncate max-w-[210px] sm:max-w-xs">
-                razafimanantsoaamarah@gmail.com
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-500 text-black font-extrabold text-[11px] hover:bg-amber-400 transition cursor-pointer shadow-sm"
-            >
-              Remplir
-            </button>
           </div>
 
           {reason && (

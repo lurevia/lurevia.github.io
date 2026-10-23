@@ -62,7 +62,7 @@ export const ProfilePersonalInfo = ({
           Genre
         </label>
         <Select
-          value={gender}
+          value={gender ?? ""}
           onChange={(event) => setGender(event.target.value as User["gender"])}
         >
           <option value="MALE">Homme</option>

@@ -24,12 +24,12 @@ export const AuthProviderButtons = ({
   onSignup,
 }: AuthProviderButtonsProps) => (
   <>
-    <div className="relative py-4">
+    <div className="relative py-3">
       <div className="absolute inset-0 flex items-center">
-        <div className="w-full border-t border-slate-200" />
+        <div className="w-full border-t border-stone-800" />
       </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-white px-2 text-slate-400">
+        <span className="bg-stone-900 px-3 text-[11px] font-bold tracking-wider text-stone-500">
           {isLogin ? "Ou continuer avec" : "S'inscrire avec"}
         </span>
       </div>
@@ -43,8 +43,8 @@ export const AuthProviderButtons = ({
           disabled={disabled}
           className={[
             "flex cursor-pointer items-center justify-center gap-2 rounded-xl",
-            "border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold",
-            "text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100",
+            "border border-stone-700/80 bg-stone-800/80 px-4 py-2.5 text-xs font-bold",
+            "text-stone-200 transition-colors hover:bg-stone-700 hover:border-stone-600 active:bg-stone-800",
             "disabled:cursor-not-allowed disabled:opacity-50",
           ].join(" ")}
         >
